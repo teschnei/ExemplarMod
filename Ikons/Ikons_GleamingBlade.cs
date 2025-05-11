@@ -49,8 +49,8 @@ public class Ikons_GleamingBlade
                     "Flowing Spirit Strike",
                     [Trait.Aasimar, ModTraits.Ikon, ModTraits.Transcendence],
                     "Make two Strikes with the gleaming blade against the same target. If both hit, combine their damage as spirit damage.",
-                    Target.AdjacentCreature()
-                ).WithActionCost(2);
+                    Target.ReachWithAnyWeapon() //since it checks to make sure your trans weapon is equpped, and all reach weapons as 2-handed should be okay maybe.
+                ).WithActionCost(2);    
 
                 flowSpiritStrike.WithEffectOnEachTarget(async (mainAction, caster, target, _) =>
                 {

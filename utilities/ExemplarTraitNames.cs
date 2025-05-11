@@ -52,8 +52,12 @@ namespace Dawnsbury.Mods.Classes.Exemplar
             ModManager.RegisterFeatName("IkonTitansBreaker", "Titans Breaker");
         internal static readonly FeatName IkonUnfailingBow =
             ModManager.RegisterFeatName("IkonUnfailingBow", "Unfailing Bow");
+
+        //non-ikon feats
         public static readonly FeatName FeatEnergizedSpark =
             ModManager.RegisterFeatName("FeatEnergizedSpark", "Energized Spark");
+        public static readonly FeatName FeatHurlAtTheHorizon =
+            ModManager.RegisterFeatName("FeatHurlAtTheHorizon", "Hurl At The Horizon");
 
         // …and so on for every Ikon
     }

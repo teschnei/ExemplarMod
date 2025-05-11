@@ -71,9 +71,11 @@ public static class ExemplarIkonQEffectIds
     //unfailingbow
     public static readonly QEffectId QEmpoweredUnfailingBow = ModManager.RegisterEnumMember<QEffectId>("UnfailingBow");
 
-    //feats
+    //non-ikon feats
     public static readonly QEffectId QEnergizedSpark =
         ModManager.RegisterEnumMember<QEffectId>("EnergizedSpark");
+    public static readonly QEffectId QHurlAtTheHorizon =
+        ModManager.RegisterEnumMember<QEffectId>("HurlAtTheHorizon");
 
     //BELOW HERE IS ONLY REQUIRED FOR NEW IKONS, EFFECTS ARE NOT NEEDED.
     public static readonly HashSet<QEffectId> EmpoweredIkonIds = new()
@@ -97,9 +99,7 @@ public static class ExemplarIkonQEffectIds
         QEmpoweredTitansBreaker,
         QEmpoweredUnfailingBow
     };
-
-
-    // *** Here's the important new function ***
+    // Add more Ikon IDs as you add more Ikons
     public static QEffectId GetEmpowermentIdForIkon(string ikonName)
         {
             return ikonName switch

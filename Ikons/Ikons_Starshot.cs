@@ -57,7 +57,7 @@ namespace Dawnsbury.Mods.Exemplar
                     int dieSize = action.Item.WeaponProperties.DamageDieSize;
                     // build a formula like “2d8” for two d8s, etc.
                     var splashFormula = DiceFormula.FromText(
-                        $"1*{diceCount}",
+                        $"{diceCount*1}",
                         "Starshot splash"
                     );
                     

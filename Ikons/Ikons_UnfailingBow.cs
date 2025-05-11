@@ -121,6 +121,18 @@ namespace Dawnsbury.Mods.Exemplar
                         */
 
                         // Repeat the strike with forced result
+                        if (prev.Item == null || prev.ChosenTargets == null)
+                        {
+                            self.Occupies.Overhead(
+                                prev.Item == null 
+                                    ? "The previous action's item is invalid." 
+                                    : "No valid targets to repeat the shot.",
+                                Microsoft.Xna.Framework.Color.Orange
+                            );
+                            self.Actions.RevertExpendingOfResources(1, act);
+                            return;
+                        }
+
                         var repeat = self.CreateStrike(prev.Item);
                         repeat.ChosenTargets = prev.ChosenTargets;
                         await repeat.AllExecute();
