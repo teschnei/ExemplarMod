@@ -12,6 +12,7 @@ using Dawnsbury.Core.Mechanics.Enumerations;
 using Dawnsbury.Core.Mechanics.Targeting;
 using Dawnsbury.Core.Possibilities;
 using Dawnsbury.Core.Roller;
+using Dawnsbury.Display;
 using Dawnsbury.Display.Illustrations;
 using Dawnsbury.Modding;
 using Dawnsbury.Mods.Classes.Exemplar;
@@ -57,10 +58,10 @@ namespace Dawnsbury.Mods.Exemplar
                     int dieSize = action.Item.WeaponProperties.DamageDieSize;
                     // build a formula like “2d8” for two d8s, etc.
                     var splashFormula = DiceFormula.FromText(
-                        $"{diceCount*1}",
+                        $"{diceCount * 1}",
                         "Starshot splash"
                     );
-                    
+
                     DamageKind damageKind = DamageKind.Untyped;
                     var fx = qf.Owner.QEffects
                         .FirstOrDefault(e => e.Id == ExemplarIkonQEffectIds.QEnergizedSpark);
@@ -76,6 +77,15 @@ namespace Dawnsbury.Mods.Exemplar
                         target,
                         damageKind
                     );
+
+                    if (action.CheckResult > CheckResult.Failure) // If the strike also at least succeeded,
+                    {
+                        foreach (Creature temp in selfQf.Owner.Battle.AllCreatures.Where(cr =>
+                            action.ChosenTargets.ChosenCreature.IsAdjacentTo(cr))) // Loop through all adjacent creatures,
+                        {
+                            await CommonSpellEffects.DealDirectSplashDamage(action, splashFormula, temp, DamageKind.Bludgeoning);
+                        }
+                    }
                 };  // (pattern from Gleaming Blade's AfterYouTakeAction)
 
                 // Transcendence: Giant-Felling Comet
@@ -90,19 +100,18 @@ namespace Dawnsbury.Mods.Exemplar
                         "Giant-Felling Comet",
                         new[] { ModTraits.Ikon, ModTraits.Transcendence },
                         "You shoot the starshot, causing a detonation in a 5-foot burst within 60 feet. Each creature must make a Reflex save or take spirit damage equal to your Strike damage.",
-                        Target.Ranged(60)
+                        Target.Burst(12, 1)
                     ).WithActionCost(2);
 
+                    // RulesBlock.GetIconTextFromNumberOfActions(2);
+                    
                     // Basic Reflex save against your class DC
                     action.WithSavingThrow(new SavingThrow(
-                        Defense.Reflex, qf.Owner.ClassOrSpellDC()
+                        Defense.Reflex, qf.Owner.ClassDC()
                     ));
 
                     action.WithEffectOnEachTarget(async (act, caster, target, result) =>
                     {
-                        if (result < CheckResult.Success)
-                            return;
-
                         // Find your starshot weapon's dice
                         var weapon = caster.HeldItems
                             .FirstOrDefault(i => i.WeaponProperties?.Melee == false && i.HasTrait(Trait.Ranged));
@@ -124,13 +133,13 @@ namespace Dawnsbury.Mods.Exemplar
                         {
                             damageKind = kind;
                         }
-
                         //  ▸ 5-arg overload: (CombatAction? power, DiceFormula damage, Creature target, CheckResult checkResult, DamageKind kind)
-                        await CommonSpellEffects.DealDirectDamage(
+                        await CommonSpellEffects.DealBasicDamage(
                             act,        // the CombatAction
-                            df,         // dice formula
+                            caster,     // who is casting
                             target,     // who to damage
                             result,     // your save result
+                            df,         // dice formula
                             damageKind
                         );
 

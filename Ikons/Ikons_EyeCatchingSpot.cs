@@ -83,7 +83,7 @@ namespace Dawnsbury.Mods.Exemplar
                     .WithActionCost(2)
                     // Use the built-in saving‐throw helper:
                     .WithSavingThrow(new SavingThrow(
-                        Defense.Will, qf.Owner.ClassOrSpellDC()
+                        Defense.Will, qf.Owner.ClassDC()
                     ))
                     .WithEffectOnEachTarget(async (act, caster, target, result) =>
                     {

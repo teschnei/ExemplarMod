@@ -119,6 +119,14 @@ namespace Dawnsbury.Mods.Exemplar
                         {
                             damageKind = kind;
                         }
+                        // await CommonSpellEffects.DealAttackRollDamage(
+                        //     act,
+                        //     self,
+                        //     target,
+                        //     result,
+                        //     formula,
+                        //     damageKind
+                        // );
                         await CommonSpellEffects.DealDirectDamage(
                             action,
                             formula,

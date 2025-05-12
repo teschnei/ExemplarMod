@@ -61,7 +61,7 @@ namespace Dawnsbury.Mods.Exemplar
                                 {
                                     if (!action.HasTrait(Trait.Move))
                                         return;
-                                    var save =  CommonSpellEffects.RollSavingThrow(foe,action,Defense.Will,q.Owner.ClassOrSpellDC());
+                                    var save =  CommonSpellEffects.RollSavingThrow(foe,action,Defense.Will,q.Owner.ClassDC());
                                     if (save.ToString() == "critical failure" || save.ToString() == "failure")
                                     {
                                         action.RevertRequested = true;
@@ -88,7 +88,7 @@ namespace Dawnsbury.Mods.Exemplar
                         "Choose an enemy within 20 feet. It must succeed at a Will save or be pulled to a square adjacent to you.",
                         Target.Ranged(20)
                     ).WithActionCost(1)
-                     .WithSavingThrow(new SavingThrow(Defense.Will, qf.Owner.ClassOrSpellDC()))
+                     .WithSavingThrow(new SavingThrow(Defense.Will, qf.Owner.ClassDC()))
                      .WithEffectOnEachTarget(async (act, caster, target, result) =>
                     {
 

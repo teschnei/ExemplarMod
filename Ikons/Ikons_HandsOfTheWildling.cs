@@ -66,7 +66,7 @@ namespace Dawnsbury.Mods.Exemplar
                         Target.Cone(15)
                     )
                     .WithActionCost(2)
-                    .WithSavingThrow(new SavingThrow(Defense.Will, qf.Owner.ClassOrSpellDC()))
+                    .WithSavingThrow(new SavingThrow(Defense.Will, qf.Owner.ClassDC()))
                     .WithEffectOnEachTarget(async (act, caster, target, result) =>
                     {
                         int diceCount = 1;
