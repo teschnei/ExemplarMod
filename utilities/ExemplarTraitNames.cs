@@ -60,7 +60,8 @@ namespace Dawnsbury.Mods.Classes.Exemplar
             ModManager.RegisterFeatName("FeatHurlAtTheHorizon", "Hurl At The Horizon");
         public static readonly FeatName FeatLeapTheFalls =
             ModManager.RegisterFeatName("FeatLeapTheFalls", "Leap The Falls");
-
+        public static readonly FeatName FeatSteelOnSteel =
+            ModManager.RegisterFeatName("FeatSteelOnSteel", "Steel On Steel");
         // …and so on for every Ikon
     }
 }

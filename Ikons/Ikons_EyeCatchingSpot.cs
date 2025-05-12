@@ -37,9 +37,9 @@
 //                 "{b}Immanence{/b} Your beauty becomes supernaturally enhanced, distracting foes and imposing a –1 circumstance penalty to melee attack rolls against you.\n\n" +
 //                 "{b}Transcendence — Captivating Charm (two-actions){/b} Concentrate, Emotion, Mental, Transcendence, Visual\n" +
 //                 "You focus your attention on a creature within 30 feet, overwhelming its senses. The creature must succeed at a Will save against your class DC or be fascinated by you until the start of your next turn. The condition ends if you use a hostile action against the target, but not if you use one against its allies.",
-//                 [ModTraits.Ikon],
+//                 [ModTraits.Ikon, ModTraits.BodyIkon],
 //                 null
-//             )
+//             ).WithMultipleSelection()
 //             .WithPermanentQEffect(null, qf =>
 //             {
 //                 // Immanence: impose –1 circumstance penalty to melee attacks against you

@@ -76,7 +76,11 @@ public static class ExemplarIkonQEffectIds
         ModManager.RegisterEnumMember<QEffectId>("EnergizedSpark");
     public static readonly QEffectId QHurlAtTheHorizon =
         ModManager.RegisterEnumMember<QEffectId>("HurlAtTheHorizon");
-
+    public static readonly QEffectId QLeapTheFalls =
+        ModManager.RegisterEnumMember<QEffectId>("LeapTheFalls");
+    public static readonly QEffectId QSteelOnSteel =
+        ModManager.RegisterEnumMember<QEffectId>("SteelOnSteel");
+        
     //BELOW HERE IS ONLY REQUIRED FOR NEW IKONS, EFFECTS ARE NOT NEEDED.
     public static readonly HashSet<QEffectId> EmpoweredIkonIds = new()
     {

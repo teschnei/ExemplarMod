@@ -83,8 +83,8 @@ namespace Dawnsbury.Mods.Exemplar
                 "You gain resistance equal to half your level to that damage type.\n\n" +
                 "{b}Transcendence — Survive the Wilds (one-action){/b} Wrapping the pelt, you may re-attune. " +
                 "You and allies in 15-ft. emanation gain +2 circumstance bonus to AC & saves vs. that damage type until the start of your next turn.",
-                new[] { ModTraits.Ikon }, null
-            )
+                new[] { ModTraits.Ikon, ModTraits.BodyIkon }, null
+            ).WithMultipleSelection()
             // 4) Morning-prep dropdown
             .WithOnSheet(sheet =>
             {

@@ -31,9 +31,9 @@ namespace Dawnsbury.Mods.Exemplar
                 "An enemy in the aura that attempts to move away from you must succeed at a Will save against your class DC or its move action is disrupted.\n\n" +
                 "{b}Transcendence — Embrace of Destiny (one-action){/b} Mental, Spirit, Transcendence\n" +
                 "Choose an enemy within 20 feet of you. It must succeed at a Will save against your class DC or be pulled directly toward you into a square adjacent to you.",
-                new[] { ModTraits.Ikon },
+                new[] { ModTraits.Ikon , ModTraits.BodyIkon},
                 null
-            )
+            ).WithMultipleSelection()
             .WithPermanentQEffect(null, qf =>
             {
                 // Immanence: aura that disrupts enemy movement

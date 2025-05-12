@@ -14,6 +14,7 @@ using Dawnsbury.Core.Roller;
 using Dawnsbury.Display.Illustrations;
 using Dawnsbury.Modding;
 using Dawnsbury.Mods.Classes.Exemplar;
+using Dawnsbury.Mods.Exemplar.Utilities;
 using Microsoft.Xna.Framework;
 
 namespace Dawnsbury.Mods.Exemplar
@@ -35,7 +36,7 @@ namespace Dawnsbury.Mods.Exemplar
                 "You channel a rending pulse of energy down your weapon in the moment of contact. The target of the Strike takes spirit damage equal to the noble branch's weapon damage dice.",
                 new[] { ModTraits.Ikon },
                 null
-            )
+            ).WithMultipleSelection()
             .WithPermanentQEffect(null, qf =>
             {
                 // Immanence: +2 spirit per die
@@ -111,14 +112,9 @@ namespace Dawnsbury.Mods.Exemplar
 
                         // 4) Re-deal that as spirit damage against your original target
                         var target = prev.ChosenTargets.ChosenCreature!;
-                        DamageKind damageKind = DamageKind.Untyped;
-                        var fx = self.QEffects
-                            .FirstOrDefault(e => e.Id == ExemplarIkonQEffectIds.QEnergizedSpark);
-                        if (fx != null &&
-                            Enum.TryParse<DamageKind>(fx.Key, out var kind))
-                        {
-                            damageKind = kind;
-                        }
+                        
+                        DamageKind damageKind = DamageKindHelper.GetDamageKindFromEffect(qf.Owner, ExemplarIkonQEffectIds.QEnergizedSpark);   
+                        
                         await CommonSpellEffects.DealDirectDamage(act, formula, target, prev.CheckResult, damageKind);
 
                         // 5) Clean up empowerment and grant free Shift (and exhaustion-tracker)

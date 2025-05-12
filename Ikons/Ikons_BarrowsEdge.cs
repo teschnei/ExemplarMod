@@ -43,7 +43,7 @@ public class Ikons_BarrowsEdge
             "{b}Transcendence — Drink of my Foes (one-action){/b} [Requirements] Your last action was a successful Strike with the barrow's edge. Your blade glows as it absorbs your foe's vitality. You regain Hit Points equal to half the damage dealt.",
             [ModTraits.Ikon],
             null
-        )
+        ).WithMultipleSelection()
         .WithPermanentQEffect(null, qf =>
         {
 
@@ -87,6 +87,7 @@ public class Ikons_BarrowsEdge
             {
                 if (qf.Owner.HasEffect(ExemplarIkonQEffectIds.TranscendenceTracker) || !qf.Owner.HasEffect(ExemplarIkonQEffectIds.QEmpoweredBarrowsEdge))
                     return null;
+                    
                 CombatAction action = new CombatAction(
                     qf.Owner,
                     IllustrationName.Scythe,

@@ -13,6 +13,7 @@ using Dawnsbury.Core.Roller;
 using Dawnsbury.Display.Illustrations;
 using Dawnsbury.Modding;
 using Dawnsbury.Mods.Classes.Exemplar;
+using Dawnsbury.Mods.Exemplar.Utilities;
 
 namespace Dawnsbury.Mods.Exemplar
 {
@@ -34,9 +35,9 @@ namespace Dawnsbury.Mods.Exemplar
                 "{b}Immanence{/b} Your vision sharpens and allows you to sense an enemy's attack almost as soon as it begins, granting you a +1 status bonus to Perception checks and a +2 status bonus to your AC against ranged attacks.\n\n" +
                 "{b}Transcendence — A Moment Unending (one-action){/b} Concentrate, Prediction, Transcendence\n" +
                 "You take in every movement around you, affording you unparalleled accuracy. Your next successful Strike against an enemy before the end of your next turn deals an additional 1d6 precision damage (2d6 at 10th level, 3d6 at 18th).",
-                new[] { ModTraits.Ikon },
+                new[] { ModTraits.Ikon , ModTraits.BodyIkon},
                 null
-            )
+            ).WithMultipleSelection()
             .WithPermanentQEffect(null, qf =>
             {
                 // Immanence: Perception and AC vs ranged
@@ -80,14 +81,7 @@ namespace Dawnsbury.Mods.Exemplar
                                 if (!strikeAction.HasTrait(Trait.Strike)) 
                                     return null;
                                 
-                                DamageKind damageKind = DamageKind.Untyped;
-                                var fx = self.QEffects
-                                    .FirstOrDefault(e => e.Id == ExemplarIkonQEffectIds.QEnergizedSpark);
-                                if (fx != null && 
-                                    Enum.TryParse<DamageKind>(fx.Key, out var kind))
-                                {
-                                    damageKind = kind;
-                                }
+                                DamageKind damageKind = DamageKindHelper.GetDamageKindFromEffect(self, ExemplarIkonQEffectIds.QEnergizedSpark);
                                 int diceCount = self.Level >= 18 ? 3 : self.Level >= 10 ? 2 : 1;
                                 return (DiceFormula.FromText($"{diceCount}d6", "Moment Unending"), damageKind);
                             }

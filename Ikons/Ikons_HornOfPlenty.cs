@@ -35,7 +35,7 @@ namespace Dawnsbury.Mods.Exemplar
                 "If it would restore Hit Points, you may divide the healing between you and the ally after rolling.",
                 new[] { ModTraits.Ikon },
                 null
-            )
+            ).WithMultipleSelection()
             .WithPermanentQEffect(null, qf =>
             {
                 qf.ProvideMainAction = qf =>

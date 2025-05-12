@@ -39,7 +39,7 @@ public class Ikons_BandsOfImprisonment
             "{b}Transcendence — Break Free (two-actions){/b} You can attempt to Escape with a +2 status bonus on your check, then Stride up to twice your Speed in a straight line, and finally make a melee Strike. If you don't need to Escape or you can't move or choose not to, you still take the other actions listed.",
             [ModTraits.Ikon],
             null
-        )
+        ).WithMultipleSelection()
         .WithPermanentQEffect(null, qf =>
         {
             qf.ProvideMainAction = qf =>
@@ -52,14 +52,14 @@ public class Ikons_BandsOfImprisonment
                     owner,
                     IllustrationName.FreedomOfMovement,
                     "Break Free",
-                    [Trait.Move, Trait.Attack, ModTraits.Ikon, ModTraits.Transcendence],
+                    [Trait.Move, Trait.Attack, ModTraits.Ikon, ModTraits.Transcendence, ModTraits.BodyIkon],
                     "You attempt to Escape, then Stride up to twice your Speed in a straight line, and finally make a melee Strike.",
                     Target.Self()
                 ).WithActionCost(2);
 
                 _ = action.WithEffectOnSelf(async (action, self) =>
                 {
-                    if (qf.Owner.HasEffect(ExemplarIkonQEffectIds.TranscendenceTracker) || !qf.Owner.HasEffect(ExemplarIkonQEffectIds.QEmpoweredThousandLeagueSandals))
+                    if (qf.Owner.HasEffect(ExemplarIkonQEffectIds.TranscendenceTracker) || !qf.Owner.HasEffect(ExemplarIkonQEffectIds.QEmpoweredBandsOfImprisonment))
                         return;
 
                     // Attempt Escape with +2 status bonus

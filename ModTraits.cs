@@ -19,5 +19,21 @@ public static class ModTraits
         {
             IsClassTrait = false
         });
+    //add one to seperate the body ikons.
+    public static readonly Trait BodyIkon = ModManager.RegisterTrait(
+        "BodyIkon",
+        new TraitProperties("Body Ikon", true)
+        {
+            IsClassTrait = false
+        });
+    
+    //technical traits for hurl at the horizon
+    public static readonly Trait hurlAtTheHorizon = ModManager.RegisterTrait(
+        "hurlAtTheHorizon",
+        new TraitProperties("THurlAtTheHorizon", false)
+        {
+            IsClassTrait = false
+        });
+    
     // Add more custom traits here if needed later
 }

@@ -16,6 +16,7 @@ using Dawnsbury.Display;
 using Dawnsbury.Display.Illustrations;
 using Dawnsbury.Modding;
 using Dawnsbury.Mods.Classes.Exemplar;
+using Dawnsbury.Mods.Exemplar.Utilities;
 using Microsoft.Xna.Framework;
 
 namespace Dawnsbury.Mods.Exemplar
@@ -40,7 +41,7 @@ namespace Dawnsbury.Mods.Exemplar
                 "[Not implemented] Creatures larger than you take a –2 circumstance penalty to their saving throws. This shot requires any ammunition that would normally be required.",
                 new[] { ModTraits.Ikon },
                 null
-            )
+            ).WithMultipleSelection()
             .WithPermanentQEffect(null, qf =>
             {
                 // Immanence: extra spirit splash damage per weapon die
@@ -62,14 +63,8 @@ namespace Dawnsbury.Mods.Exemplar
                         "Starshot splash"
                     );
 
-                    DamageKind damageKind = DamageKind.Untyped;
-                    var fx = qf.Owner.QEffects
-                        .FirstOrDefault(e => e.Id == ExemplarIkonQEffectIds.QEnergizedSpark);
-                    if (fx != null &&
-                        Enum.TryParse<DamageKind>(fx.Key, out var kind))
-                    {
-                        damageKind = kind;
-                    }
+                    DamageKind damageKind = DamageKindHelper.GetDamageKindFromEffect(qf.Owner, ExemplarIkonQEffectIds.QEnergizedSpark);   
+                    
                     // now call the 4-arg overload:
                     await CommonSpellEffects.DealDirectSplashDamage(
                         action,
@@ -125,14 +120,8 @@ namespace Dawnsbury.Mods.Exemplar
                         int dieSize = weapon.WeaponProperties.DamageDieSize;
                         var df = DiceFormula.FromText($"{diceCount}d{dieSize}", "Giant-Felling Comet");
 
-                        DamageKind damageKind = DamageKind.Untyped;
-                        var fx = caster.QEffects
-                            .FirstOrDefault(e => e.Id == ExemplarIkonQEffectIds.QEnergizedSpark);
-                        if (fx != null &&
-                            Enum.TryParse<DamageKind>(fx.Key, out var kind))
-                        {
-                            damageKind = kind;
-                        }
+                        DamageKind damageKind = DamageKindHelper.GetDamageKindFromEffect(qf.Owner, ExemplarIkonQEffectIds.QEnergizedSpark);   
+
                         //  ▸ 5-arg overload: (CombatAction? power, DiceFormula damage, Creature target, CheckResult checkResult, DamageKind kind)
                         await CommonSpellEffects.DealBasicDamage(
                             act,        // the CombatAction

@@ -15,6 +15,7 @@ using Dawnsbury.Mods.Classes.Exemplar;
 using Dawnsbury.Core.Mechanics.Targeting;
 using Dawnsbury.Core.Roller;
 using Dawnsbury.Core.Mechanics;
+using Dawnsbury.Mods.Exemplar.Utilities;
 /*
     TODO:
     Currently this completely rewrites the damage type to be spirit / untyped, however
@@ -41,7 +42,7 @@ namespace Dawnsbury.Mods.Exemplar
                 "If it hits, you deal increased spirit damage as described.",
                 new[] { ModTraits.Ikon },
                 null
-            )
+            ).WithMultipleSelection()
             .WithPermanentQEffect(null, qf =>
             {
                 // Immanence: extra spirit damage per die
@@ -110,23 +111,8 @@ namespace Dawnsbury.Mods.Exemplar
                         // Build formula: (baseDice + extraDiceCount)d(dieSize) + flatBonus
                         int totalDice = baseDice + extraDiceCount;
                         var formula = DiceFormula.FromText($"{totalDice}d{dieSize}+{flatBonus}", "Fracture Mountains");
-                        DamageKind damageKind = DamageKind.Untyped;
-
-                        var fx = qf.Owner.QEffects
-                            .FirstOrDefault(e => e.Id == ExemplarIkonQEffectIds.QEnergizedSpark);
-                        if (fx != null &&
-                            Enum.TryParse<DamageKind>(fx.Key, out var kind))
-                        {
-                            damageKind = kind;
-                        }
-                        // await CommonSpellEffects.DealAttackRollDamage(
-                        //     act,
-                        //     self,
-                        //     target,
-                        //     result,
-                        //     formula,
-                        //     damageKind
-                        // );
+                        DamageKind damageKind = DamageKindHelper.GetDamageKindFromEffect(qf.Owner, ExemplarIkonQEffectIds.QEnergizedSpark);   
+                        
                         await CommonSpellEffects.DealDirectDamage(
                             action,
                             formula,

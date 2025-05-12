@@ -76,9 +76,9 @@ namespace Dawnsbury.Mods.Exemplar
                 "Until the start of your next turn, you gain a status bonus to AC equal to your level against the same type. " +
                 "Additionally, if an enemy attacks you with that type and either misses or deals zero damage because of this bonus, " +
                 "[Not Implemented] that creature takes a –2 circumstance penalty to further attacks with that weapon until its next turn.",
-                new[] { ModTraits.Ikon },
+                new[] { ModTraits.Ikon , ModTraits.BodyIkon},
                 null
-            )
+            ).WithMultipleSelection()
             // 4) Morning-prep dropdown
             .WithOnSheet(sheet =>
             {
@@ -97,8 +97,6 @@ namespace Dawnsbury.Mods.Exemplar
             // 5) Permanent QEffect: half-level AC bonus vs. attuned type
             .WithPermanentQEffect(null, qf =>
             {
-                qf.Id = ExemplarIkonQEffectIds.QEmpoweredSkinHardAsHorn;
-                qf.Key = "SkinHardAsHorn";
 
                 // Immanence: +½ level AC bonus vs. that weapon type
                 qf.BonusToDefenses = (eff, action, def) =>

@@ -54,7 +54,7 @@ namespace Dawnsbury.Mods.Exemplar
                 "This Strike uses the same multiple attack penalty as your previous Strike, but counts toward your multiple attack penalty as normal.",
                 new[] { ModTraits.Ikon },
                 null
-            )
+            ).WithMultipleSelection()
             .WithPermanentQEffect(null, qf =>
             {
                 // Immanence: apply persistent spirit damage per die

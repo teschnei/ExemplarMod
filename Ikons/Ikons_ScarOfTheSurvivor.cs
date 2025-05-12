@@ -28,9 +28,9 @@ namespace Dawnsbury.Mods.Exemplar
                 "{b}Immanence{/b} Divine energy spreads outward from your scar, reinforcing your flesh. You gain the benefits of the Diehard feat and a +1 status bonus to Fortitude saving throws.\n\n" +
                 "{b}Transcendence — No Scar but This (one-action){/b} Concentrate, Healing, Transcendence, Vitality\n" +
                 "Your wounds knit shut with hardly a scratch. You regain 1d8 Hit Points. At 3rd level and every 2 levels thereafter, the healing increases by 1d8.",
-                new[] { ModTraits.Ikon },
+                new[] { ModTraits.Ikon, ModTraits.BodyIkon },
                 null
-            )
+            ).WithMultipleSelection()
             .WithPermanentQEffect(null, qf =>
             {
                 // Immanence: +1 to Fortitude saves, but only when not yet empowered

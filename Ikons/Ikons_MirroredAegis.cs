@@ -32,7 +32,7 @@ namespace Dawnsbury.Mods.Exemplar
                 "{b}Transcendence — Raise the Walls (one action){/b} You and one ally within 15 feet gain +1 status bonus to AC, Reflex, and saves against force, spirit, vitality, and void for 1 minute.",
                 [ModTraits.Ikon],
                 null
-            )
+            ).WithMultipleSelection()
             .WithPermanentQEffect(null, qf =>
             {
                 // Immanence aura

@@ -13,6 +13,7 @@ using Dawnsbury.Core.Possibilities;
 using Dawnsbury.Core.Roller;
 using Dawnsbury.Modding;
 using Dawnsbury.Mods.Classes.Exemplar;
+using Dawnsbury.Mods.Exemplar.Utilities;
 
 namespace Dawnsbury.Mods.Exemplar;
 
@@ -35,7 +36,7 @@ public class Ikons_GleamingBlade
             "{b}Transcendence — Flowing Spirit Strike (two-actions){/b} Make two Strikes with the gleaming blade, each against the same target and using your current multiple attack penalty. If the gleaming blade doesn't have the agile trait, the second Strike takes a –2 penalty. If both attacks hit, you combine their damage, which is all dealt as spirit damage. You add any precision damage only once. Combine the damage from both Strikes and apply resistances and weaknesses only once. This counts as two attacks when calculating your multiple attack penalty.",
             [ModTraits.Ikon],
             null
-        )
+        ).WithMultipleSelection()
         .WithPermanentQEffect(null, qf =>
         {
             // Provide the 2-action Transcendence
@@ -91,14 +92,8 @@ public class Ikons_GleamingBlade
 
                     DiceFormula combined = DiceFormula.FromText($"{dice * 2}d{diceSize}", "Flowing Spirit Strike");
 
-                    DamageKind damageKind = DamageKind.Untyped;
-                    var fx = caster.QEffects
-                        .FirstOrDefault(e => e.Id == ExemplarIkonQEffectIds.QEnergizedSpark);
-                    if (fx != null &&
-                        Enum.TryParse<DamageKind>(fx.Key, out var kind))
-                    {
-                        damageKind = kind;
-                    }
+                    DamageKind damageKind = DamageKindHelper.GetDamageKindFromEffect(caster, ExemplarIkonQEffectIds.QEnergizedSpark);
+                    
                     await CommonSpellEffects.DealDirectDamage(flowSpiritStrike, combined, target, result2, damageKind);
                     // After your Transcendence effect finishes:
                     qf.Owner.RemoveAllQEffects(q => q.Id == ExemplarIkonQEffectIds.QEmpoweredGleamingBlade); // or whichever ikon this is
@@ -131,14 +126,8 @@ public class Ikons_GleamingBlade
                 int dice = action.Item.WeaponProperties?.DamageDieCount ?? 1;
                 DiceFormula bonus = DiceFormula.FromText($"{dice * 2}", "Gleaming Blade");
 
-                DamageKind damageKind = DamageKind.Untyped;
-                var fx = qf.Owner.QEffects
-                    .FirstOrDefault(e => e.Id == ExemplarIkonQEffectIds.QEnergizedSpark);
-                if (fx != null &&
-                    Enum.TryParse<DamageKind>(fx.Key, out var kind))
-                {
-                    damageKind = kind;
-                }
+                DamageKind damageKind = DamageKindHelper.GetDamageKindFromEffect(qf.Owner, ExemplarIkonQEffectIds.QEnergizedSpark);   
+                
                 await CommonSpellEffects.DealDirectDamage(
                     action,
                     bonus,

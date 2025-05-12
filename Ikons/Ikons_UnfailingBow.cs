@@ -35,7 +35,7 @@
 //                 "Effect: You repeat your motions exactly, your attack landing in the same location as your previous shot. You make a Strike against the same target using the same d20 result.",
 //                 new[] { ModTraits.Ikon },
 //                 null
-//             )
+//             ).WithMultipleSelection()
 //             .WithPermanentQEffect(null, qf =>
 //             {
 //                 // Immanence: +1 spirit per die; on crit, splash 1d4 per die
@@ -61,14 +61,7 @@
 //                         int dice = action.Item?.WeaponProperties?.DamageDieCount ?? 1;
 //                         var formula = DiceFormula.FromText($"{dice}d4", "Unfailing Bow Crit Splash");
 
-//                         DamageKind damageKind = DamageKind.Untyped;
-//                         var fx = qf.Owner.QEffects
-//                             .FirstOrDefault(e => e.Id == ExemplarIkonQEffectIds.QEnergizedSpark);
-//                         if (fx != null &&
-//                             Enum.TryParse<DamageKind>(fx.Key, out var kind))
-//                         {
-//                             damageKind = kind;
-//                         }
+//                         DamageKind damageKind = DamageKindHelper.GetDamageKindFromEffect(qf.Owner, ExemplarIkonQEffectIds.QEnergizedSpark);   
 
 //                         await CommonSpellEffects.DealDirectDamage(
 //                             action, formula, target, action.CheckResult, damageKind

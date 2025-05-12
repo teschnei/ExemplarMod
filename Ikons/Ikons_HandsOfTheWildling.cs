@@ -16,6 +16,7 @@ using Dawnsbury.Core.Roller;
 using Dawnsbury.Display.Illustrations;
 using Dawnsbury.Modding;
 using Dawnsbury.Mods.Classes.Exemplar;
+using Dawnsbury.Mods.Exemplar.Utilities;
 
 namespace Dawnsbury.Mods.Exemplar
 {
@@ -37,9 +38,9 @@ namespace Dawnsbury.Mods.Exemplar
                 "{b}Transcendence — Feral Swing (two-actions){/b} Spirit, Transcendence\n" +
                 "You lash out with both arms, rending all before you. Each creature in a 15-foot cone must succeed at a basic Reflex save against your class DC or take spirit damage equal to your normal Strike damage with your hands of the wildling. " +
                 "You can choose to swing with abandon, which imposes a –2 circumstance penalty to enemies' saving throws, but causes you to become off-guard until the start of your next turn.",
-                new[] { ModTraits.Ikon },
+                new[] { ModTraits.Ikon , ModTraits.BodyIkon},
                 null
-            )
+            ).WithMultipleSelection()
             .WithPermanentQEffect(null, qf =>
             {
                 // Immanence: extra spirit splash damage per die
@@ -73,14 +74,8 @@ namespace Dawnsbury.Mods.Exemplar
                         int diceSize = 6;
                         var formula = DiceFormula.FromText($"{diceCount}d{diceSize}", "Feral Swing Spirit Damage");
 
-                        DamageKind damageKind = DamageKind.Untyped;
-                        var fx = caster.QEffects
-                            .FirstOrDefault(e => e.Id == ExemplarIkonQEffectIds.QEnergizedSpark);
-                        if (fx != null &&
-                            Enum.TryParse<DamageKind>(fx.Key, out var kind))
-                        {
-                            damageKind = kind;
-                        }
+                        DamageKind damageKind = DamageKindHelper.GetDamageKindFromEffect(qf.Owner, ExemplarIkonQEffectIds.QEnergizedSpark);   
+                        
                         await CommonSpellEffects.DealBasicDamage(act, caster, target, result, formula, damageKind);
 
                         caster.RemoveAllQEffects(q => ExemplarIkonQEffectIds.EmpoweredIkonIds.Contains(q.Id));

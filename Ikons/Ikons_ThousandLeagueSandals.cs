@@ -31,7 +31,7 @@ namespace Dawnsbury.Mods.Exemplar
                 "{b}Transcendence — Marathon Dash (one-action){/b} Your feet carry you so quickly they leave a slipstream that speeds your allies on. You Stride. Each ally who was within 10 feet of you at the start of your movement can Stride as a reaction.",
                 new[] { ModTraits.Ikon },
                 null
-            )
+            ).WithMultipleSelection()
             .WithPermanentQEffect(null, qf =>
             {
                 // Immanence: +10-foot status bonus to Speed, but only while empowered
