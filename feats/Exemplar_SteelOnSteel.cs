@@ -16,6 +16,11 @@ using Dawnsbury.Display.Illustrations;
 using Dawnsbury.Modding;
 using Dawnsbury.Mods.Classes.Exemplar;
 using Dawnsbury.Mods.Exemplar.Utilities;
+using Dawnsbury.Phases.Modals;
+
+/*
+    TODO: I need to implement the ability to choose between a cone or an emanation.
+*/
 
 namespace Dawnsbury.Mods.Exemplar
 {
@@ -30,16 +35,17 @@ namespace Dawnsbury.Mods.Exemplar
                 4,
                 "Steel On Steel",
                 "{b}Transcendence — Ringing Challenge (two-actions){/b} You clang your ikon against a weapon, shield, or the ground, emitting a shock wave that deals 1d4 spirit damage and 1d4 sonic damage to all creatures in a 30-foot cone (basic Fortitude save; a critical failure deafens the target for 1 minute).  At 6th level and every 2 levels thereafter, the spirit and sonic damage each increase by 1d4.",
-                new[]{ ExemplarBaseClass.TExemplar },
+                new[] { ExemplarBaseClass.TExemplar },
                 null
             )
-            .WithOnSheet(sheet =>{
+            .WithOnSheet(sheet =>
+            {
                 sheet.AddSelectionOption(
                     new SingleFeatSelectionOption(
                         key: "SteelOnSteel",
                         name: "Steel On Steel",
                         level: 4,
-                        eligible: ft => ft.Traits.Contains(ModTraits.Ikon) && 
+                        eligible: ft => ft.Traits.Contains(ModTraits.Ikon) &&
                             ft.FeatName != ExemplarFeatNames.FeatSteelOnSteel &&
                             !ft.HasTrait(ModTraits.BodyIkon)
                     )
@@ -59,10 +65,20 @@ namespace Dawnsbury.Mods.Exemplar
                         owner,
                         IllustrationName.SteelShield,
                         "Ringing Challenge",
-                        new[]{ ModTraits.Ikon, Trait.Sonic, ModTraits.Transcendence },
+                        new[] { ModTraits.Ikon, Trait.Sonic, ModTraits.Transcendence },
                         "You clang your ikon, creating a shock wave in a 30-foot cone. Each creature must make a Fortitude save or take spirit and sonic damage; a critical failure deafens them for 1 minute.",
                         Target.Cone(30)
                     ).WithActionCost(2);
+
+                    // Build the two-action Transcendence
+                    // var emanAct = new CombatAction(
+                    //     owner,
+                    //     IllustrationName.SteelShield,
+                    //     "Ringing Challenge",
+                    //     new[] { ModTraits.Ikon, Trait.Sonic, ModTraits.Transcendence },
+                    //     "You clang your ikon, creating a shock wave in a 15-foot emanation. Each creature must make a Fortitude save or take spirit and sonic damage; a critical failure deafens them for 1 minute.",
+                    //     Target.Emanation(15)
+                    // ).WithActionCost(2);
 
                     // Fortitude save against your class DC
                     action.WithSavingThrow(new SavingThrow(Defense.Fortitude, owner.ClassOrSpellDC()));
@@ -79,11 +95,11 @@ namespace Dawnsbury.Mods.Exemplar
                             $"{diceCount}d4",
                             "Ringing Challenge Spirit"
                         );
-                        
+
                         DamageKind damageKind = DamageKindHelper.GetDamageKindFromEffect(caster, ExemplarIkonQEffectIds.QEnergizedSpark);
 
                         await CommonSpellEffects.DealBasicDamage(
-                            act, caster, target, result, spiritFormula ,damageKind
+                            act, caster, target, result, spiritFormula, damageKind
                         );
 
                         // Sonic damage
@@ -92,15 +108,15 @@ namespace Dawnsbury.Mods.Exemplar
                             "Ringing Challenge Sonic"
                         );
                         await CommonSpellEffects.DealBasicDamage(
-                            act, caster, target, result, sonicFormula ,damageKind
+                            act, caster, target, result, sonicFormula, damageKind
                         );
 
                         // Deafened on critical failure
                         if (result == CheckResult.CriticalFailure)
                         {
                             target.AddQEffect(new QEffect(
-                                "Deafened", 
-                                "Deafened by ringing challenge", 
+                                "Deafened",
+                                "Deafened by ringing challenge",
                                 ExpirationCondition.CountsDownAtEndOfYourTurn,
                                 target,
                                 IllustrationName.Deafness
@@ -115,7 +131,8 @@ namespace Dawnsbury.Mods.Exemplar
                         self.AddQEffect(new QEffect(
                             "First Shift Free",
                             "Your next Shift Immanence is free."
-                        ){ Id = ExemplarIkonQEffectIds.FirstShiftFree });
+                        )
+                        { Id = ExemplarIkonQEffectIds.FirstShiftFree });
 
                         self.AddQEffect(new QEffect(
                             "Spark exhaustion",
@@ -123,7 +140,8 @@ namespace Dawnsbury.Mods.Exemplar
                             ExpirationCondition.ExpiresAtStartOfYourTurn,
                             self,
                             IllustrationName.Chaos
-                        ){ Id = ExemplarIkonQEffectIds.TranscendenceTracker });
+                        )
+                        { Id = ExemplarIkonQEffectIds.TranscendenceTracker });
                     });
 
                     return new ActionPossibility(action);
