@@ -13,6 +13,7 @@ using Dawnsbury.Core.Roller;
 using Dawnsbury.Display.Illustrations;
 using Dawnsbury.Modding;
 using Dawnsbury.Mods.Classes.Exemplar;
+using Dawnsbury.Mods.Exemplar.Utilities;
 using Microsoft.Xna.Framework;
 
 namespace Dawnsbury.Mods.Exemplar
@@ -101,16 +102,7 @@ namespace Dawnsbury.Mods.Exemplar
                             //     await target.MoveTo(adj);
                         }
                         // Cleanup empowerment
-                        caster.RemoveAllQEffects(q => ExemplarIkonQEffectIds.EmpoweredIkonIds.Contains(q.Id));
-                        caster.AddQEffect(new QEffect("First Shift Free", "Your next Shift Immanence is free")
-                        {
-                            Id = ExemplarIkonQEffectIds.FirstShiftFree
-                        });
-                        caster.AddQEffect(new QEffect("Spark Exhaustion", "You cannot use another Transcendence this turn.",
-                            ExpirationCondition.ExpiresAtStartOfYourTurn, caster,IllustrationName.Chaos)
-                        {
-                            Id = ExemplarIkonQEffectIds.TranscendenceTracker
-                        });
+                        IkonEffectHelper.CleanupEmpoweredEffects(caster, ExemplarIkonQEffectIds.QEmpoweredFetchingBangles);
                     });
 
                     return new ActionPossibility(action);

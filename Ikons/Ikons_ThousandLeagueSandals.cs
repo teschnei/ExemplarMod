@@ -12,6 +12,7 @@ using Dawnsbury.Core.Possibilities;
 using Dawnsbury.Display.Illustrations;
 using Dawnsbury.Modding;
 using Dawnsbury.Mods.Classes.Exemplar;
+using Dawnsbury.Mods.Exemplar.Utilities;
 
 namespace Dawnsbury.Mods.Exemplar
 {
@@ -81,16 +82,7 @@ namespace Dawnsbury.Mods.Exemplar
                         }
 
                         // Clean up empowerment & grant free shift + exhaustion
-                        self.RemoveAllQEffects(q => ExemplarIkonQEffectIds.EmpoweredIkonIds.Contains(q.Id));
-                        self.AddQEffect(new QEffect("First Shift Free", "Your next Shift Immanence is free")
-                        {
-                            Id = ExemplarIkonQEffectIds.FirstShiftFree
-                        });
-                        self.AddQEffect(new QEffect("Spark exhaustion", "You cannot use another Transcendence this turn",
-                            ExpirationCondition.ExpiresAtStartOfYourTurn, self, IllustrationName.Chaos)
-                        {
-                            Id = ExemplarIkonQEffectIds.TranscendenceTracker
-                        });
+                        IkonEffectHelper.CleanupEmpoweredEffects(self, ExemplarIkonQEffectIds.QEmpoweredThousandLeagueSandals);
                     });
 
                     return new ActionPossibility(action);

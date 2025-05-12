@@ -20,6 +20,7 @@ using Dawnsbury.Display;
 using Dawnsbury.Display.Illustrations;
 using Dawnsbury.Modding;
 using Dawnsbury.Mods.Classes.Exemplar;
+using Dawnsbury.Mods.Exemplar.Utilities;
 using Microsoft.Xna.Framework;
 
 namespace Dawnsbury.Mods.Exemplar;
@@ -80,16 +81,7 @@ public class Ikons_BandsOfImprisonment
                         await CommonCombatActions.StrikeAdjacentCreature(self, null);
                     }
                     // After your Transcendence effect finishes:
-                    _ = qf.Owner.RemoveAllQEffects(q => q.Id == ExemplarIkonQEffectIds.QEmpoweredBandsOfImprisonment); // or whichever ikon this is
-                    _ = qf.Owner.AddQEffect(new QEffect("First Shift Free", "You can Shift Immanence without spending an action.")
-                    {
-                        Id = ExemplarIkonQEffectIds.FirstShiftFree
-                    });
-                    qf.Owner.AddQEffect(new QEffect("Spark exhaustion", "You cannot use another Transcendence this turn",
-                     ExpirationCondition.ExpiresAtStartOfYourTurn, qf.Owner, IllustrationName.Chaos)
-                    {
-                        Id = ExemplarIkonQEffectIds.TranscendenceTracker
-                    });
+                    IkonEffectHelper.CleanupEmpoweredEffects(qf.Owner, ExemplarIkonQEffectIds.QEmpoweredBandsOfImprisonment);
                 });
 
                 return new ActionPossibility(action);

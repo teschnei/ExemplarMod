@@ -118,13 +118,9 @@ namespace Dawnsbury.Mods.Exemplar
                         await CommonSpellEffects.DealDirectDamage(act, formula, target, prev.CheckResult, damageKind);
 
                         // 5) Clean up empowerment and grant free Shift (and exhaustion-tracker)
-                        self.RemoveAllQEffects(q => ExemplarIkonQEffectIds.EmpoweredIkonIds.Contains(q.Id));
                         self.RemoveAllQEffects(q => q.Id == ExemplarIkonQEffectIds.QNobleBranchDamageTracker);
-                        self.AddQEffect(new QEffect("First Shift Free", "Your next Shift Immanence is free.") { Id = ExemplarIkonQEffectIds.FirstShiftFree });
-                        self.AddQEffect(new QEffect("Spark exhaustion", "No more Transcendence this turn.", ExpirationCondition.ExpiresAtStartOfYourTurn, self, IllustrationName.Chaos)
-                        {
-                            Id = ExemplarIkonQEffectIds.TranscendenceTracker
-                        });
+                        IkonEffectHelper.CleanupEmpoweredEffects(self, ExemplarIkonQEffectIds.QEmpoweredNobleBranch);
+
                     });
 
                     return new ActionPossibility(action);

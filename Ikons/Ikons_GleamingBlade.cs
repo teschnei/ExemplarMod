@@ -96,16 +96,7 @@ public class Ikons_GleamingBlade
                     
                     await CommonSpellEffects.DealDirectDamage(flowSpiritStrike, combined, target, result2, damageKind);
                     // After your Transcendence effect finishes:
-                    qf.Owner.RemoveAllQEffects(q => q.Id == ExemplarIkonQEffectIds.QEmpoweredGleamingBlade); // or whichever ikon this is
-                    qf.Owner.AddQEffect(new QEffect("First Shift Free", "You can Shift Immanence without spending an action.")
-                    {
-                        Id = ExemplarIkonQEffectIds.FirstShiftFree
-                    });
-                    qf.Owner.AddQEffect(new QEffect("Spark exhaustion", "You cannot use another Transcendence this turn", ExpirationCondition.ExpiresAtStartOfYourTurn, qf.Owner
-                        , IllustrationName.Chaos)
-                    {
-                        Id = ExemplarIkonQEffectIds.TranscendenceTracker
-                    });
+                    IkonEffectHelper.CleanupEmpoweredEffects(caster, ExemplarIkonQEffectIds.QEmpoweredGleamingBlade);
 
                 });
 

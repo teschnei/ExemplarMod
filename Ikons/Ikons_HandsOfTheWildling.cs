@@ -78,16 +78,8 @@ namespace Dawnsbury.Mods.Exemplar
                         
                         await CommonSpellEffects.DealBasicDamage(act, caster, target, result, formula, damageKind);
 
-                        caster.RemoveAllQEffects(q => ExemplarIkonQEffectIds.EmpoweredIkonIds.Contains(q.Id));
-                        caster.AddQEffect(new QEffect("First Shift Free", "You can Shift Immanence without spending an action.")
-                        {
-                            Id = ExemplarIkonQEffectIds.FirstShiftFree
-                        });
-                        caster.AddQEffect(new QEffect("Spark Exhaustion", "You cannot use another Transcendence this turn.",
-                            ExpirationCondition.ExpiresAtStartOfYourTurn, caster, IllustrationName.Chaos)
-                        {
-                            Id = ExemplarIkonQEffectIds.TranscendenceTracker
-                        });
+                        // Remove the old tracker
+                        IkonEffectHelper.CleanupEmpoweredEffects(caster, ExemplarIkonQEffectIds.QEmpoweredHandsOfTheWildling);
 
                     });
 

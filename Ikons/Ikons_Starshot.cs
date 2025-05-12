@@ -135,25 +135,7 @@ namespace Dawnsbury.Mods.Exemplar
                         // 2) Cleanup & exhaustion
                         action.WithEffectOnSelf(async (act, self) =>
                         {
-                            // remove all the “empowered ikon” markers
-                            self.RemoveAllQEffects(q => ExemplarIkonQEffectIds.EmpoweredIkonIds.Contains(q.Id));
-
-                            // free next Immanence
-                            self.AddQEffect(new QEffect("First Shift Free", "Your next Immanence is free.")
-                            {
-                                Id = ExemplarIkonQEffectIds.FirstShiftFree
-                            });
-
-                            // no further Transcendence this turn
-                            self.AddQEffect(new QEffect(
-                                    "Spark Exhaustion",
-                                    "You cannot use another Transcendence this turn.",
-                                    ExpirationCondition.ExpiresAtStartOfYourTurn,
-                                    self, IllustrationName.Chaos
-                                )
-                            {
-                                Id = ExemplarIkonQEffectIds.TranscendenceTracker
-                            });
+                            IkonEffectHelper.CleanupEmpoweredEffects(self, ExemplarIkonQEffectIds.QEmpoweredStarshot);
                         });
 
                     }); // (pattern from Mortal Harvest's Transcendence)

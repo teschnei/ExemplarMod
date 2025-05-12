@@ -122,17 +122,7 @@ namespace Dawnsbury.Mods.Exemplar
                         );
 
                         // Cleanup: remove empowerment, grant free Shift, apply exhaustion
-                        self.RemoveAllQEffects(q => ExemplarIkonQEffectIds.EmpoweredIkonIds.Contains(q.Id));
-                        self.AddQEffect(new QEffect("First Shift Free", "Your next Shift Immanence is free.")
-                        { Id = ExemplarIkonQEffectIds.FirstShiftFree });
-                        self.AddQEffect(new QEffect(
-                                "Spark Exhaustion",
-                                "You cannot use another Transcendence this turn.",
-                                ExpirationCondition.ExpiresAtStartOfYourTurn,
-                                self,
-                                IllustrationName.Chaos
-                            )
-                        { Id = ExemplarIkonQEffectIds.TranscendenceTracker });
+                        IkonEffectHelper.CleanupEmpoweredEffects(self, ExemplarIkonQEffectIds.QEmpoweredTitansBreaker);
                     });
 
                     return new ActionPossibility(action);

@@ -17,6 +17,7 @@ using Dawnsbury.Core.Mechanics.Core;
 using Dawnsbury.Core.Mechanics.Targeting;
 using System.Reflection.Metadata.Ecma335;
 using Dawnsbury.Display;
+using Dawnsbury.Mods.Exemplar.Utilities;
 
 namespace Dawnsbury.Mods.Exemplar
 {
@@ -186,12 +187,7 @@ namespace Dawnsbury.Mods.Exemplar
                         });
 
                         // Cleanup & exhaustion tracker
-                        self.RemoveAllQEffects(q => ExemplarIkonQEffectIds.EmpoweredIkonIds.Contains(q.Id));
-                        self.AddQEffect(new QEffect("First Shift Free", "Your next Immanence is free.")
-                        { Id = ExemplarIkonQEffectIds.FirstShiftFree });
-                        self.AddQEffect(new QEffect("Crash Exhaustion", "No further Transcendence this turn.",
-                            ExpirationCondition.ExpiresAtStartOfYourTurn, self, IllustrationName.Chaos)
-                        { Id = ExemplarIkonQEffectIds.TranscendenceTracker });
+                        IkonEffectHelper.CleanupEmpoweredEffects(self, ExemplarIkonQEffectIds.QEmpoweredSkinHardAsHorn);
                     });
 
                     return new ActionPossibility(act);

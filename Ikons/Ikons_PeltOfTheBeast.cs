@@ -20,6 +20,7 @@ using Dawnsbury.Auxiliary;
 using Dawnsbury.Core.Animations;
 using System.Reflection.Metadata.Ecma335;
 using Dawnsbury.Display;
+using Dawnsbury.Mods.Exemplar.Utilities;
 
 namespace Dawnsbury.Mods.Exemplar
 {
@@ -216,15 +217,7 @@ namespace Dawnsbury.Mods.Exemplar
 
 
                         // 3) Clean up empowerment + grant your free shift / exhaustion tracker
-                        self.RemoveAllQEffects(q => ExemplarIkonQEffectIds.EmpoweredIkonIds.Contains(q.Id));
-                        self.AddQEffect(new QEffect("First Shift Free", "Your next Immanence is free.")
-                        { Id = ExemplarIkonQEffectIds.FirstShiftFree });
-                        self.AddQEffect(new QEffect(
-                                "Spark Exhaustion",
-                                "You cannot Transcendence again this turn.",
-                                ExpirationCondition.ExpiresAtStartOfYourTurn, self
-                            )
-                        { Id = ExemplarIkonQEffectIds.TranscendenceTracker });
+                        IkonEffectHelper.CleanupEmpoweredEffects(self, ExemplarIkonQEffectIds.QEmpoweredPeltOfTheBeast);
                     });
 
                     return new ActionPossibility(act);

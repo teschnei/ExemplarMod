@@ -21,6 +21,7 @@ using Dawnsbury.Display;
 using Dawnsbury.Display.Illustrations;
 using Dawnsbury.Modding;
 using Dawnsbury.Mods.Classes.Exemplar;
+using Dawnsbury.Mods.Exemplar.Utilities;
 using Microsoft.Xna.Framework;
 
 namespace Dawnsbury.Mods.Exemplar;
@@ -115,17 +116,9 @@ public class Ikons_BarrowsEdge
                     // After your Transcendence effect finishes:
                     int healed = tracker?.Value ?? 0;
 
-                    qf.Owner.RemoveAllQEffects(q => q.Id == ExemplarIkonQEffectIds.QEmpoweredBarrowsEdge); // or whichever ikon this isq
+                    // Remove the tracker
+                    IkonEffectHelper.CleanupEmpoweredEffects(caster, ExemplarIkonQEffectIds.QEmpoweredBarrowsEdge);
                     qf.Owner.RemoveAllQEffects(q => q.Id == ExemplarIkonQEffectIds.QBarrowsEdgeDamageTracker);
-                    qf.Owner.AddQEffect(new QEffect("First Shift Free", "You can Shift Immanence without spending an action.")
-                    {
-                        Id = ExemplarIkonQEffectIds.FirstShiftFree
-                    });
-                    qf.Owner.AddQEffect(new QEffect("Spark exhaustion", "You cannot use another Transcendence this turn",
-                     ExpirationCondition.ExpiresAtStartOfYourTurn, qf.Owner, IllustrationName.Chaos)
-                    {
-                        Id = ExemplarIkonQEffectIds.TranscendenceTracker
-                    });
                     await caster.HealAsync((healed / 2).ToString(), act);
                 });
 

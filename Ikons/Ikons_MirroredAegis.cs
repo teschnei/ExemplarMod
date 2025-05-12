@@ -15,6 +15,7 @@ using Dawnsbury.Core.Possibilities;
 using Dawnsbury.Display.Illustrations;
 using Dawnsbury.Modding;
 using Dawnsbury.Mods.Classes.Exemplar;
+using Dawnsbury.Mods.Exemplar.Utilities;
 using Microsoft.Xna.Framework;
 
 namespace Dawnsbury.Mods.Exemplar
@@ -121,16 +122,7 @@ namespace Dawnsbury.Mods.Exemplar
                             ApplyShield(ally);
 
                         // Remove empowerment and grant free shift
-                        caster.RemoveAllQEffects(q => ExemplarIkonQEffectIds.EmpoweredIkonIds.Contains(q.Id));
-                        caster.AddQEffect(new QEffect("First Shift Free", "You can Shift Immanence without spending an action.")
-                        {
-                            Id = ExemplarIkonQEffectIds.FirstShiftFree
-                        });
-                        qf.Owner.AddQEffect(new QEffect("Spark exhaustion", "You cannot use another Transcendence this turn",
-                         ExpirationCondition.ExpiresAtStartOfYourTurn, qf.Owner, IllustrationName.Chaos)
-                        {
-                            Id = ExemplarIkonQEffectIds.TranscendenceTracker
-                        });
+                        IkonEffectHelper.CleanupEmpoweredEffects(caster, ExemplarIkonQEffectIds.QEmpoweredMirroredAegis);
                     });
 
                     return new ActionPossibility(action);

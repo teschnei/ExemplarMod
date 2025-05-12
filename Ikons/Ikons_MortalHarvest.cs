@@ -15,6 +15,7 @@ using Dawnsbury.Core.Roller;
 using Dawnsbury.Display.Illustrations;
 using Dawnsbury.Modding;
 using Dawnsbury.Mods.Classes.Exemplar;
+using Dawnsbury.Mods.Exemplar.Utilities;
 
 namespace Dawnsbury.Mods.Exemplar
 {
@@ -111,16 +112,7 @@ namespace Dawnsbury.Mods.Exemplar
                         await CommonCombatActions.StrikeAdjacentCreature(self, null);
 
                         // Clean up empowerment
-                        self.RemoveAllQEffects(q => q.Id == ExemplarIkonQEffectIds.QEmpoweredMortalHarvest);
-                        self.AddQEffect(new QEffect("First Shift Free", "You can Shift Immanence without spending an action.")
-                        {
-                            Id = ExemplarIkonQEffectIds.FirstShiftFree
-                        });
-                        
-                        self.AddQEffect(new QEffect("Spark exhaustion", "You cannot use another Transcendence this turn", ExpirationCondition.ExpiresAtStartOfYourTurn, self
-                        , IllustrationName.Chaos){
-                            Id = ExemplarIkonQEffectIds.TranscendenceTracker
-                        });
+                        IkonEffectHelper.CleanupEmpoweredEffects(self, ExemplarIkonQEffectIds.QEmpoweredMortalHarvest);
                     });
 
                     return new ActionPossibility(action);
