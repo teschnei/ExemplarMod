@@ -13,10 +13,6 @@ namespace Dawnsbury.Mods.Exemplar
         [DawnsburyDaysModMainMethod]
         public static void Load()
         {
-            // 1) Register the feat in ExemplarFeatNames.cs:
-            // public static readonly FeatName FeatHurlAtTheHorizon =
-            //     ModManager.RegisterFeatName("FeatHurlAtTheHorizon", "Hurl At The Horizon");
-
             // 2) Define the feat
             var feat = new TrueFeat(
                 ExemplarFeatNames.FeatHurlAtTheHorizon,
