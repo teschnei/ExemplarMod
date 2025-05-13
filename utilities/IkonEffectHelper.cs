@@ -34,7 +34,8 @@ namespace Dawnsbury.Mods.Exemplar.Utilities
                 IllustrationName.Chaos
             )
             {
-                Id = ExemplarIkonQEffectIds.TranscendenceTracker
+                Id = ExemplarIkonQEffectIds.TranscendenceTracker,
+                Tag = empoweredEffectIds
             });
         }
     }

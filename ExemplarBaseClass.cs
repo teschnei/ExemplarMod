@@ -22,6 +22,7 @@ using Dawnsbury.Mods.Exemplar;
 using Dawnsbury.Core.Mechanics.Treasure;
 using System;
 using System.Runtime.Serialization;
+using Microsoft.Xna.Framework;
 
 namespace Dawnsbury.Mods.Classes.Exemplar
 {
@@ -123,11 +124,17 @@ namespace Dawnsbury.Mods.Classes.Exemplar
                             "Bands of Imprisonment", "Eye Catching Spot", "Thousand League Sandals" , "Gaze Sharp As Steel",
                             "Hands Of The Wildling", "Scar Of The Survivor", "Fetching Bangles", "Pelt Of The Beast", "Skin Hard As Horn",
                         };
-                        // 4. Filter: only those whose rune is slotted, or the body Ikon (Bands of Imprisonment)
+
+                        var exhaustedIkonId = qf.Owner.FindQEffect(ExemplarIkonQEffectIds.TranscendenceTracker)?.Tag;
+
                         var empowerableIkons = allIkonFeats.Where(f =>
-                            (weaponIkonMap.TryGetValue(f.FeatName, out var runeName) && runesOnWeapons.Contains(runeName))
-                            || bodyIkonNames.Contains(f.Name.ToString())
-                        ).ToList();
+                            //make sure the weapon has the feat
+                            ((weaponIkonMap.TryGetValue(f.FeatName, out var runeName) && runesOnWeapons.Contains(runeName))
+                            //or maybe it's just a body feat!
+                            || bodyIkonNames.Contains(f.Name.ToString()) ) 
+                            //regardless, if it's exhausted, don't show it.
+                            && !Equals(exhaustedIkonId, ExemplarIkonQEffectIds.GetEmpowermentIdForIkon(f.Name.ToString()))
+                             ).ToList();
 
                         return new SubmenuPossibility(IllustrationName.SpiritualWeapon, "Shift Immanence")
                         {
@@ -135,7 +142,8 @@ namespace Dawnsbury.Mods.Classes.Exemplar
                                 new PossibilitySection("Select Ikon to Empower")
                                 {
                                     Possibilities = empowerableIkons.Select(q =>
-                                    {
+                                    {                                            
+
                                         int actionCost = qf.Owner.HasEffect(ExemplarIkonQEffectIds.FirstShiftFree) ? 0 : 1;
 
                                         return (Possibility) new ActionPossibility(
@@ -157,7 +165,8 @@ namespace Dawnsbury.Mods.Classes.Exemplar
                                                     });
                                                 })
                                         );
-                                    }).ToList()
+                                    })
+                                    .ToList()
                                 }
                             ]
                         };
