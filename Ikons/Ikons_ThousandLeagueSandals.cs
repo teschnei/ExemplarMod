@@ -42,7 +42,7 @@ namespace Dawnsbury.Mods.Exemplar
                     if (!qfSelf.Owner.HasEffect(ExemplarIkonQEffectIds.QEmpoweredThousandLeagueSandals))
                         return null;
 
-                    return new Bonus(10, BonusType.Status, "Thousand-League Sandals");
+                    return new Bonus(2, BonusType.Status, "Thousand-League Sandals");
                 };
 
 
@@ -65,7 +65,7 @@ namespace Dawnsbury.Mods.Exemplar
                     {
                         // Capture which allies were in range at start
                         var allies = self.Battle.AllCreatures
-                            .Where(a => a.OwningFaction == self.OwningFaction && a != self && a.DistanceTo(self) <= 10)
+                            .Where(a => a.OwningFaction == self.OwningFaction && a != self && a.DistanceTo(self) <= 2)
                             .ToList();
 
                         // Your movement

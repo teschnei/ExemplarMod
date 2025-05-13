@@ -26,7 +26,7 @@ namespace Dawnsbury.Mods.Exemplar
             var horn = new TrueFeat(
                 ExemplarFeatNames.IkonHornOfPlenty,
                 1,
-                "Horn Of Plenty",
+                "Horn Of Plenty[WIP]",
                 "Whether a bag, gourd, wallet, cornucopia, or similar food receptacle, this ikon recalls the harvest and hearth. " +
                 "The receptacle can store up to 1 Bulk of potions and elixirs, but no other items. It can't be opened except by the ikon's immanence and transcendence abilities.\n\n" +
                 "{b}Immanence{/b} You can Interact to draw a consumable from the horn and drink it in one action. Other creatures can't access the horn unless you empower it.\n\n" +
@@ -41,8 +41,8 @@ namespace Dawnsbury.Mods.Exemplar
                 qf.ProvideMainAction = qf =>
                 {
                     var owner = qf.Owner;
-                    if (!owner.HasEffect(ExemplarIkonQEffectIds.QEmpoweredHornOfPlenty))
-                        return null;
+                    // if (!owner.HasEffect(ExemplarIkonQEffectIds.QEmpoweredHornOfPlenty))
+                    //     return null;
 
                     return new SubmenuPossibility(IllustrationName.MinorHealingElixir, "Horn of Plenty")
                     {
@@ -52,7 +52,7 @@ namespace Dawnsbury.Mods.Exemplar
                             {
                                 Possibilities = new List<Possibility>
                                 {
-                                    (Possibility)new ActionPossibility(
+                                    new ActionPossibility(
                                         new CombatAction(owner, IllustrationName.MinorHealingElixir, "Draw & Drink",
                                             new[]{ Trait.Interact, ModTraits.Ikon },
                                             "Draw a consumable from the horn and consume it.",
@@ -97,7 +97,7 @@ namespace Dawnsbury.Mods.Exemplar
                             {
                                 Possibilities = new List<Possibility>
                                 {
-                                    (Possibility)new ActionPossibility(
+                                    new ActionPossibility(
                                         new CombatAction(owner, IllustrationName.HealCompanion, "Feed the Masses",
                                             new[]{ Trait.Mental, ModTraits.Transcendence, ModTraits.Ikon },
                                             "Draw a consumable and transfer its effects to a willing ally within 60 feet.",

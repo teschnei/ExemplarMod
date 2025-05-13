@@ -54,6 +54,8 @@ namespace Dawnsbury.Mods.Classes.Exemplar
             ModManager.RegisterFeatName("IkonUnfailingBow", "Unfailing Bow");
 
         //non-ikon feats
+        public static readonly FeatName FeatReactiveStrike =
+            ModManager.RegisterFeatName("FeatReactiveStrike", "Reactive Strike");
         public static readonly FeatName FeatEnergizedSpark =
             ModManager.RegisterFeatName("FeatEnergizedSpark", "Energized Spark");
         public static readonly FeatName FeatHurlAtTheHorizon =
@@ -62,6 +64,7 @@ namespace Dawnsbury.Mods.Classes.Exemplar
             ModManager.RegisterFeatName("FeatLeapTheFalls", "Leap The Falls");
         public static readonly FeatName FeatSteelOnSteel =
             ModManager.RegisterFeatName("FeatSteelOnSteel", "Steel On Steel");
+        
         // …and so on for every Ikon
     }
 }

@@ -40,12 +40,17 @@ namespace Dawnsbury.Mods.Exemplar
             )
             .WithOnSheet(sheet =>
             {
+                //list of all feats that have the Ikon trait
+                var ikonFeats = sheet.AllFeats
+                    .Where(f => f.Traits.Contains(ModTraits.Ikon))
+                    .ToList();
+                
                 sheet.AddSelectionOption(
                     new SingleFeatSelectionOption(
                         key: "SteelOnSteel",
                         name: "Steel On Steel",
                         level: 4,
-                        eligible: ft => ft.Traits.Contains(ModTraits.Ikon) &&
+                        eligible: ft => ikonFeats.Contains(ft) && ft.Traits.Contains(ModTraits.Ikon) &&
                             ft.FeatName != ExemplarFeatNames.FeatSteelOnSteel &&
                             !ft.HasTrait(ModTraits.BodyIkon)
                     )

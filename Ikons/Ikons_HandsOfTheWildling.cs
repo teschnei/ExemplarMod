@@ -67,7 +67,7 @@ namespace Dawnsbury.Mods.Exemplar
                         Target.Cone(15)
                     )
                     .WithActionCost(2)
-                    .WithSavingThrow(new SavingThrow(Defense.Will, qf.Owner.ClassDC()))
+                    .WithSavingThrow(new SavingThrow(Defense.Will, qf.Owner.ClassOrSpellDC()))
                     .WithEffectOnEachTarget(async (act, caster, target, result) =>
                     {
                         int diceCount = 1;
@@ -76,7 +76,9 @@ namespace Dawnsbury.Mods.Exemplar
 
                         DamageKind damageKind = DamageKindHelper.GetDamageKindFromEffect(qf.Owner, ExemplarIkonQEffectIds.QEnergizedSpark);   
                         
-                        await CommonSpellEffects.DealBasicDamage(act, caster, target, result, formula, damageKind);
+                        await CommonSpellEffects.DealBasicDamage(
+                            act, caster, target, result, formula, damageKind
+                        );
 
                         // Remove the old tracker
                         IkonEffectHelper.CleanupEmpoweredEffects(caster, ExemplarIkonQEffectIds.QEmpoweredHandsOfTheWildling);

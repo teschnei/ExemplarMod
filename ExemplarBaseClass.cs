@@ -149,7 +149,7 @@ namespace Dawnsbury.Mods.Classes.Exemplar
                                         return (Possibility) new ActionPossibility(
                                             new CombatAction(qf.Owner, IllustrationName.SpiritualWeapon, $"Empower {q.Name}",
                                                 [TExemplar, Trait.Divine, Trait.Basic],
-                                                $"Empower {q.Name}.", Target.Self())
+                                                $"{q.FullTextDescription}", Target.Self())
                                                 .WithActionCost(actionCost)
                                                 .WithEffectOnEachTarget(async (spell, caster, target, result) =>
                                                 {

@@ -59,16 +59,15 @@ namespace Dawnsbury.Mods.Exemplar
             .WithPermanentQEffect(null, qf =>
             {
                 // Immanence: apply persistent spirit damage per die
-                qf.AfterYouTakeAction = async (selfQf, action) =>
+                qf.AfterYouDealDamage = async (selfQf, action, target) =>
                 {
-                    if (!selfQf.Owner.HasEffect(ExemplarIkonQEffectIds.QEmpoweredMortalHarvest))
+                    if (!qf.Owner.HasEffect(ExemplarIkonQEffectIds.QEmpoweredMortalHarvest))
                         return;
 
                     // Only on successful Strikes
                     if (!action.HasTrait(Trait.Strike) || action.Item?.WeaponProperties == null || action.ChosenTargets?.ChosenCreature == null)
                         return;
 
-                    var target = action.ChosenTargets.ChosenCreature;
                     int dice = action.Item.WeaponProperties.DamageDieCount;
                     // var formula = DiceFormula.FromText($"{dice}", "Mortal Harvest persistent spirit");
                     var formula = ($"{dice}");

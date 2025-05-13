@@ -20,7 +20,7 @@ namespace Dawnsbury.Mods.Exemplar
         [DawnsburyDaysModMainMethod]
         public static void Load()
         {
-            // 2) Define the feat
+            // Define the feat
             var feat = new TrueFeat(
                 ExemplarFeatNames.FeatHurlAtTheHorizon,
                 2,
@@ -35,7 +35,7 @@ namespace Dawnsbury.Mods.Exemplar
                 var ikonFeats = sheet.AllFeats
                     .Where(f => f.Traits.Contains(ModTraits.Ikon))
                     .ToList();
-                // 3) Add the feat to the character sheet
+                // Add the feat to the character sheet
                 sheet.AddSelectionOption(
                     new SingleFeatSelectionOption(
                         key: "HurlAtTheHorizon",
@@ -66,13 +66,11 @@ namespace Dawnsbury.Mods.Exemplar
                         // If the weapon doesn't have the Thrown trait, add it
                         weapon.Traits.Add(Trait.Thrown10Feet);
                         weapon.Traits.Add(ModTraits.hurlAtTheHorizon);
-                        weapon.WeaponProperties.Throwable = true;
                         //give it the empowered trait as to not double give.
                     }
                     else if (!weapon.HasTrait(Trait.Thrown20Feet))
                     {
                         // If the weapon already has the Thrown trait, increase its range
-                        weapon.Traits.Add(Trait.Thrown);
                         weapon.Traits.Add(ModTraits.hurlAtTheHorizon);
                         weapon.Traits.Add(Trait.Thrown20Feet);
                     }
