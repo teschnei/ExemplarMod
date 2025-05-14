@@ -65,6 +65,17 @@ namespace Dawnsbury.Mods.Classes.Exemplar
         public static readonly FeatName FeatSteelOnSteel =
             ModManager.RegisterFeatName("FeatSteelOnSteel", "Steel On Steel");
         
+        //List of root epithets
+        public static readonly FeatName EpithetTheBrave =
+            ModManager.RegisterFeatName("EpithetTheBrave", "The Brave");
+        public static readonly FeatName EpithetTheCunning =
+            ModManager.RegisterFeatName("EpithetTheCunning", "The Cunning");
+        public static readonly FeatName EpithetTheMournful =
+            ModManager.RegisterFeatName("EpithetTheMournful", "The Mournful");
+        public static readonly FeatName EpithetTheProud =
+            ModManager.RegisterFeatName("EpithetTheProud", "The Proud");
+        public static readonly FeatName EpithetTheRadiant =
+            ModManager.RegisterFeatName("EpithetTheRadiant", "The Radiant");
         // …and so on for every Ikon
     }
 }

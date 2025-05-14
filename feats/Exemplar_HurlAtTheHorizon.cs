@@ -45,6 +45,7 @@ namespace Dawnsbury.Mods.Exemplar
                             ft.FeatName != ExemplarFeatNames.FeatHurlAtTheHorizon && !ft.HasTrait(ModTraits.BodyIkon)
                     )
                 );
+                sheet.Tags["temp"] = "Ikon";
             })
             .WithPermanentQEffect(null, qf =>
             {

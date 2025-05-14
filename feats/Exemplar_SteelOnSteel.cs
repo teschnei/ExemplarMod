@@ -119,13 +119,7 @@ namespace Dawnsbury.Mods.Exemplar
                         // Deafened on critical failure
                         if (result == CheckResult.CriticalFailure)
                         {
-                            target.AddQEffect(new QEffect(
-                                "Deafened",
-                                "Deafened by ringing challenge",
-                                ExpirationCondition.CountsDownAtEndOfYourTurn,
-                                target,
-                                IllustrationName.Deafness
-                            ));
+                            target.AddQEffect(QEffect.Deafened());
                         }
                     });
 

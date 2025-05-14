@@ -57,7 +57,8 @@ namespace Dawnsbury.Mods.Exemplar
                 // Transcendence — A Moment Unending
                 qf.ProvideMainAction = qf =>
                 {
-                    if (qf.Owner.HasEffect(ExemplarIkonQEffectIds.TranscendenceTracker) || !qf.Owner.HasEffect(ExemplarIkonQEffectIds.QEmpoweredGazeSharpAsSteel))
+                    if (qf.Owner.HasEffect(ExemplarIkonQEffectIds.TranscendenceTracker) 
+                    || !qf.Owner.HasEffect(ExemplarIkonQEffectIds.QEmpoweredGazeSharpAsSteel))
                         return null;
 
                     var action = new CombatAction(

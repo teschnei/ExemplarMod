@@ -75,7 +75,7 @@ namespace Dawnsbury.Mods.Classes.Exemplar
                 sheet.GrantFeat(FeatName.DeadlySimplicity);
                 sheet.AddSelectionOption(new MultipleFeatSelectionOption("Ikon", "Ikon", 1, ft => ft.HasTrait(ModTraits.Ikon), 3));
                 sheet.AddSelectionOption(new SingleFeatSelectionOption("ExemplarFeat1", "Exemplar Feat", 1, ft => ft.HasTrait(TExemplar)).WithIsOptional());
-                sheet.AddSelectionOption(new SingleFeatSelectionOption("RootEpithet", "Root Epithet", 3, ft => ft.HasTrait(TExemplar)).WithIsOptional());
+                sheet.AddSelectionOption(new SingleFeatSelectionOption("RootEpithet", "Root Epithet", 3, ft => ft.HasTrait(ModTraits.RootEpithet)).WithIsOptional());
                 sheet.AddSelectionOption(new SingleFeatSelectionOption("DominionEpithet", "Dominion Epithet", 7, ft => ft.HasTrait(TExemplar)).WithIsOptional());
 
                 sheet.AddAtLevel(5, values =>

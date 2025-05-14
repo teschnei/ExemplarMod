@@ -35,5 +35,34 @@ public static class ModTraits
             IsClassTrait = false
         });
     
+    public static readonly Trait Epithet = ModManager.RegisterTrait(
+        "Epithet",
+        new TraitProperties("Epithet", true)
+        {
+            IsClassTrait = false
+        });
+    
+    public static readonly Trait RootEpithet = ModManager.RegisterTrait(
+        "RootEpithet",
+        new TraitProperties("Root Epithet", true)
+        {
+            IsClassTrait = false
+        });
+
+
+
+    // keepingTracktraits
+    public static readonly Trait Feint = ModManager.RegisterTrait(
+        "Feint",
+        new TraitProperties("Feint", true)
+        {
+            IsClassTrait = false
+        });
+    public static readonly Trait CreateADiversion = ModManager.RegisterTrait(
+        "CreateADiversion",
+        new TraitProperties("CreateADiversion", true)
+        {
+            IsClassTrait = false
+        });
     // Add more custom traits here if needed later
 }

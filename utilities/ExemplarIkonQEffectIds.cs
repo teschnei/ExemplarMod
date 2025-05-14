@@ -10,7 +10,7 @@ public static class ExemplarIkonQEffectIds
     //general effects
     public static readonly QEffectId FirstShiftFree = ModManager.RegisterEnumMember<QEffectId>("FirstShiftFree");
     public static readonly QEffectId TranscendenceTracker = ModManager.RegisterEnumMember<QEffectId>("TranscendenceTracker");
-    
+
     //barrows
     public static readonly QEffectId QEmpoweredBarrowsEdge = ModManager.RegisterEnumMember<QEffectId>("BarrowsEdge");
     public static readonly QEffectId QBarrowsEdgeDamageTracker = ModManager.RegisterEnumMember<QEffectId>("BarrowsEdgeDamageTracker");
@@ -41,7 +41,7 @@ public static class ExemplarIkonQEffectIds
     //Hands
     public static readonly QEffectId QEmpoweredHandsOfTheWildling = ModManager.RegisterEnumMember<QEffectId>("HandsOfTheWildling");
 
-    
+
     //Scars
     public static readonly QEffectId QEmpoweredScarOfTheSurvivor = ModManager.RegisterEnumMember<QEffectId>("ScarOfTheSurvivor");
 
@@ -74,13 +74,29 @@ public static class ExemplarIkonQEffectIds
     //non-ikon feats
     public static readonly QEffectId QEnergizedSpark =
         ModManager.RegisterEnumMember<QEffectId>("EnergizedSpark");
-    public static readonly QEffectId QHurlAtTheHorizon =
-        ModManager.RegisterEnumMember<QEffectId>("HurlAtTheHorizon");
-    public static readonly QEffectId QLeapTheFalls =
-        ModManager.RegisterEnumMember<QEffectId>("LeapTheFalls");
     public static readonly QEffectId QSteelOnSteel =
         ModManager.RegisterEnumMember<QEffectId>("SteelOnSteel");
-        
+
+    //non-ikon epithet
+    public static readonly QEffectId QTheBraveUsedOnTarget =
+        ModManager.RegisterEnumMember<QEffectId>("TheBraveUsedOnTarget");
+    public static readonly QEffectId QTheBraveUsedOnSelf =
+        ModManager.RegisterEnumMember<QEffectId>("TheBraveUsedOnSelf");
+    public static readonly QEffectId QTheCunningUsedThisTurn =
+        ModManager.RegisterEnumMember<QEffectId>("QTheCunningUsedThisTurn");
+
+    public static readonly QEffectId QTheMournfulUsedThisTurn =
+    ModManager.RegisterEnumMember<QEffectId>("TheMournfulUsedThisTurn");
+    public static readonly QEffectId QTheMournfulImmune =
+        ModManager.RegisterEnumMember<QEffectId>("TheMournfulImmune");
+    public static readonly QEffectId QTheProudUsedThisTurn =
+        ModManager.RegisterEnumMember<QEffectId>("TheProudUsedThisTurn");
+    public static readonly QEffectId QTheProudEffect =
+        ModManager.RegisterEnumMember<QEffectId>("TheProudEffect");
+    public static readonly QEffectId QTheRadiantUsedThisTurn =
+        ModManager.RegisterEnumMember<QEffectId>("TheRadiantUsedThisTurn");
+    public static readonly QEffectId QTheRadiantImmune =
+        ModManager.RegisterEnumMember<QEffectId>("TheRadiantImmune");
     //BELOW HERE IS ONLY REQUIRED FOR NEW IKONS, EFFECTS ARE NOT NEEDED.
     public static readonly HashSet<QEffectId> EmpoweredIkonIds = new()
     {
@@ -105,30 +121,30 @@ public static class ExemplarIkonQEffectIds
     };
     // Add more Ikon IDs as you add more Ikons
     public static QEffectId GetEmpowermentIdForIkon(string ikonName)
+    {
+        return ikonName switch
         {
-            return ikonName switch
-            {
-                "Barrow's Edge" => QEmpoweredBarrowsEdge,
-                "Bands of Imprisonment" => QEmpoweredBandsOfImprisonment,
-                "Gleaming Blade" => QEmpoweredGleamingBlade,
-                "Mirrored Aegis" => QEmpoweredMirroredAegis,
-                "Eye Catching Spot" => QEmpoweredEyeCatchingSpot,
-                "Mortal Harvest" => QEmpoweredMortalHarvest,
-                "Thousand League Sandals" => QEmpoweredThousandLeagueSandals,
-                "Fetching Bangles" =>QEmpoweredFetchingBangles,
-                "Scar Of The Survivor" =>QEmpoweredScarOfTheSurvivor,
-                "Hands Of The Wildling" =>QEmpoweredHandsOfTheWildling,
-                "Gaze Sharp As Steel" =>QEmpoweredGazeSharpAsSteel,
-                "Horn Of Plenty" => QEmpoweredHornOfPlenty,
-                "Pelt Of The Beast" => QEmpoweredPeltOfTheBeast,
-                "Skin Hard As Horn" => QEmpoweredSkinHardAsHorn,
-                "Starshot" => QEmpoweredStarshot,
-                "Noble Branch" => QEmpoweredNobleBranch,
-                "Titans Breaker"=> QEmpoweredTitansBreaker,
-                "Unfailing Bow"=> QEmpoweredUnfailingBow,
-                _ => throw new Exception($"Unknown Ikon name: {ikonName}"),
+            "Barrow's Edge" => QEmpoweredBarrowsEdge,
+            "Bands of Imprisonment" => QEmpoweredBandsOfImprisonment,
+            "Gleaming Blade" => QEmpoweredGleamingBlade,
+            "Mirrored Aegis" => QEmpoweredMirroredAegis,
+            "Eye Catching Spot" => QEmpoweredEyeCatchingSpot,
+            "Mortal Harvest" => QEmpoweredMortalHarvest,
+            "Thousand League Sandals" => QEmpoweredThousandLeagueSandals,
+            "Fetching Bangles" => QEmpoweredFetchingBangles,
+            "Scar Of The Survivor" => QEmpoweredScarOfTheSurvivor,
+            "Hands Of The Wildling" => QEmpoweredHandsOfTheWildling,
+            "Gaze Sharp As Steel" => QEmpoweredGazeSharpAsSteel,
+            "Horn Of Plenty" => QEmpoweredHornOfPlenty,
+            "Pelt Of The Beast" => QEmpoweredPeltOfTheBeast,
+            "Skin Hard As Horn" => QEmpoweredSkinHardAsHorn,
+            "Starshot" => QEmpoweredStarshot,
+            "Noble Branch" => QEmpoweredNobleBranch,
+            "Titans Breaker" => QEmpoweredTitansBreaker,
+            "Unfailing Bow" => QEmpoweredUnfailingBow,
+            _ => throw new Exception($"Unknown Ikon name: {ikonName}"),
 
-                // Add more mappings as you add more Ikons
-            };
-        }
+            // Add more mappings as you add more Ikons
+        };
+    }
 }
