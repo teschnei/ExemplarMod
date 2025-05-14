@@ -7,6 +7,9 @@ These bellow are only required if you are making a weapon ikon.
 2. Edit IkonRuneUtilities.cs and add the ikon.
 3. Edit ExemplarItemNames.cs and add the ikon item.
 
+TODO list
+CTRL + Shift + F "TODO"
+We need to complete the 'The Deft' and which ever of the X's are below.
 
 | Status | Ikon Name               | Type   | Notes                                                      |
 | :----: | ----------------------- | ------ | ---------------------------------------------------------- |

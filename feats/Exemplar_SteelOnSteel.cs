@@ -72,18 +72,55 @@ namespace Dawnsbury.Mods.Exemplar
                         "Ringing Challenge",
                         new[] { ModTraits.Ikon, Trait.Sonic, ModTraits.Transcendence },
                         "You clang your ikon, creating a shock wave in a 30-foot cone. Each creature must make a Fortitude save or take spirit and sonic damage; a critical failure deafens them for 1 minute.",
-                        Target.Cone(30)
+                        Target.Cone(6)
                     ).WithActionCost(2);
 
                     // Build the two-action Transcendence
-                    // var emanAct = new CombatAction(
-                    //     owner,
-                    //     IllustrationName.SteelShield,
-                    //     "Ringing Challenge",
-                    //     new[] { ModTraits.Ikon, Trait.Sonic, ModTraits.Transcendence },
-                    //     "You clang your ikon, creating a shock wave in a 15-foot emanation. Each creature must make a Fortitude save or take spirit and sonic damage; a critical failure deafens them for 1 minute.",
-                    //     Target.Emanation(15)
-                    // ).WithActionCost(2);
+                    var emanAct = new CombatAction(
+                        owner,
+                        IllustrationName.SteelShield,
+                        "Ringing Challenge",
+                        new[] { ModTraits.Ikon, Trait.Sonic, ModTraits.Transcendence },
+                        "You clang your ikon, creating a shock wave in a 15-foot emanation. Each creature must make a Fortitude save or take spirit and sonic damage; a critical failure deafens them for 1 minute.",
+                        Target.Emanation(3)
+                    ).WithActionCost(2);
+                    // Fortitude save against your class DC
+                    emanAct.WithSavingThrow(new SavingThrow(Defense.Fortitude, owner.ClassOrSpellDC()));
+
+                    // Damage and deafening effect
+                    emanAct.WithEffectOnEachTarget(async (act, caster, target, result) =>
+                    {
+
+                        // Scale dice: 1d4 at 4th, +1d4 at 6th,8th,…  (floor((Level–4)/2)+1)
+                        int diceCount = 1 + Math.Max(0, (caster.Level - 4) / 2);
+
+                        // Spirit damage
+                        var spiritFormula = DiceFormula.FromText(
+                            $"{diceCount}d4",
+                            "Ringing Challenge Spirit"
+                        );
+
+                        DamageKind damageKind = DamageKindHelper.GetDamageKindFromEffect(caster, ExemplarIkonQEffectIds.QEnergizedSpark);
+
+                        await CommonSpellEffects.DealBasicDamage(
+                            act, caster, target, result, spiritFormula, damageKind
+                        );
+
+                        // Sonic damage
+                        var sonicFormula = DiceFormula.FromText(
+                            $"{diceCount}d4",
+                            "Ringing Challenge Sonic"
+                        );
+                        await CommonSpellEffects.DealBasicDamage(
+                            act, caster, target, result, sonicFormula, damageKind
+                        );
+
+                        // Deafened on critical failure
+                        if (result == CheckResult.CriticalFailure)
+                        {
+                            target.AddQEffect(QEffect.Deafened());
+                        }
+                    });
 
                     // Fortitude save against your class DC
                     action.WithSavingThrow(new SavingThrow(Defense.Fortitude, owner.ClassOrSpellDC()));
@@ -129,7 +166,18 @@ namespace Dawnsbury.Mods.Exemplar
                         IkonEffectHelper.CleanupEmpoweredEffects(self, ExemplarIkonQEffectIds.QSteelOnSteel);
                     });
 
-                    return new ActionPossibility(action);
+                    return new SubmenuPossibility(IllustrationName.SteelShield, "Steel on Steel: Choose an action")
+                    {
+                        Subsections = [
+                            new PossibilitySection("Select Ikon to Empower")
+                            {
+                                Possibilities = [
+                                    new ActionPossibility(action),
+                                    new ActionPossibility(emanAct)
+                                ],
+                            }
+                        ]
+                    };
                 };
             });
 

@@ -93,7 +93,7 @@ namespace Dawnsbury.Mods.Exemplar
                     {
                         // Choose an ally (or self if no other)
                         var candidates = caster.Battle.AllCreatures
-                            .Where(a => a.DistanceTo(caster) <= 15)
+                            .Where(a => a.DistanceTo(caster) <= 3)
                             .ToList();
                         var ally = candidates.Count == 1
                             ? candidates[0]

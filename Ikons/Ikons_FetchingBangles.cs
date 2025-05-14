@@ -46,7 +46,7 @@ namespace Dawnsbury.Mods.Exemplar
                     // Process foes within 10 ft
                     foreach (var foe in owner.Battle.AllCreatures.Where(c => c.OwningFaction != owner.OwningFaction))
                     {
-                        bool inAura = foe.DistanceTo(owner) <= 10;
+                        bool inAura = foe.DistanceTo(owner) <= 2;
                         // Remove existing aura effect if moved out
                         if (!inAura)
                         {

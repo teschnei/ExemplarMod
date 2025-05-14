@@ -64,7 +64,7 @@ namespace Dawnsbury.Mods.Exemplar
                         "Feral Swing",
                         new[] { ModTraits.Transcendence, ModTraits.Ikon },
                         "15-foot cone Reflex save or take spirit damage equal to your wildling Strike damage.",
-                        Target.Cone(15)
+                        Target.Cone(3)
                     )
                     .WithActionCost(2)
                     .WithSavingThrow(new SavingThrow(Defense.Will, qf.Owner.ClassOrSpellDC()))
