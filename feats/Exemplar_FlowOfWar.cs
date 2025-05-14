@@ -25,18 +25,6 @@
 //                 new[] { ModTraits.Ikon }, // Replace with actual traits
 //                 null
 //             )
-//             .WithOnSheet(sheet =>
-//             {
-//                 // Add the feat to the character sheet
-//                 sheet.AddSelectionOption(
-//                     new SingleFeatSelectionOption(
-//                         key: "TemplateFeat", // Replace with actual key
-//                         name: "Template Feat", // Replace with actual name
-//                         level: 1, // Replace with actual level
-//                         eligible: ft => true // Define eligibility criteria
-//                     )
-//                 );
-//             })
 //             .WithPermanentQEffect(null, qf =>
 //             {
 //                 qf.ProvideMainAction = qf =>

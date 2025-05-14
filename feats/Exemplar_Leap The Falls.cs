@@ -36,8 +36,9 @@ namespace Dawnsbury.Mods.Exemplar
                         key: "LeapTheFalls",
                         name: "Leap The Falls",
                         level: 2,
-                        eligible: ft => ft.Traits.Contains(ExemplarBaseClass.TExemplar) &&
-                            ft.FeatName != ExemplarFeatNames.FeatLeapTheFalls && ft.HasTrait(ModTraits.BodyIkon)
+                        eligible: ft => ikonFeats.Contains(ft) && ft.Traits.Contains(ModTraits.Ikon) &&
+                            ft.FeatName != ExemplarFeatNames.FeatLeapTheFalls && 
+                            !ft.HasTrait(ModTraits.BodyIkon)
                     )
                 );
             })

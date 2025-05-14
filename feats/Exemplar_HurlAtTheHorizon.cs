@@ -42,7 +42,8 @@ namespace Dawnsbury.Mods.Exemplar
                         name: "Hurl At The Horizon",
                         level: 2,
                         eligible: ft => ikonFeats.Contains(ft) && ft.Traits.Contains(ModTraits.Ikon) &&
-                            ft.FeatName != ExemplarFeatNames.FeatHurlAtTheHorizon && !ft.HasTrait(ModTraits.BodyIkon)
+                            ft.FeatName != ExemplarFeatNames.FeatHurlAtTheHorizon && 
+                            !ft.HasTrait(ModTraits.BodyIkon)
                     )
                 );
                 sheet.Tags["temp"] = "Ikon";
