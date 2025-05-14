@@ -38,7 +38,7 @@ public class Ikons_BandsOfImprisonment
             "These weighted bands don't enhance your power—rather, they keep your strength in check, honing your discipline.",
             "{b}Immanence{/b} The bands of imprisonment tighten, keeping your mind sharp. You gain a +1 status bonus to Will saving throws and resistance to mental damage equal to half your level.\n\n" +
             "{b}Transcendence — Break Free (two-actions){/b} You can attempt to Escape with a +2 status bonus on your check, then Stride up to twice your Speed in a straight line, and finally make a melee Strike. If you don't need to Escape or you can't move or choose not to, you still take the other actions listed.",
-            [ModTraits.Ikon],
+            [ModTraits.Ikon, ModTraits.BodyIkon],
             null
         ).WithMultipleSelection()
         .WithPermanentQEffect(null, qf =>

@@ -38,7 +38,7 @@ namespace Dawnsbury.Mods.Exemplar
                         level: 2,
                         eligible: ft => ikonFeats.Contains(ft) && ft.Traits.Contains(ModTraits.Ikon) &&
                             ft.FeatName != ExemplarFeatNames.FeatLeapTheFalls && 
-                            !ft.HasTrait(ModTraits.BodyIkon)
+                            ft.HasTrait(ModTraits.BodyIkon)
                     )
                 );
             })
