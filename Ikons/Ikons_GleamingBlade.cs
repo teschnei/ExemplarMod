@@ -88,7 +88,7 @@ public class Ikons_GleamingBlade
 
                     // Combine spirit damage from both attacks
                     int dice = weapon.WeaponProperties?.DamageDieCount ?? 1;
-                    int diceSize = weapon.WeaponProperties.DamageDieSize;
+                    int diceSize = weapon.WeaponProperties?.DamageDieSize ?? 6;
 
                     DiceFormula combined = DiceFormula.FromText($"{dice * 2}d{diceSize}", "Flowing Spirit Strike");
 

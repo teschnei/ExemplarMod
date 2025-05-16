@@ -108,7 +108,8 @@ namespace Dawnsbury.Mods.Exemplar
                         // 3) Build a dice formula matching your weapon's dice (including any Striking rune dice)
                         var wp = prev.Item.WeaponProperties!;
 
-                        DiceFormula formula = DiceFormula.FromText(tracker?.Value.ToString(), "Damage");
+                        var trackerValue = tracker?.Value ?? 0;
+                        DiceFormula formula = DiceFormula.FromText(trackerValue.ToString(), "Damage");
 
                         // 4) Re-deal that as spirit damage against your original target
                         var target = prev.ChosenTargets.ChosenCreature!;

@@ -48,7 +48,7 @@ namespace Dawnsbury.Mods.Exemplar
                 {
                     if (!qSelf.Owner.HasEffect(ExemplarIkonQEffectIds.QEmpoweredHandsOfTheWildling))
                         return null;
-                    int dice = action.Item.WeaponProperties.DamageDieCount;
+                    int dice = (action.Item?.WeaponProperties?.DamageDieCount) ?? 1;
                     return new Bonus(dice, BonusType.Status, "Wildling Splash Damage");
                 };
 

@@ -82,6 +82,7 @@ namespace Dawnsbury.Mods.Exemplar
                                             hornItem.StoredItems.Remove(consumable);
                                             hornItem.ItemModifications.RemoveAll(mod =>
                                                 mod.Kind == ItemModificationKind.StoredItem
+                                                && mod.StoredItem != null
                                                 && mod.StoredItem.ItemName == consumable.ItemName
                                             );
 
@@ -119,6 +120,7 @@ namespace Dawnsbury.Mods.Exemplar
                                             hornItem.StoredItems.Remove(consumable);
                                             hornItem.ItemModifications.RemoveAll(mod =>
                                                 mod.Kind == ItemModificationKind.StoredItem
+                                                && mod.StoredItem != null
                                                 && mod.StoredItem.ItemName == consumable.ItemName
                                             );
 

@@ -98,7 +98,7 @@ namespace Dawnsbury.Mods.Classes.Exemplar
                     ProvideMainAction = qf =>
                     {
                         // 1. Gather all your Ikon feats
-                        var allIkonFeats = qf.Owner.PersistentCharacterSheet.Calculated.AllFeats
+                        var allIkonFeats = (qf.Owner.PersistentCharacterSheet?.Calculated?.AllFeats ?? Enumerable.Empty<Feat>())
                             .Where(f => f.HasTrait(ModTraits.Ikon));
 
                         // 2. Build a set of rune ItemNames currently on your held weapons

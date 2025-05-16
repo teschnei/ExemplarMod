@@ -38,7 +38,7 @@ namespace Dawnsbury.Mods.Exemplar
                 "{b}Immanence{/b} Strikes with the starshot deal an additional 1 spirit splash damage per weapon damage die.\n\n" +
                 "{b}Transcendence — Giant-Felling Comet (two-actions){/b} You shoot the starshot, causing a detonation in a 5-foot burst within 60 feet. " +
                 "Each creature in the area must succeed at a basic Reflex save against your class DC or take spirit damage equal to your normal Strike damage with the starshot. " +
-                "[Not implemented] Creatures larger than you take a –2 circumstance penalty to their saving throws. This shot requires any ammunition that would normally be required.",
+                "[Not implemented] Creatures larger than you take a -2 circumstance penalty to their saving throws. This shot requires any ammunition that would normally be required.",
                 new[] { ModTraits.Ikon },
                 null
             ).WithMultipleSelection()
@@ -116,8 +116,8 @@ namespace Dawnsbury.Mods.Exemplar
                             return;
                         }
 
-                        int diceCount = weapon.WeaponProperties.DamageDieCount;
-                        int dieSize = weapon.WeaponProperties.DamageDieSize;
+                        int diceCount = weapon.WeaponProperties?.DamageDieCount ?? 1;
+                        int dieSize = weapon.WeaponProperties?.DamageDieSize ?? 6;
                         var df = DiceFormula.FromText($"{diceCount}d{dieSize}", "Giant-Felling Comet");
 
                         DamageKind damageKind = DamageKindHelper.GetDamageKindFromEffect(qf.Owner, ExemplarIkonQEffectIds.QEnergizedSpark);   

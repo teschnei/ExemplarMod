@@ -111,7 +111,8 @@ namespace Dawnsbury.Mods.Exemplar
                             {
                                 Value = 10,
                                 BonusToDefenses = (eff, act2, def) =>
-                                    def == Defense.AC || def == Defense.Reflex || !act2.HasTrait(Trait.Force) || !act2.HasTrait(Trait.Positive) || !act2.HasTrait(Trait.Negative)
+                                    (def == Defense.AC || def == Defense.Reflex ||
+                                    (act2 != null && (!act2.HasTrait(Trait.Force) || !act2.HasTrait(Trait.Positive) || !act2.HasTrait(Trait.Negative))))
                                         ? new Bonus(1, BonusType.Status, "Raise the Walls")
                                         : null,
                             });
