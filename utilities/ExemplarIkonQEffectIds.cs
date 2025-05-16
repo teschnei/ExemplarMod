@@ -74,8 +74,13 @@ public static class ExemplarIkonQEffectIds
     //non-ikon feats
     public static readonly QEffectId QEnergizedSpark =
         ModManager.RegisterEnumMember<QEffectId>("EnergizedSpark");
+    public static readonly QEffectId QSanctifiedSoul =
+        ModManager.RegisterEnumMember<QEffectId>("SanctifiedSoul");
+
     public static readonly QEffectId QSteelOnSteel =
         ModManager.RegisterEnumMember<QEffectId>("SteelOnSteel");
+    public static readonly QEffectId QEmpoweredThroughTheNeedlesEye =
+        ModManager.RegisterEnumMember<QEffectId>("EmpoweredThroughTheNeedlesEye");
 
     //non-ikon epithet
     public static readonly QEffectId QTheBraveUsedOnTarget =

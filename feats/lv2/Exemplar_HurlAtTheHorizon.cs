@@ -46,7 +46,6 @@ namespace Dawnsbury.Mods.Exemplar
                             !ft.HasTrait(ModTraits.BodyIkon)
                     )
                 );
-                sheet.Tags["temp"] = "Ikon";
             })
             .WithPermanentQEffect(null, qf =>
             {

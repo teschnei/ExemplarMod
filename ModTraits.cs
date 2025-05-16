@@ -6,6 +6,7 @@ namespace Dawnsbury.Mods.Exemplar;
 public static class ModTraits
 {
     public static readonly Trait TEnergizedSpark = ModManager.RegisterTrait("EnergizedSpark");
+    public static readonly Trait sanctifiedTrait = ModManager.RegisterTrait("sanctifiedTrait");
     public static readonly Trait Ikon = ModManager.RegisterTrait(
         "Ikon",
         new TraitProperties("Ikon", true)

@@ -36,7 +36,6 @@ namespace Dawnsbury.Mods.Classes.Exemplar
             {
                 IsClassTrait = true
             });
-
             ModManager.AddFeat(CreateExemplarClassFeat());
         }
 

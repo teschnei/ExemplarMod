@@ -64,7 +64,16 @@ namespace Dawnsbury.Mods.Classes.Exemplar
             ModManager.RegisterFeatName("FeatLeapTheFalls", "Leap The Falls");
         public static readonly FeatName FeatSteelOnSteel =
             ModManager.RegisterFeatName("FeatSteelOnSteel", "Steel On Steel");
-        
+        public static readonly FeatName FeatThroughTheNeedlesEye =
+            ModManager.RegisterFeatName("IkonThroughTheNeedlesEye", "Through The Needle's Eye");
+        public static readonly FeatName FeatFlowOfWar =
+            ModManager.RegisterFeatName("FlowOfWar", "Flow Of War");
+        public static readonly FeatName FeatAdditionalIkon =
+            ModManager.RegisterFeatName("AdditionalIkon", "Additional Ikon");
+        public static readonly FeatName FeatSanctifiedSoul =
+            ModManager.RegisterFeatName("SanctifiedSoul", "Sanctified Soul");
+
+
         //List of root epithets
         public static readonly FeatName EpithetTheBrave =
             ModManager.RegisterFeatName("EpithetTheBrave", "The Brave");
