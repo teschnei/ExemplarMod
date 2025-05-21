@@ -94,6 +94,8 @@ public static class ExemplarIkonQEffectIds
     ModManager.RegisterEnumMember<QEffectId>("TheMournfulUsedThisTurn");
     public static readonly QEffectId QTheMournfulImmune =
         ModManager.RegisterEnumMember<QEffectId>("TheMournfulImmune");
+    public static readonly QEffectId QPeerlessUnderHeavenImmune =
+        ModManager.RegisterEnumMember<QEffectId>("PeerlessUnderHeavenImmune");
     public static readonly QEffectId QTheProudUsedThisTurn =
         ModManager.RegisterEnumMember<QEffectId>("TheProudUsedThisTurn");
     public static readonly QEffectId QTheProudEffect =

@@ -1,7 +1,9 @@
 using System.Linq;
+using Dawnsbury.Auxiliary;
 using Dawnsbury.Core;
 using Dawnsbury.Core.CharacterBuilder.Feats;
 using Dawnsbury.Core.CharacterBuilder.FeatsDb.Common;
+using Dawnsbury.Core.CharacterBuilder.FeatsDb.TrueFeatDb.Specific;
 using Dawnsbury.Core.CombatActions;
 using Dawnsbury.Core.Creatures;
 using Dawnsbury.Core.Mechanics;
@@ -10,6 +12,7 @@ using Dawnsbury.Core.Mechanics.Enumerations;
 using Dawnsbury.Core.Mechanics.Targeting;
 using Dawnsbury.Core.Possibilities;
 using Dawnsbury.Core.Roller;
+using Dawnsbury.Core.Tiles;
 using Dawnsbury.Display.Illustrations;
 using Dawnsbury.Modding;
 using Dawnsbury.Mods.Classes.Exemplar;
@@ -97,9 +100,10 @@ namespace Dawnsbury.Mods.Exemplar
                         {
                             // TODO: Move target adjacent to caster.
                             // Placeholder: teleport to owner's adjacent square
-                            // var adj = caster.Battle.GameLoop.GetAdjacentFreeSquares(caster.Position).FirstOrDefault();
+                            // var adj = Map.AllTiles.Where(t => t.Distance = 1);
                             // if (adj != null)
-                            //     await target.MoveTo(adj);
+                            //     CommonSpellEffects.Teleport(target, adj);
+                            
                         }
                         // Cleanup empowerment
                         IkonEffectHelper.CleanupEmpoweredEffects(caster, ExemplarIkonQEffectIds.QEmpoweredFetchingBangles);

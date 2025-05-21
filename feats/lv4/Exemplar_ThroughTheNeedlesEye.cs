@@ -90,7 +90,7 @@ namespace Dawnsbury.Mods.Exemplar
                         // Save failure → blinded
                         target.AddQEffect(QEffect.Blinded().WithExpirationAtStartOfSourcesTurn(caster,1));
 
-                        // NOTE: TODO : this built-in effect will auto-expire at end of next turn;
+                        // NOTE: TODO :
                         // if you need “until Interact”, you’d swap in a custom QEffect:
                         // new QEffect("Cut Above the Eye", "...", ExpirationCondition.ExpiresAtStartOfYourNextTurn, caster)
                         //    { /* Id, description, etc. */ };

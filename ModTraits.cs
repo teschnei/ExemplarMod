@@ -50,20 +50,13 @@ public static class ModTraits
             IsClassTrait = false
         });
 
-
-
-    // keepingTracktraits
-    public static readonly Trait Feint = ModManager.RegisterTrait(
-        "Feint",
-        new TraitProperties("Feint", true)
+    public static readonly Trait DominionEpithet = ModManager.RegisterTrait(
+        "DominionEpithet",
+        new TraitProperties("Dominion Epithet", true)
         {
             IsClassTrait = false
         });
-    public static readonly Trait CreateADiversion = ModManager.RegisterTrait(
-        "CreateADiversion",
-        new TraitProperties("CreateADiversion", true)
-        {
-            IsClassTrait = false
-        });
+
+
     // Add more custom traits here if needed later
 }

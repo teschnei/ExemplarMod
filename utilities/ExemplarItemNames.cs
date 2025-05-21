@@ -167,7 +167,7 @@ namespace Dawnsbury.Mods.Classes.Exemplar
                         return "Must be a weapon.";
                     }
                     else if((!weapon.HasTrait(Trait.Club)) && (!weapon.HasTrait(Trait.Hammer)) && (!weapon.HasTrait(Trait.Axe)) && (!weapon.HasTrait(Trait.Unarmed)) ){
-                        return "Must be a Slashing or a Piercing Weapon. " + weapon.WeaponProperties.DamageKind;
+                        return "Must be a Club, Axe, Hammer or Unarmed. " + weapon.WeaponProperties.DamageKind;
                     }
                     return null;
                 }));

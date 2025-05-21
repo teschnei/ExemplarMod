@@ -11,6 +11,10 @@ TODO list
 CTRL + Shift + F "TODO"
 We need to complete the 'The Deft' and which ever of the X's are below.
 
+TODO: 
+Nodachi's Brace is being overwritten???
+Clean up rune mechanics
+
 | Status | Ikon Name               | Type   | Notes                                                      |
 | :----: | ----------------------- | ------ | ---------------------------------------------------------- |
 |  [O]   | Bands of Imprisonment   | Body   | Done                                                       |
