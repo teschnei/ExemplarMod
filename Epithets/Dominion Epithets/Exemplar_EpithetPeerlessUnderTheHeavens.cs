@@ -38,16 +38,11 @@ namespace Dawnsbury.Mods.Exemplar
             )
             .WithPermanentQEffect(null, qf =>
             {
-                // qf.AfterYouTakeActionAgainstTarget = async (selfQf, action, target, CheckResult) =>
-                // {
-                //     // Critical Specialization on a critical Strike
-                //     if (action.HasTrait(Trait.Strike) && action.CheckResult == CheckResult.CriticalSuccess)
-                //     {
-                //         //get weapon properties
-                //         var weapon = action.Item;
-                //         var weaponGroup = weapon.ItemGroup
-                //     }
-                // };
+                //maybe this works?
+                qf.YouHaveCriticalSpecialization = (selfQf, item, action, defender) =>
+                {
+                    return true;
+                };
                 qf.AfterYouTakeAction = async (selfQf, action) =>
                 {
                     // Critical Specialization on a critical Strike
