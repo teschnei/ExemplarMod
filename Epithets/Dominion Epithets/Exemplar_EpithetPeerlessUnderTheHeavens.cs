@@ -38,20 +38,13 @@ namespace Dawnsbury.Mods.Exemplar
             )
             .WithPermanentQEffect(null, qf =>
             {
-                //maybe this works?
+                //maybe this works? TODO: check
                 qf.YouHaveCriticalSpecialization = (selfQf, item, action, defender) =>
                 {
                     return true;
                 };
                 qf.AfterYouTakeAction = async (selfQf, action) =>
                 {
-                    // Critical Specialization on a critical Strike
-                    if (action.HasTrait(Trait.Strike) && action.CheckResult == CheckResult.CriticalSuccess)
-                    {
-                        // TODO: implement granting of critical specialization effect for this weapon group
-                        // CommonAbilityEffects.CriticalSpecializationEffect(action);
-                    }
-
                     // Frighten effect on Transcendence
                     if (action.HasTrait(ModTraits.Transcendence))
                     {

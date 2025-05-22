@@ -87,7 +87,7 @@ namespace Dawnsbury.Mods.Exemplar
                     var action = new CombatAction(
                         owner,
                         IllustrationName.Whip,
-                        "Embrace of Destiny [NOT IMPLEMENTED]",
+                        "Embrace of Destiny",
                         new[] { Trait.Mental, ModTraits.Transcendence, ModTraits.Ikon },
                         "Choose an enemy within 20 feet. It must succeed at a Will save or be pulled to a square adjacent to you.",
                         Target.Ranged(20)
@@ -95,16 +95,18 @@ namespace Dawnsbury.Mods.Exemplar
                      .WithSavingThrow(new SavingThrow(Defense.Will, qf.Owner.ClassDC()))
                      .WithEffectOnEachTarget(async (act, caster, target, result) =>
                     {
-
-                        if (result.ToString() == "critical success" || result.ToString() == "success")
-                        {
-                            // TODO: Move target adjacent to caster.
-                            // Placeholder: teleport to owner's adjacent square
-                            // var adj = Map.AllTiles.Where(t => t.Distance = 1);
-                            // if (adj != null)
-                            //     CommonSpellEffects.Teleport(target, adj);
                             
-                        }
+                        if (result.Equals(CheckResult.CriticalFailure) || result.Equals(CheckResult.Failure))
+                        {
+                            var map = caster.Battle.Map;
+                            var adj = map.AllTiles
+                                .Where(tile => tile.DistanceTo(caster.Occupies) == 1 && tile.PrimaryOccupant == null)
+                                    .FirstOrDefault();
+
+                            if (adj != null)
+                                await CommonSpellEffects.Teleport(target, adj);
+                            
+                        };
                         // Cleanup empowerment
                         IkonEffectHelper.CleanupEmpoweredEffects(caster, ExemplarIkonQEffectIds.QEmpoweredFetchingBangles);
                     });

@@ -26,11 +26,6 @@ using Microsoft.Xna.Framework;
 
 namespace Dawnsbury.Mods.Exemplar;
 
-/*
-    TODO: 
-    DONE
-
-*/
 public class Ikons_BarrowsEdge
 {
     [DawnsburyDaysModMainMethod]
