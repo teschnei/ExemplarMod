@@ -18,10 +18,6 @@ using Dawnsbury.Mods.Classes.Exemplar;
 using Dawnsbury.Mods.Exemplar.Utilities;
 using Dawnsbury.Phases.Modals;
 
-/*
-    TODO: I need to implement the ability to choose between a cone or an emanation.
-*/
-
 namespace Dawnsbury.Mods.Exemplar
 {
     public class Exemplar_SteelOnSteel
@@ -169,7 +165,7 @@ namespace Dawnsbury.Mods.Exemplar
                     return new SubmenuPossibility(IllustrationName.SteelShield, "Steel on Steel: Choose an action")
                     {
                         Subsections = [
-                            new PossibilitySection("Select Ikon to Empower")
+                            new PossibilitySection("Select an action")
                             {
                                 Possibilities = [
                                     new ActionPossibility(action),

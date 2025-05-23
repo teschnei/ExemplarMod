@@ -105,7 +105,7 @@ public class Ikons_GleamingBlade
 
             // Immanence: Bonus to strike damage
             //todo later, bonus damage QF lambda instead of a new damage event via DealDirectDamage.
-            qf.AfterYouTakeAction = async (qfSelf, action) =>
+            qf.AfterYouDealDamage = async (qfSelf, action, target) =>
             {
                 if (!qf.Owner.HasEffect(ExemplarIkonQEffectIds.QEmpoweredGleamingBlade))
                     return; // Only applies if empowered!

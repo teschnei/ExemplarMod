@@ -32,6 +32,10 @@ namespace Dawnsbury.Mods.Exemplar
                 new[] { ModTraits.Ikon, ModTraits.BodyIkon },
                 null
             ).WithMultipleSelection()
+            .WithOnSheet(sheet =>
+            {
+                sheet.GrantFeat(FeatName.Diehard);
+            })
             .WithPermanentQEffect(null, qf =>
             {
                 // Immanence: +1 to Fortitude saves, but only when not yet empowered
@@ -47,9 +51,6 @@ namespace Dawnsbury.Mods.Exemplar
 
                     return null;
                 };
-
-
-                // TODO: apply full Diehard benefits (stabilize at 0 HP, etc.)
 
                 // Transcendence — No Scar but This
                 qf.ProvideMainAction = qf =>

@@ -17,12 +17,6 @@ using Dawnsbury.Mods.Exemplar.Utilities;
 
 namespace Dawnsbury.Mods.Exemplar
 {
-    /*
-        TODO : 
-        1. Test
-        2. add +1 to perception.
-
-    */
     public class Ikons_GazeSharpAsSteel
     {
         [DawnsburyDaysModMainMethod]
@@ -41,11 +35,7 @@ namespace Dawnsbury.Mods.Exemplar
             .WithPermanentQEffect(null, qf =>
             {
                 // Immanence: Perception and AC vs ranged
-                
-                // qf.BonusToSkillChecks = (skill, eff, defense) =>
-                //     eff.Owner.HasEffect(ExemplarIkonQEffectIds.QEmpoweredGazeSharpAsSteel) && skill == 
-                //         ? new Bonus(1, BonusType.Status, "Gaze Sharp As Steel")
-                //         : null;
+
                 
                 qf.BonusToDefenses = (eff, action, defense) =>
                     eff.Owner.HasEffect(ExemplarIkonQEffectIds.QEmpoweredGazeSharpAsSteel)

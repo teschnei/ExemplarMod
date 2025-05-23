@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Linq;
 using Dawnsbury.Core;
 using Dawnsbury.Core.CharacterBuilder.Feats;
@@ -19,25 +20,6 @@ using Dawnsbury.Mods.Exemplar.Utilities;
 
 namespace Dawnsbury.Mods.Exemplar
 {
-    /*
-        PFS Standard
-        Mortal Harvest
-        Weapon Ikon
-        Source War of Immortals pg. 45
-        Usage: a sickle or any weapon from the axe, flail, or polearm group
-
-        Immanence
-        The mortal harvest deals 1 persistent spirit damage per weapon damage die to creatures it Strikes.
-
-        Transcendence — Reap the Field (one-action)
-        [Requirements] Your previous action was a successful Strike with the mortal harvest.
-        Effect: Stride up to half your Speed and make another melee Strike with the mortal harvest
-        against a different creature. This Strike uses the same multiple attack penalty as your
-        previous Strike, but counts toward your multiple attack penalty as normal.
-    */
-    /*
-        TODO: Currently we need to make sure the MAP penalty is not being affected
-    */
     public class Ikons_MortalHarvest
     {
         [DawnsburyDaysModMainMethod]
@@ -72,7 +54,6 @@ namespace Dawnsbury.Mods.Exemplar
                     // var formula = DiceFormula.FromText($"{dice}", "Mortal Harvest persistent spirit");
                     var formula = ($"{dice}");
 
-                    // TODO: replace with the actual persistent‐damage helper once available
                     // await CommonSpellEffects.ApplyPersistentDamage(action, formula, target, action.CheckResult, DamageKind.Spirit);
                     await CommonSpellEffects.DealBasicPersistentDamage(target,action.CheckResult, formula, DamageKind.Negative );
                 };
@@ -103,9 +84,19 @@ namespace Dawnsbury.Mods.Exemplar
                             self.Actions.RevertExpendingOfResources(1,act);
                             return;
                         }
+                        //map pen
+                        var pen = 5;
+                        if (prev.HasTrait(Trait.Agile))
+                        {
+                            pen = 4;
+                        }
 
                         // Stride up to half Speed
                         await self.StrideAsync("Choose where to stride (half Speed).", allowPass: false, maximumHalfSpeed: true);
+
+                        //Cleanup: currently this is to offset the MAP penalty.
+                        qf.BonusToAttackRolls = (eff, act, defender) => 
+                            qf.Owner == self ? new Bonus(pen, BonusType.Untyped, "Mortal Harvest") : null;
 
                         // Now strike a different creature
                         await CommonCombatActions.StrikeAdjacentCreature(self, null);
