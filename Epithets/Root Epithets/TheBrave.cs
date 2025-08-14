@@ -66,7 +66,7 @@ namespace Dawnsbury.Mods.Exemplar
                         {
                             if (target.HasEffect(ExemplarIkonQEffectIds.QTheBraveUsedOnTarget))
                             {
-                                target.Occupies.Overhead("This has unit has been targetted already.", Color.Orange);
+                                target.Overhead("This has unit has been targetted already.", Color.Orange);
                                 return;
                             }
 

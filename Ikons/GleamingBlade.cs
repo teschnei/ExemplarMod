@@ -62,7 +62,7 @@ public class Ikons_GleamingBlade
 
                     if (weapon == null)
                     {
-                        caster.Occupies.Overhead("Missing Weapon", Microsoft.Xna.Framework.Color.Orange);
+                        caster.Overhead("Missing Weapon", Microsoft.Xna.Framework.Color.Orange);
                         caster.Actions.RevertExpendingOfResources(2, mainAction);
                         return;
                     }

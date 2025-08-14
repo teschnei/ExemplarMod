@@ -159,7 +159,7 @@ namespace Dawnsbury.Mods.Exemplar
                         );
                         var picked = options.First(o => o.Label == choice.Text);
 
-                        self.Occupies.Overhead($"Skin attuned to {picked.Label}.", Microsoft.Xna.Framework.Color.Gold);
+                        self.Overhead($"Skin attuned to {picked.Label}.", Microsoft.Xna.Framework.Color.Gold);
 
                         // Full-level bonus QEffect
                         var kind = picked.Feat == IkonSkinHornBludgeoning ? DamageKind.Bludgeoning

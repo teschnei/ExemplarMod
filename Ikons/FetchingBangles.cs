@@ -69,7 +69,7 @@ namespace Dawnsbury.Mods.Exemplar
                                     if (save.ToString() == "critical failure" || save.ToString() == "failure")
                                     {
                                         action.RevertRequested = true;
-                                        foe.Occupies.Overhead("Your movement is disrupted by Fetching Bangles!", Color.Orange);
+                                        foe.Overhead("Your movement is disrupted by Fetching Bangles!", Color.Orange);
                                     }
                                 }
                             });

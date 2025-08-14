@@ -80,7 +80,7 @@ namespace Dawnsbury.Mods.Exemplar
                         var prev = self.Actions.ActionHistoryThisEncounter.LastOrDefault();
                         if (prev == null || !prev.HasTrait(Trait.Strike))
                         {
-                            self.Occupies.Overhead("Your last action must be a successful strike with the mortal harvest.", Microsoft.Xna.Framework.Color.Orange);
+                            self.Overhead("Your last action must be a successful strike with the mortal harvest.", Microsoft.Xna.Framework.Color.Orange);
                             self.Actions.RevertExpendingOfResources(1,act);
                             return;
                         }

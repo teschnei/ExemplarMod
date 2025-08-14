@@ -91,7 +91,7 @@ namespace Dawnsbury.Mods.Exemplar
                         var prev = self.Actions.ActionHistoryThisEncounter.LastOrDefault();
                         if (prev == null || !prev.HasTrait(Trait.Strike) || prev.Item == null)
                         {
-                            self.Occupies.Overhead("You must Strike first to use Strike, Breathe, Rend.", Color.Orange);
+                            self.Overhead("You must Strike first to use Strike, Breathe, Rend.", Color.Orange);
                             self.Actions.RevertExpendingOfResources(1, act);
                             return;
                         }
@@ -100,7 +100,7 @@ namespace Dawnsbury.Mods.Exemplar
                         var tracker = self.QEffects.FirstOrDefault(q => q.Id == ExemplarIkonQEffectIds.QNobleBranchDamageTracker);
                         if (tracker == null)
                         {
-                            self.Occupies.Overhead("No damage recorded. You must hit with your Strike first.", Color.Orange);
+                            self.Overhead("No damage recorded. You must hit with your Strike first.", Color.Orange);
                             self.Actions.RevertExpendingOfResources(1, act);
                             return;
                         }

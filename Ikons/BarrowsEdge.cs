@@ -101,7 +101,7 @@ public class Ikons_BarrowsEdge
 
                     if (previous == null || !previous.HasTrait(Trait.Strike) || tracker == null)
                     {
-                        caster.Occupies.Overhead("You must Strike before using Drink of My Foes.", Microsoft.Xna.Framework.Color.Orange);
+                        caster.Overhead("You must Strike before using Drink of My Foes.", Microsoft.Xna.Framework.Color.Orange);
                         caster.Actions.RevertExpendingOfResources(1, act);
                         return;
                     }

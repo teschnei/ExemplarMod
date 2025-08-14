@@ -172,7 +172,7 @@ namespace Dawnsbury.Mods.Exemplar
                         var pick = options.First(fn => fn.Label == choice.Text);
 
                         // 4) Announce it
-                        self.Occupies.Overhead($"Pelt attuned to {pick.Label}.", Microsoft.Xna.Framework.Color.Gold);
+                        self.Overhead($"Pelt attuned to {pick.Label}.", Microsoft.Xna.Framework.Color.Gold);
                         AuraAnimation auraAnimation = qf.Owner.AnimationData.AddAuraAnimation(IllustrationName.MagicCircle150, 3F);
 
                         // 5) Blast out the +2 aura vs. the new damage kind

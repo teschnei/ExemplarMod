@@ -63,8 +63,8 @@ namespace Dawnsbury.Mods.Exemplar
                         "Starshot splash"
                     );
 
-                    DamageKind damageKind = DamageKindHelper.GetDamageKindFromEffect(qf.Owner, ExemplarIkonQEffectIds.QEnergizedSpark);   
-                    
+                    DamageKind damageKind = DamageKindHelper.GetDamageKindFromEffect(qf.Owner, ExemplarIkonQEffectIds.QEnergizedSpark);
+
                     // now call the 4-arg overload:
                     await CommonSpellEffects.DealDirectSplashDamage(
                         action,
@@ -99,7 +99,7 @@ namespace Dawnsbury.Mods.Exemplar
                     ).WithActionCost(2);
 
                     // RulesBlock.GetIconTextFromNumberOfActions(2);
-                    
+
                     // Basic Reflex save against your class DC
                     action.WithSavingThrow(new SavingThrow(
                         Defense.Reflex, qf.Owner.ClassDC()
@@ -112,7 +112,7 @@ namespace Dawnsbury.Mods.Exemplar
                             .FirstOrDefault(i => i.WeaponProperties?.Melee == false && i.HasTrait(Trait.Ranged));
                         if (weapon == null)
                         {
-                            caster.Occupies.Overhead("No starshot equipped.", Color.Orange);
+                            caster.Overhead("No starshot equipped.", Color.Orange);
                             return;
                         }
 
@@ -120,7 +120,7 @@ namespace Dawnsbury.Mods.Exemplar
                         int dieSize = weapon.WeaponProperties?.DamageDieSize ?? 6;
                         var df = DiceFormula.FromText($"{diceCount}d{dieSize}", "Giant-Felling Comet");
 
-                        DamageKind damageKind = DamageKindHelper.GetDamageKindFromEffect(qf.Owner, ExemplarIkonQEffectIds.QEnergizedSpark);   
+                        DamageKind damageKind = DamageKindHelper.GetDamageKindFromEffect(qf.Owner, ExemplarIkonQEffectIds.QEnergizedSpark);
 
                         //  ▸ 5-arg overload: (CombatAction? power, DiceFormula damage, Creature target, CheckResult checkResult, DamageKind kind)
                         await CommonSpellEffects.DealBasicDamage(

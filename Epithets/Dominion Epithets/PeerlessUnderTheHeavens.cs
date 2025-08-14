@@ -67,7 +67,7 @@ namespace Dawnsbury.Mods.Exemplar
                                     // Prevent re-targeting the same creature
                                     if (target.HasEffect(ExemplarIkonQEffectIds.QTheMournfulImmune))
                                     {
-                                        target.Occupies.Overhead("They are already immune.", Color.Orange);
+                                        target.Overhead("They are already immune.", Color.Orange);
                                         return;
                                     }
 

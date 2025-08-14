@@ -69,7 +69,7 @@ public class Ikons_BandsOfImprisonment
                     var result = CommonSpellEffects.RollCheck("Escape", new ActiveRollSpecification(escapeCheck, Checks.FlatDC(20)), self, self);
 
                     // Log result
-                    self.Occupies.Overhead($"Escape: {result}", Microsoft.Xna.Framework.Color.White);
+                    self.Overhead($"Escape: {result}", Microsoft.Xna.Framework.Color.White);
 
                     if (!await self.StrideAsync(
                         "Choose where to Stride. (1/2)",

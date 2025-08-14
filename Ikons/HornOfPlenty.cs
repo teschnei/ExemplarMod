@@ -65,7 +65,7 @@ namespace Dawnsbury.Mods.Exemplar
                                                 .FirstOrDefault(i => i.BaseItemName == ExemplarItemNames.IkonHornOfPlentyItem);
                                             if (hornItem == null)
                                             {
-                                                caster.Occupies.Overhead("Horn of Plenty not equipped.", Color.Orange);
+                                                caster.Overhead("Horn of Plenty not equipped.", Color.Orange);
                                                 return;
                                             }
 
@@ -74,7 +74,7 @@ namespace Dawnsbury.Mods.Exemplar
                                                 .FirstOrDefault(it => it.HasTrait(Trait.Consumable));
                                             if (consumable == null)
                                             {
-                                                caster.Occupies.Overhead("Horn is empty.", Color.Orange);
+                                                caster.Overhead("Horn is empty.", Color.Orange);
                                                 return;
                                             }
 
@@ -114,7 +114,7 @@ namespace Dawnsbury.Mods.Exemplar
                                                 .FirstOrDefault(it => it.HasTrait(Trait.Consumable));
                                             if (hornItem == null || consumable == null)
                                             {
-                                                caster.Occupies.Overhead("Horn is empty.", Color.Orange);
+                                                caster.Overhead("Horn is empty.", Color.Orange);
                                                 return;
                                             }
                                             hornItem.StoredItems.Remove(consumable);

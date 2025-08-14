@@ -68,7 +68,7 @@ namespace Dawnsbury.Mods.Exemplar
                             // Prevent re-targeting the same ally within 10 minutes
                             if (target.HasEffect(ExemplarIkonQEffectIds.QTheRadiantImmune))
                             {
-                                target.Occupies.Overhead("They are already inspired recently.", Color.Orange);
+                                target.Overhead("They are already inspired recently.", Color.Orange);
                                 return;
                             }
 

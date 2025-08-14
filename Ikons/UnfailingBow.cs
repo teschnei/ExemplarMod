@@ -91,7 +91,7 @@
 //                         var prev = self.Actions.ActionHistoryThisEncounter.LastOrDefault();
 //                         if (prev == null || !prev.HasTrait(Trait.Strike) || prev.Item != self.PrimaryWeaponIncludingRanged)
 //                         {
-//                             self.Occupies.Overhead(
+//                             self.Overhead(
 //                                 "Your last action must be a Strike with the unfailing bow.",
 //                                 Microsoft.Xna.Framework.Color.Orange
 //                             );
@@ -102,7 +102,7 @@
 //                         var target = prev.ChosenTargets?.ChosenCreature;
 //                         if (target == null)
 //                         {
-//                             self.Occupies.Overhead(
+//                             self.Overhead(
 //                                 "No valid target for repeat shot.",
 //                                 Microsoft.Xna.Framework.Color.Orange
 //                             );
@@ -116,7 +116,7 @@
 //                         // Repeat the strike with forced result
 //                         if (prev.Item == null || prev.ChosenTargets == null)
 //                         {
-//                             self.Occupies.Overhead(
+//                             self.Overhead(
 //                                 prev.Item == null 
 //                                     ? "The previous action's item is invalid." 
 //                                     : "No valid targets to repeat the shot.",
