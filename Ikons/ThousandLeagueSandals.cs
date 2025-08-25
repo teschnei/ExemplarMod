@@ -1,95 +1,106 @@
+using System.Collections.Generic;
 using System.Linq;
 using Dawnsbury.Core;
 using Dawnsbury.Core.CharacterBuilder.Feats;
-using Dawnsbury.Core.CharacterBuilder.FeatsDb.Common;
 using Dawnsbury.Core.CombatActions;
-using Dawnsbury.Core.Creatures;
-using Dawnsbury.Core.Mechanics;
 using Dawnsbury.Core.Mechanics.Core;
 using Dawnsbury.Core.Mechanics.Enumerations;
 using Dawnsbury.Core.Mechanics.Targeting;
+using Dawnsbury.Core.Mechanics.Treasure;
 using Dawnsbury.Core.Possibilities;
-using Dawnsbury.Display.Illustrations;
+using Dawnsbury.Display;
 using Dawnsbury.Modding;
-using Dawnsbury.Mods.Classes.Exemplar;
-using Dawnsbury.Mods.Exemplar.Utilities;
+using Dawnsbury.Mods.Classes.Exemplar.RegisteredComponents;
+using static Dawnsbury.Mods.Classes.Exemplar.ExemplarClassLoader;
 
-namespace Dawnsbury.Mods.Exemplar
+namespace Dawnsbury.Mods.Classes.Exemplar;
+
+public class ThousandLeagueSandals
 {
-    public class Ikons_ThousandLeagueSandals
+    [FeatGenerator(0)]
+    public static IEnumerable<Feat> GetFeat()
     {
-        [DawnsburyDaysModMainMethod]
-        public static void Load()
+        ItemName ikonRune = ModManager.RegisterNewItemIntoTheShop("ThousandLeagueSandals", itemName =>
         {
-            /*
-                This one needs more testing to make sure it's working as intended, it seems to be done?
-            */
-            var ikon = new TrueFeat(
-                ExemplarFeatNames.IkonThousandLeagueSandals,
-                1,
-                "Thousand-League Sandals",
-                "{b}Immanence{/b} Your sandals ease your travels on the path ahead, granting you a +10-foot status bonus to your Speed.\n\n" +
-                "{b}Transcendence — Marathon Dash (one-action){/b} Your feet carry you so quickly they leave a slipstream that speeds your allies on. You Stride. Each ally who was within 10 feet of you at the start of your movement can Stride as a reaction.",
-                new[] { ModTraits.Ikon },
-                null
-            ).WithMultipleSelection()
-            .WithPermanentQEffect(null, qf =>
+            return new Item(itemName, IllustrationName.FearsomeRunestone, "Thousand League Sandals", 1, 0, Trait.DoNotAddToShop, ExemplarTraits.IkonShoes)
+            .WithRuneProperties(new RuneProperties("Ikon", IkonRuneKind.ThousandLeagueSandals, "Threadbare but trustworthy, your sandals have carried you this far, and they'll carry you much farther still.",
+            "", item =>
             {
-                // Immanence: +10-foot status bonus to Speed, but only while empowered
-                qf.BonusToAllSpeeds = qfSelf =>
+                item.Traits.AddRange([ExemplarTraits.Ikon, Trait.Divine]);
+            })
+            .WithCanBeAppliedTo((Item rune, Item item) =>
+            {
+                if (!item.HasTrait(Trait.Worn) || item.WornAt != Trait.Shoes)
                 {
-                    // Don't apply the speed bonus unless they've shifted (i.e. have the empowered Q-effect)
-                    if (!qfSelf.Owner.HasEffect(ExemplarIkonQEffectIds.QEmpoweredThousandLeagueSandals))
-                        return null;
-
-                    return new Bonus(2, BonusType.Status, "Thousand-League Sandals");
-                };
-
-
-                // Transcendence: Marathon Dash
-                qf.ProvideMainAction = qf =>
+                    return "Must be worn shoes.";
+                }
+                return null;
+            }));
+        });
+        ItemName freeItem = ModManager.RegisterNewItemIntoTheShop("OrdinaryBoots", itemName =>
+        {
+            return new Item(itemName, IllustrationName.BootsOfBounding, "Boots", 1, 0, Trait.DoNotAddToShop)
+            .WithDescription("An ordinary pair of boots.")
+            .WithWornAt(Trait.Shoes);
+        });
+        yield return new Ikon(new Feat(
+            ExemplarFeats.ThousandLeagueSandals,
+            "Threadbare but trustworthy, your sandals have carried you this far, and they'll carry you much farther still.",
+            "{b}Usage{/b} worn shoes\n\n" +
+            "{b}Immanence{/b} Your sandals ease your travels on the path ahead, granting you a +10-foot status bonus to your Speed.\n\n" +
+            $"{{b}}Transcendence — Marathon Dash {RulesBlock.GetIconTextFromNumberOfActions(1)}{{/b}} (transcendence)\n" +
+            "Your feet carry you so quickly they leave a slipstream that speeds your allies on. You Stride. Each ally within 10 feet of you at the start of your movement can Stride as a reaction.",
+            [ExemplarTraits.Ikon],
+            null
+        ).WithIllustration(IllustrationName.FreedomOfMovement), q =>
+        {
+            q.BonusToAllSpeeds = qe => Ikon.GetIkonItemWorn(qe.Owner, ikonRune) != null ? new Bonus(2, BonusType.Circumstance, "Thousand League Sandals") : null;
+        }, q =>
+        {
+            return new ActionPossibility(new CombatAction(
+                q.Owner,
+                IllustrationName.FreedomOfMovement,
+                "Marathon Dash",
+                [ExemplarTraits.Transcendence],
+                "Your feet carry you so quickly they leave a slipstream that speeds your allies on. You Stride. Each ally within 10 feet of you at the start of your movement can Stride as a reaction.",
+                Target.Self().WithAdditionalRestriction(self =>
                 {
-                    if (qf.Owner.HasEffect(ExemplarIkonQEffectIds.TranscendenceTracker) || !qf.Owner.HasEffect(ExemplarIkonQEffectIds.QEmpoweredThousandLeagueSandals))
-                        return null;
-
-                    var action = new CombatAction(
-                        qf.Owner,
-                        IllustrationName.FreedomOfMovement,
-                        "Marathon Dash",
-                        new[] { ModTraits.Ikon, ModTraits.Transcendence },
-                        "You Stride. Each ally who was within 10 feet of you at the start of your movement can Stride as a reaction.",
-                        Target.Self()
-                    ).WithActionCost(1);
-
-                    action.WithEffectOnSelf(async (act, self) =>
+                    if (Ikon.GetIkonItemWorn(self, ikonRune) == null)
                     {
-                        // Capture which allies were in range at start
-                        var allies = self.Battle.AllCreatures
-                            .Where(a => a.OwningFaction == self.OwningFaction && a != self && a.DistanceTo(self) <= 2)
-                            .ToList();
+                        return "You must be wearing the Thousand League Sandals";
+                    }
+                    return null;
+                })
+            ).WithActionCost(1)
+            .WithEffectOnChosenTargets(async (action, self, target) =>
+            {
+                // Capture which allies were in range at start
+                var allies = self.Battle.AllCreatures
+                    .Where(a => a.FriendOf(self) && a != self && a.DistanceTo(self) <= 2)
+                    .ToList();
 
-                        // Your movement
-                        await self.StrideAsync("Marathon Dash: choose where to Stride", allowPass: false);
-
-                        // Allow each captured ally to Stride as a reaction
-                        foreach (var ally in allies)
+                // Your movement
+                if (!await self.StrideAsync("Marathon Dash: Choose where to Stride", allowPass: false))
+                {
+                    action.RevertRequested = true;
+                }
+                else
+                {
+                    // Allow each captured ally to Stride as a reaction
+                    foreach (var ally in allies)
+                    {
+                        // Note: this invokes their Stride; game will treat it as a reaction
+                        if (await ally.AskToUseReaction("Marathon Dash: Use your reaction to Stride?"))
                         {
-                            // Note: this invokes their Stride; game will treat it as a reaction
-                            if(await ally.AskToUseReaction("Slipstream Reaction: Chose where to stride") )
-                            {
-                                await ally.StrideAsync("Slipstream : Choose where to Stride", allowPass: true);
-                            }
+                            await ally.StrideAsync("Marathon Dash: Choose where to Stride", allowPass: true);
                         }
-
-                        // Clean up empowerment & grant free shift + exhaustion
-                        IkonEffectHelper.CleanupEmpoweredEffects(self, ExemplarIkonQEffectIds.QEmpoweredThousandLeagueSandals);
-                    });
-
-                    return new ActionPossibility(action);
-                };
-            });
-
-            ModManager.AddFeat(ikon);
-        }
+                    }
+                }
+            }));
+        })
+        .WithRune(ikonRune)
+        .WithFreeWornItem(freeItem)
+        .IkonFeat;
     }
 }
+

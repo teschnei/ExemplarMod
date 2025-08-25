@@ -1,93 +1,66 @@
-using System;
-using System.Linq;
+using System.Collections.Generic;
 using Dawnsbury.Core;
 using Dawnsbury.Core.CharacterBuilder.Feats;
 using Dawnsbury.Core.CombatActions;
-using Dawnsbury.Core.Creatures;
 using Dawnsbury.Core.Mechanics;
 using Dawnsbury.Core.Mechanics.Core;
 using Dawnsbury.Core.Mechanics.Enumerations;
 using Dawnsbury.Core.Mechanics.Targeting;
 using Dawnsbury.Core.Possibilities;
 using Dawnsbury.Core.Roller;
-using Dawnsbury.Display.Illustrations;
-using Dawnsbury.Modding;
-using Dawnsbury.Mods.Classes.Exemplar;
-using Dawnsbury.Mods.Exemplar.Utilities;
+using Dawnsbury.Display;
+using Dawnsbury.Mods.Classes.Exemplar.RegisteredComponents;
+using static Dawnsbury.Mods.Classes.Exemplar.ExemplarClassLoader;
 
-namespace Dawnsbury.Mods.Exemplar
+namespace Dawnsbury.Mods.Classes.Exemplar;
+
+public class GazeSharpAsSteel
 {
-    public class Ikons_GazeSharpAsSteel
+    [FeatGenerator(0)]
+    public static IEnumerable<Feat> GetFeat()
     {
-        [DawnsburyDaysModMainMethod]
-        public static void Load()
+        yield return new Ikon(new Feat(
+            ExemplarFeats.GazeSharpAsSteel,
+            "Your eyes glint with an almost-tangible sharpness, letting you spot the tiniest swallow on the horizon or the swiftest arrow in flight.",
+            "{b}Usage{/b} imbued in the eyes\n\n" +
+            "{b}Immanence{/b} Your vision sharpens and allows you to sense an enemy's attack almost as soon as it begins, granting you a +1 status bonus to Perception checks and a +2 status bonus to your AC against ranged attacks.\n\n" +
+            $"{{b}}Transcendence — A Moment Unending {RulesBlock.GetIconTextFromNumberOfActions(1)}{{/b}} (concentrate, prediction, transcendence)\n" +
+            "You take in every movement around you, affording you unparalleled accuracy. Your next successful Strike against an enemy before the end of your next turn deals an additional 1d6 precision damage (2d6 at 10th level, 3d6 at 18th).",
+            [ExemplarTraits.Ikon],
+            null
+        ).WithIllustration(IllustrationName.Blinded), q =>
         {
-            var ikon = new TrueFeat(
-                ExemplarFeatNames.IkonGazeSharpAsSteel,
-                1,
-                "Gaze Sharp As Steel",
-                "{b}Immanence{/b} Your vision sharpens and allows you to sense an enemy's attack almost as soon as it begins, granting you a +1 status bonus to Perception checks and a +2 status bonus to your AC against ranged attacks.\n\n" +
-                "{b}Transcendence — A Moment Unending (one-action){/b} Concentrate, Prediction, Transcendence\n" +
+            q.BonusToDefenses = (q, action, defense) => action?.HasTrait(Trait.Ranged) ?? false && defense == Defense.AC ? new Bonus(2, BonusType.Status, "Gaze Sharp as Steel") : null;
+        }, q =>
+        {
+            return new ActionPossibility(new CombatAction(
+                q.Owner,
+                IllustrationName.Blinded,
+                "A Moment Unending",
+                [Trait.Concentrate, Trait.Prediction, ExemplarTraits.Transcendence],
                 "You take in every movement around you, affording you unparalleled accuracy. Your next successful Strike against an enemy before the end of your next turn deals an additional 1d6 precision damage (2d6 at 10th level, 3d6 at 18th).",
-                new[] { ModTraits.Ikon , ModTraits.BodyIkon},
-                null
-            ).WithMultipleSelection()
-            .WithPermanentQEffect(null, qf =>
+                Target.Self()
+            ).WithActionCost(1)
+            .WithEffectOnSelf(async (action, self) =>
             {
-                // Immanence: Perception and AC vs ranged
-
-                
-                qf.BonusToDefenses = (eff, action, defense) =>
-                    eff.Owner.HasEffect(ExemplarIkonQEffectIds.QEmpoweredGazeSharpAsSteel)
-                    && action != null && action.HasTrait(Trait.Ranged)
-                    && defense == Defense.AC
-                        ? new Bonus(2, BonusType.Status, "Gaze Sharp As Steel")
-                        : null;
-
-                // Transcendence — A Moment Unending
-                qf.ProvideMainAction = qf =>
+                string extraDamage = $"{(self.Level >= 18 ? 3 : self.Level >= 10 ? 2 : 1)}d6";
+                self.AddQEffect(new QEffect("A Moment Unending", $"Your next successful Strike against an enemy deals an additional {extraDamage} precision damage.", ExpirationCondition.ExpiresAtEndOfYourTurn, self, IllustrationName.Blinded)
                 {
-                    if (qf.Owner.HasEffect(ExemplarIkonQEffectIds.TranscendenceTracker) 
-                    || !qf.Owner.HasEffect(ExemplarIkonQEffectIds.QEmpoweredGazeSharpAsSteel))
-                        return null;
-
-                    var action = new CombatAction(
-                        qf.Owner,
-                        IllustrationName.RubEyes, // replace with a suitable eye‐focused icon
-                        "A Moment Unending",
-                        new[] { Trait.Concentrate, Trait.Prediction, ModTraits.Transcendence, ModTraits.Ikon },
-                        "Your next successful Strike before end of turn deals extra precision damage.",
-                        Target.Self()
-                    ).WithActionCost(1);
-
-                    action.WithEffectOnSelf(async (act, self) =>
+                    YouDealDamageWithStrike = (q, action, diceFormula, target) =>
                     {
-                        // 1) Mark the buff
-                        self.RemoveAllQEffects(q => q.Id == ExemplarIkonQEffectIds.QGazeMomentUnending);
-                        self.AddQEffect(new QEffect("Moment Unending Buff", "Next Strike deals extra precision damage", ExpirationCondition.ExpiresAtStartOfYourTurn, self, IllustrationName.RubEyes)
+                        if (action.HasTrait(Trait.Strike))
                         {
-                            Id = ExemplarIkonQEffectIds.QGazeMomentUnending,
-                            AddExtraStrikeDamage = (strikeAction, defender) =>
+                            q.ExpiresAt = ExpirationCondition.Immediately;
+                            if (!target.IsImmuneTo(Trait.PrecisionDamage))
                             {
-                                if (!strikeAction.HasTrait(Trait.Strike)) 
-                                    return null;
-                                
-                                DamageKind damageKind = DamageKindHelper.GetDamageKindFromEffect(self, ExemplarIkonQEffectIds.QEnergizedSpark);
-                                int diceCount = self.Level >= 18 ? 3 : self.Level >= 10 ? 2 : 1;
-                                return (DiceFormula.FromText($"{diceCount}d6", "Moment Unending"), damageKind);
+                                return diceFormula.Add(DiceFormula.FromText(extraDamage, "A Moment Unending"));
                             }
-                        });
-
-                        // 2) Cleanup empowerment + free shift + exhaustion
-                        // Remove all empowered effects
-                        IkonEffectHelper.CleanupEmpoweredEffects(self, ExemplarIkonQEffectIds.QEmpoweredGazeSharpAsSteel);
-                    });
-
-                    return new ActionPossibility(action);
-                };
-            });
-
-            ModManager.AddFeat(ikon);
-        }
+                        }
+                        return diceFormula;
+                    },
+                    CannotExpireThisTurn = true
+                });
+            }));
+        }).IkonFeat;
     }
 }

@@ -1,128 +1,110 @@
-using System;
-using System.Data.Common;
-using System.Drawing;
+using System.Collections.Generic;
 using System.Linq;
 using Dawnsbury.Core;
 using Dawnsbury.Core.CharacterBuilder.Feats;
-using Dawnsbury.Core.CharacterBuilder.FeatsDb.Common;
-using Dawnsbury.Core.CharacterBuilder.FeatsDb.Spellbook;
-using Dawnsbury.Core.CharacterBuilder.Spellcasting;
 using Dawnsbury.Core.CombatActions;
-using Dawnsbury.Core.Creatures;
-using Dawnsbury.Core.Mechanics;
 using Dawnsbury.Core.Mechanics.Core;
 using Dawnsbury.Core.Mechanics.Damage;
 using Dawnsbury.Core.Mechanics.Enumerations;
 using Dawnsbury.Core.Mechanics.Targeting;
-using Dawnsbury.Core.Mechanics.Targeting.Targets;
+using Dawnsbury.Core.Mechanics.Treasure;
 using Dawnsbury.Core.Possibilities;
 using Dawnsbury.Core.Roller;
 using Dawnsbury.Display;
-using Dawnsbury.Display.Illustrations;
 using Dawnsbury.Modding;
-using Dawnsbury.Mods.Classes.Exemplar;
-using Dawnsbury.Mods.Exemplar.Utilities;
-using Microsoft.Xna.Framework;
+using Dawnsbury.Mods.Classes.Exemplar.RegisteredComponents;
+using static Dawnsbury.Mods.Classes.Exemplar.ExemplarClassLoader;
 
-namespace Dawnsbury.Mods.Exemplar;
+namespace Dawnsbury.Mods.Classes.Exemplar;
 
-public class Ikons_BarrowsEdge
+public class BarrowsEdge
 {
-    [DawnsburyDaysModMainMethod]
-    public static void Load()
+    [FeatGenerator(0)]
+    public static IEnumerable<Feat> GetFeat()
     {
-        Feat barrowsEdge = new TrueFeat(
-            ExemplarFeatNames.IkonBarrowsEdge,
-            1,
-            "This blade subtly rattles in its scabbard, as if it wants to be unsheathed so it can consume violence.",
-            "{b}Immanence{/b} The barrow's edge deals 1 additional spirit damage per weapon damage die to a creature it Strikes. If the creature is below half its maximum Hit Points, the weapon deals 3 additional spirit damage per weapon damage die instead.\n\n" +
-            "{b}Transcendence — Drink of my Foes (one-action){/b} [Requirements] Your last action was a successful Strike with the barrow's edge. Your blade glows as it absorbs your foe's vitality. You regain Hit Points equal to half the damage dealt.",
-            [ModTraits.Ikon],
-            null
-        ).WithMultipleSelection()
-        .WithPermanentQEffect(null, qf =>
+        ItemName ikonRune = ModManager.RegisterNewItemIntoTheShop("BarrowsEdge", itemName =>
         {
-
-            // Immanence effect (simplified with conditional bonus)
-            qf.BonusToDamage = (qfSelf, action, defender) =>
+            return new Item(itemName, IllustrationName.FearsomeRunestone, "Barrow's Edge", 1, 0, Trait.DoNotAddToShop, ExemplarTraits.IkonSlashingPiercing)
+            .WithRuneProperties(new RuneProperties("Ikon", IkonRuneKind.BarrowsEdge, "This blade subtly rattles in its scabbard, as if it wants to be unsheathed so it can consume violence.",
+            "", item =>
             {
-                if (!qf.Owner.HasEffect(ExemplarIkonQEffectIds.QEmpoweredBarrowsEdge))
-                    return null;
-
-                if (!action.HasTrait(Trait.Strike) || action.Item == null || defender == null)
-                    return null;
-
-                bool isWeakened = defender.HP <= defender.MaxHP / 2;
-                int bonusPerDie = isWeakened ? 3 : 1;
-                int dice = action.Item.WeaponProperties?.DamageDieCount ?? 1;
-                return new Bonus(bonusPerDie * dice, BonusType.Circumstance, "Barrow's Edge bonus damage");
-            };
-
-            qf.AfterYouDealDamage = async (attacker, action, target) =>
+                item.Traits.AddRange([ExemplarTraits.Ikon, Trait.Divine]);
+            })
+            .WithCanBeAppliedTo((Item rune, Item weapon) =>
             {
-                var owner = qf.Owner;
-
-                if (!action.HasTrait(Trait.Strike)
-                    )
-                    return;
-
-                // Clear any old tracker
-                owner.RemoveAllQEffects(q => q.Id == ExemplarIkonQEffectIds.QBarrowsEdgeDamageTracker);
-
-                // Add a new one with the exact damage
-                owner.AddQEffect(new QEffect("Barrow's Edge Damage Tracker", "", ExpirationCondition.Never, attacker, IllustrationName.BloodVendetta)
+                if (weapon.WeaponProperties == null)
                 {
-                    Id = ExemplarIkonQEffectIds.QBarrowsEdgeDamageTracker,
-                    Source = attacker,
-                    Value = target.Damage,
-                });
-            };
-
-            // Transcendence
-            qf.ProvideMainAction = qf =>
-            {
-                if (qf.Owner.HasEffect(ExemplarIkonQEffectIds.TranscendenceTracker) || !qf.Owner.HasEffect(ExemplarIkonQEffectIds.QEmpoweredBarrowsEdge))
-                    return null;
-                    
-                CombatAction action = new CombatAction(
-                    qf.Owner,
-                    IllustrationName.Scythe,
-                    "Drink of my Foes",
-                    [Trait.Healing, ModTraits.Ikon, ModTraits.Transcendence],
-                    "Your blade glows as it absorbs your foe's vitality.",
-                    Target.Self()
-                ).WithActionCost(1);
-
-                action.WithEffectOnSelf(async (act, caster) =>
+                    return "Must be a weapon.";
+                }
+                else if (weapon.WeaponProperties.DamageKind.ToString() != "Slashing" && weapon.WeaponProperties.DamageKind.ToString() != "Piercing")
                 {
-                    var previous = caster.Actions.ActionHistoryThisEncounter.LastOrDefault();
-
-                    var tracker = caster.QEffects.Where(q => q.Id == ExemplarIkonQEffectIds.QBarrowsEdgeDamageTracker).FirstOrDefault();
-
-                    if (previous == null || !previous.HasTrait(Trait.Strike) || tracker == null)
-                    {
-                        caster.Overhead("You must Strike before using Drink of My Foes.", Microsoft.Xna.Framework.Color.Orange);
-                        caster.Actions.RevertExpendingOfResources(1, act);
-                        return;
-                    }
-
-
-
-                    // After your Transcendence effect finishes:
-                    int healed = tracker?.Value ?? 0;
-
-                    // Remove the tracker
-                    IkonEffectHelper.CleanupEmpoweredEffects(caster, ExemplarIkonQEffectIds.QEmpoweredBarrowsEdge);
-                    qf.Owner.RemoveAllQEffects(q => q.Id == ExemplarIkonQEffectIds.QBarrowsEdgeDamageTracker);
-                    await caster.HealAsync((healed / 2).ToString(), act);
-                });
-
-
-
-                return new ActionPossibility(action);
-            };
+                    return "Must be a Slashing or a Piercing Weapon.";
+                }
+                return null;
+            }));
         });
 
-        ModManager.AddFeat(barrowsEdge);
+        yield return new Ikon(new Feat(
+            ExemplarFeats.BarrowsEdge,
+            "This blade subtly rattles in its scabbard, as if it wants to be unsheathed so it can consume violence.",
+            "{b}Usage{/b} melee weapon that deals slashing or piercing damage\n\n" +
+            "{b}Immanence{/b} The {i}barrow's edge{/i} deals 1 additional spirit damage per weapon damage die to a creature it Strikes. If the creature is below half its maximum Hit Points, the weapon deals 3 additional spirit damage per weapon damage die instead.\n\n" +
+            $"{{b}}Transcendence — Drink of my Foes {RulesBlock.GetIconTextFromNumberOfActions(1)}{{/b}} (healing, transcendence, vitality)\n{{b}}Requirements{{/b}} Your last action was a successful Strike with the {{i}}barrow's edge{{/i}}.\nYour blade glows as it absorbs your foe's vitality. You regain Hit Points equal to half the damage dealt.",
+            [ExemplarTraits.Ikon],
+            null
+        ).WithIllustration(IllustrationName.MagicWeapon), q =>
+        {
+            q.AddExtraKindedDamageOnStrike = (action, target) =>
+            {
+                if (action.Item?.Runes.Any(rune => rune.ItemName == ikonRune) ?? false)
+                {
+                    int dice = action.Item.WeaponProperties?.DamageDieCount ?? 0;
+                    return new KindedDamage(DiceFormula.FromText($"{(target.HP <= target.MaxHP / 2 ? 3 * dice : dice)}", "Barrow's Edge"), Ikon.GetBestDamageKindForSpark(action.Owner, target));
+                }
+                return null;
+            };
+
+            q.AddGrantingOfTechnical(cr => cr.EnemyOf(q.Owner), qe =>
+            {
+                qe.AfterYouTakeDamage = async (qe, damage, _, action, _) =>
+                {
+                    if (action?.Owner == q.Owner)
+                    {
+                        q.Tag = damage;
+                    }
+                };
+            });
+        }, q =>
+        {
+            return new ActionPossibility(new CombatAction(
+                q.Owner,
+                IllustrationName.Scythe,
+                "Drink of my Foes",
+                [Trait.Healing, ExemplarTraits.Transcendence, Trait.Positive],
+                "Your blade glows as it absorbs your foe's vitality. You regain Hit Points equal to half the damage dealt.",
+                Target.Self().WithAdditionalRestriction(self =>
+                {
+                    var barrow = Ikon.GetIkonItem(q.Owner, ikonRune);
+                    if (barrow == null)
+                    {
+                        return "You must be wielding the {i}barrow's edge{/i}.";
+                    }
+                    var lastAction = self.Actions.ActionHistoryThisTurn.LastOrDefault();
+                    if (lastAction == null || !lastAction.HasTrait(Trait.Strike) ||
+                        lastAction.CheckResult < CheckResult.Success ||
+                        (lastAction.Item != barrow))
+                    {
+                        return "Your last action must be a successful Strike with the {i}barrow's edge{/i}.";
+                    }
+                    return null;
+                })
+            ).WithActionCost(1)
+            .WithEffectOnSelf(async (action, caster) =>
+            {
+                await caster.HealAsync(((int)(q.Tag ?? 0) / 2).ToString(), action);
+            }));
+        })
+        .WithRune(ikonRune)
+        .IkonFeat;
     }
 }

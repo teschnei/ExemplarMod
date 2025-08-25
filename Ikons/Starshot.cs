@@ -1,150 +1,122 @@
-using System;
+using System.Collections.Generic;
 using System.Linq;
 using Dawnsbury.Core;
 using Dawnsbury.Core.CharacterBuilder.Feats;
 using Dawnsbury.Core.CharacterBuilder.FeatsDb.Common;
 using Dawnsbury.Core.CombatActions;
 using Dawnsbury.Core.Creatures;
-using Dawnsbury.Core.Mechanics;
 using Dawnsbury.Core.Mechanics.Core;
-using Dawnsbury.Core.Mechanics.Damage;
 using Dawnsbury.Core.Mechanics.Enumerations;
+using Dawnsbury.Core.Mechanics.Rules;
 using Dawnsbury.Core.Mechanics.Targeting;
+using Dawnsbury.Core.Mechanics.Treasure;
 using Dawnsbury.Core.Possibilities;
 using Dawnsbury.Core.Roller;
 using Dawnsbury.Display;
-using Dawnsbury.Display.Illustrations;
 using Dawnsbury.Modding;
-using Dawnsbury.Mods.Classes.Exemplar;
-using Dawnsbury.Mods.Exemplar.Utilities;
-using Microsoft.Xna.Framework;
+using Dawnsbury.Mods.Classes.Exemplar.RegisteredComponents;
+using static Dawnsbury.Mods.Classes.Exemplar.ExemplarClassLoader;
 
-namespace Dawnsbury.Mods.Exemplar
+namespace Dawnsbury.Mods.Classes.Exemplar;
+
+public class Starshot
 {
-    public class Ikons_Starshot
+    [FeatGenerator(0)]
+    public static IEnumerable<Feat> GetFeat()
     {
-        // 1) Register a new QEffectId so we can check “empowered” state
-        public static readonly QEffectId QEmpoweredStarshot =
-            ModManager.RegisterEnumMember<QEffectId>("Starshot");
-
-        [DawnsburyDaysModMainMethod]
-        public static void Load()
+        ItemName ikonRune = ModManager.RegisterNewItemIntoTheShop("Starshot", itemName =>
         {
-            // 2) The Starshot Ikon itself
-            var starshot = new TrueFeat(
-                ExemplarFeatNames.IkonStarshot,  // make sure this exists in ExemplarFeatNames.cs
-                1,
-                "Starshot",
-                "{b}Immanence{/b} Strikes with the starshot deal an additional 1 spirit splash damage per weapon damage die.\n\n" +
-                "{b}Transcendence — Giant-Felling Comet (two-actions){/b} You shoot the starshot, causing a detonation in a 5-foot burst within 60 feet. " +
-                "Each creature in the area must succeed at a basic Reflex save against your class DC or take spirit damage equal to your normal Strike damage with the starshot. " +
-                "[Not implemented] Creatures larger than you take a -2 circumstance penalty to their saving throws. This shot requires any ammunition that would normally be required.",
-                new[] { ModTraits.Ikon },
-                null
-            ).WithMultipleSelection()
-            .WithPermanentQEffect(null, qf =>
+            return new Item(itemName, IllustrationName.FearsomeRunestone, "Starshot", 1, 0, Trait.DoNotAddToShop, ExemplarTraits.IkonRanged)
+            .WithRuneProperties(new RuneProperties("Ikon", IkonRuneKind.Starshot, "You might be the only one capable of stringing this bow or pulling this trigger; either way, the ikon's shots are packed with explosive power, striking like falling stars.",
+            "", item =>
             {
-                // Immanence: extra spirit splash damage per weapon die
-                qf.AfterYouTakeAction = async (selfQf, action) =>
+                item.Traits.AddRange([ExemplarTraits.Ikon, Trait.Divine]);
+            })
+            .WithCanBeAppliedTo((Item rune, Item weapon) =>
+            {
+                if (weapon.WeaponProperties == null)
                 {
-                    if (!selfQf.Owner.HasEffect(ExemplarIkonQEffectIds.QEmpoweredStarshot))
-                        return;
-                    if (!action.HasTrait(Trait.Strike)
-                    || action.Item?.WeaponProperties == null
-                    || action.ChosenTargets?.ChosenCreature == null)
-                        return;
+                    return "Must be a weapon.";
+                }
+                if (!weapon.HasTrait(Trait.Ranged))
+                {
+                    return "Must be a ranged weapon.";
+                }
+                return null;
+            }));
+        });
 
-                    var target = action.ChosenTargets.ChosenCreature;
-                    int diceCount = action.Item.WeaponProperties.DamageDieCount;
-                    int dieSize = action.Item.WeaponProperties.DamageDieSize;
-                    // build a formula like “2d8” for two d8s, etc.
-                    var splashFormula = DiceFormula.FromText(
-                        $"{diceCount * 1}",
-                        "Starshot splash"
-                    );
+        yield return new Ikon(new Feat(
+            ExemplarFeats.Starshot,
+            "You might be the only one capable of stringing this bow or pulling this trigger; either way, the ikon's shots are packed with explosive power, striking like falling stars.",
+            "{b}Usage{/b} a ranged weapon\n\n" +
+            "{b}Immanence{/b} Strikes with the {i}starshot{/i} deal an additional 1 spirit splash damage per weapon damage die.\n\n" +
+            $"{{b}}Transcendence — Giant-Felling Comet {RulesBlock.GetIconTextFromNumberOfActions(2)}{{/b}} (spirit, transcendence)\nYou shoot the {{i}}starshot{{/i}}, causing a detonation in a 5-foot burst within 60 feet. " +
+            "Each creature in the area must succeed at a basic Reflex save against your class DC or take spirit damage equal to your normal Strike damage with the {i}starshot{/i}. " +
+            "Creatures larger than you take a -2 circumstance penalty to their saving throws. This shot requires any ammunition that would normally be required.",
+            [ExemplarTraits.Ikon],
+            null
+        ).WithIllustration(IllustrationName.MagicFang), q =>
+        {
+            q.AfterYouTakeAction = async (q, action) =>
+            {
+                if (action.Item?.Runes.Any(rune => rune.ItemName == ikonRune) ?? false && action.HasTrait(Trait.Strike))
+                {
+                    int dice = action.Item.WeaponProperties?.DamageDieCount ?? 0;
 
-                    DamageKind damageKind = DamageKindHelper.GetDamageKindFromEffect(qf.Owner, ExemplarIkonQEffectIds.QEnergizedSpark);
-
-                    // now call the 4-arg overload:
-                    await CommonSpellEffects.DealDirectSplashDamage(
-                        action,
-                        splashFormula,
-                        target,
-                        damageKind
-                    );
-
-                    if (action.CheckResult > CheckResult.Failure) // If the strike also at least succeeded,
+                    IEnumerable<Creature> creatures = action.ChosenTargets.ChosenCreature?.Occupies.Neighbours.Creatures ?? [];
+                    foreach (var creature in creatures)
                     {
-                        foreach (Creature temp in selfQf.Owner.Battle.AllCreatures.Where(cr =>
-                            action.ChosenTargets.ChosenCreature.IsAdjacentTo(cr))) // Loop through all adjacent creatures,
-                        {
-                            await CommonSpellEffects.DealDirectSplashDamage(action, splashFormula, temp, DamageKind.Bludgeoning);
-                        }
+                        await CommonSpellEffects.DealDirectSplashDamage(action, DiceFormula.FromText(dice.ToString(), "Starshot"), creature, Ikon.GetBestDamageKindForSpark(action.Owner, creature));
                     }
-                };  // (pattern from Gleaming Blade's AfterYouTakeAction)
-
-                // Transcendence: Giant-Felling Comet
-                qf.ProvideMainAction = qf =>
+                }
+            };
+        },
+        q =>
+        {
+            return new ActionPossibility(new CombatAction(
+                q.Owner,
+                IllustrationName.Quarterstaff,
+                "Giant-Felling Comet",
+                [ExemplarTraits.Transcendence, ExemplarTraits.Ikon],
+                "You shoot the {i}starshot{/i}, causing a detonation in a 5-foot burst within 60 feet. Each creature in the area must succeed at a basic Reflex save against your class DC or take spirit damage equal to your normal Strike damage with the {i}starshot{/i}. Creatures larger than you take a -2 circumstance penalty to their saving throws. This shot requires any ammunition that would normally be required.",
+                Target.Burst(12, 1).WithAdditionalRequirementOnCaster(self =>
                 {
-                    if (qf.Owner.HasEffect(ExemplarIkonQEffectIds.TranscendenceTracker) || !qf.Owner.HasEffect(ExemplarIkonQEffectIds.QEmpoweredStarshot))
-                        return null;
-
-                    var action = new CombatAction(
-                        qf.Owner,
-                        IllustrationName.MagicFang,
-                        "Giant-Felling Comet",
-                        new[] { ModTraits.Ikon, ModTraits.Transcendence },
-                        "You shoot the starshot, causing a detonation in a 5-foot burst within 60 feet. Each creature must make a Reflex save or take spirit damage equal to your Strike damage.",
-                        Target.Burst(12, 1)
-                    ).WithActionCost(2);
-
-                    // RulesBlock.GetIconTextFromNumberOfActions(2);
-
-                    // Basic Reflex save against your class DC
-                    action.WithSavingThrow(new SavingThrow(
-                        Defense.Reflex, qf.Owner.ClassDC()
-                    ));
-
-                    action.WithEffectOnEachTarget(async (act, caster, target, result) =>
+                    var starshot = Ikon.GetIkonItem(q.Owner, ikonRune);
+                    if (starshot == null)
                     {
-                        // Find your starshot weapon's dice
-                        var weapon = caster.HeldItems
-                            .FirstOrDefault(i => i.WeaponProperties?.Melee == false && i.HasTrait(Trait.Ranged));
-                        if (weapon == null)
-                        {
-                            caster.Overhead("No starshot equipped.", Color.Orange);
-                            return;
-                        }
-
-                        int diceCount = weapon.WeaponProperties?.DamageDieCount ?? 1;
-                        int dieSize = weapon.WeaponProperties?.DamageDieSize ?? 6;
-                        var df = DiceFormula.FromText($"{diceCount}d{dieSize}", "Giant-Felling Comet");
-
-                        DamageKind damageKind = DamageKindHelper.GetDamageKindFromEffect(qf.Owner, ExemplarIkonQEffectIds.QEnergizedSpark);
-
-                        //  ▸ 5-arg overload: (CombatAction? power, DiceFormula damage, Creature target, CheckResult checkResult, DamageKind kind)
-                        await CommonSpellEffects.DealBasicDamage(
-                            act,        // the CombatAction
-                            caster,     // who is casting
-                            target,     // who to damage
-                            result,     // your save result
-                            df,         // dice formula
-                            damageKind
-                        );
-
-                        // 2) Cleanup & exhaustion
-                        action.WithEffectOnSelf(async (act, self) =>
-                        {
-                            IkonEffectHelper.CleanupEmpoweredEffects(self, ExemplarIkonQEffectIds.QEmpoweredStarshot);
-                        });
-
-                    }); // (pattern from Mortal Harvest's Transcendence)
-
-                    return new ActionPossibility(action);
-                };
-            });
-
-            ModManager.AddFeat(starshot);
-        }
+                        return Usability.NotUsable("You must be wielding the {i}starshot{/i}.");
+                    }
+                    if (((starshot.HasTrait(Trait.Reload1) || starshot.HasTrait(Trait.Reload2)) && starshot.EphemeralItemProperties.NeedsReload) ||
+                        (starshot.HasTrait(Trait.Repeating) && starshot.EphemeralItemProperties.AmmunitionLeftInMagazine <= 0))
+                    {
+                        return Usability.NotUsable("Your {i}starshot{/i} must be loaded.");
+                    }
+                    return Usability.Usable;
+                })
+            )
+            .WithActionCost(2)
+            .WithSavingThrow(new SavingThrow(Defense.Reflex, q.Owner.ClassDC()))
+            .WithEffectOnChosenTargets(async (action, self, targets) =>
+            {
+                var starshot = Ikon.GetIkonItem(self, ikonRune);
+                var strike = StrikeRules.CreateStrike(self, starshot!, RangeKind.Ranged, 0);
+                foreach (var target in targets.AllCreaturesInArea)
+                {
+                    var checkResult = targets.CheckResults[target];
+                    await CommonSpellEffects.DealDirectDamage(action, strike.TrueDamageFormula!, target, checkResult, Ikon.GetBestDamageKindForSpark(self, target));
+                }
+                if (starshot!.HasTrait(Trait.Reload1) || starshot.HasTrait(Trait.Reload2))
+                {
+                    starshot.EphemeralItemProperties.NeedsReload = true;
+                }
+                if (starshot.HasTrait(Trait.Repeating))
+                {
+                    starshot.EphemeralItemProperties.AmmunitionLeftInMagazine--;
+                }
+            }));
+        })
+        .WithRune(ikonRune)
+        .IkonFeat;
     }
 }

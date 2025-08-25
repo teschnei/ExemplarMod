@@ -1,6 +1,5 @@
-using System;
+using System.Collections.Generic;
 using System.Linq;
-using System.Reflection.Metadata.Ecma335;
 using Dawnsbury.Core;
 using Dawnsbury.Core.CharacterBuilder.Feats;
 using Dawnsbury.Core.CharacterBuilder.FeatsDb.Common;
@@ -8,123 +7,130 @@ using Dawnsbury.Core.CombatActions;
 using Dawnsbury.Core.Creatures;
 using Dawnsbury.Core.Mechanics;
 using Dawnsbury.Core.Mechanics.Core;
-using Dawnsbury.Core.Mechanics.Damage;
 using Dawnsbury.Core.Mechanics.Enumerations;
+using Dawnsbury.Core.Mechanics.Rules;
 using Dawnsbury.Core.Mechanics.Targeting;
+using Dawnsbury.Core.Mechanics.Treasure;
 using Dawnsbury.Core.Possibilities;
 using Dawnsbury.Core.Roller;
-using Dawnsbury.Display.Illustrations;
+using Dawnsbury.Display;
 using Dawnsbury.Modding;
-using Dawnsbury.Mods.Classes.Exemplar;
-using Dawnsbury.Mods.Exemplar.Utilities;
+using Dawnsbury.Mods.Classes.Exemplar.RegisteredComponents;
+using static Dawnsbury.Mods.Classes.Exemplar.ExemplarClassLoader;
 
-namespace Dawnsbury.Mods.Exemplar
+namespace Dawnsbury.Mods.Classes.Exemplar;
+
+public class HandsOfTheWildling
 {
-    public class Ikons_HandsOfTheWildling
+    [FeatGenerator(0)]
+    public static IEnumerable<Feat> GetFeat()
     {
-        [DawnsburyDaysModMainMethod]
-        public static void Load()
+        ItemName ikonRune = ModManager.RegisterNewItemIntoTheShop("HandsOfTheWildling", itemName =>
         {
-            var handsOfTheWildling = new TrueFeat(
-                ExemplarFeatNames.IkonHandsOfTheWildling,
-                1,
-                "Hands Of The Wildling",
-                "Tattooed fists, savage claws, or even powerful gauntlets—you swing each with the fury of an animal from the woods.\n\n" +
-                "{b}Immanence{/b} Strikes with your hands of the wildling deal an additional 1 spirit splash damage per weapon damage die. You are immune to this splash damage.\n\n" +
-                "{b}Transcendence — Feral Swing (two-actions){/b} Spirit, Transcendence\n" +
-                "You lash out with both arms, rending all before you. Each creature in a 15-foot cone must succeed at a basic Reflex save against your class DC or take spirit damage equal to your normal Strike damage with your hands of the wildling. " +
-                "You can choose to swing with abandon, which imposes a -2 circumstance penalty to enemies' saving throws, but causes you to become off-guard until the start of your next turn.",
-                new[] { ModTraits.Ikon , ModTraits.BodyIkon},
-                null
-            ).WithMultipleSelection()
-            .WithPermanentQEffect(null, qf =>
+            //TODO: figure out a way to apply this to an unarmed strike of choice
+            //TODO: okay there are no free-hand weapons in DD either
+            return new Item(itemName, IllustrationName.FearsomeRunestone, "Hands of the Wildling", 1, 0, Trait.DoNotAddToShop, ExemplarTraits.IkonFreeHand)
+            .WithRuneProperties(new RuneProperties("Ikon", IkonRuneKind.HandsOfTheWildling, "Tattooed fists, savage claws, or even powerful gauntlets - you swing each with the fury of an animal from the woods.",
+            "", item =>
             {
-                // Immanence: extra spirit splash damage per die
-                qf.BonusToDamage = (qSelf, action, defender) =>
+                item.Traits.AddRange([ExemplarTraits.Ikon, Trait.Divine]);
+            })
+            .WithCanBeAppliedTo((Item rune, Item weapon) =>
+            {
+                if (weapon.WeaponProperties == null)
                 {
-                    if (!qSelf.Owner.HasEffect(ExemplarIkonQEffectIds.QEmpoweredHandsOfTheWildling))
-                        return null;
-                    int dice = (action.Item?.WeaponProperties?.DamageDieCount) ?? 1;
-                    return new Bonus(dice, BonusType.Status, "Wildling Splash Damage");
-                };
+                    return "Must be a weapon.";
+                }
+                return null;
+            }));
+        });
 
-                // Transcendence — Feral Swing
-                qf.ProvideMainAction = qf =>
+        yield return new Ikon(new Feat(
+            ExemplarFeats.HandsOfTheWildling,
+            "Tattooed fists, savage claws, or even powerful gauntlets—you swing each with the fury of an animal from the woods.",
+            "{b}Usage{/b} a melee free-hand weapon or a melee unarmed Strike\n\n" +
+            "{b}Immanence{/b} Strikes with your {i}hands of the wildling{/i} deal an additional 1 spirit splash damage per weapon damage die. You are immune to this splash damage.\n\n" +
+            $"{{b}}Transcendence — Feral Swing {RulesBlock.GetIconTextFromNumberOfActions(2)}{{/b}} (spirit, transcendence)\n" +
+            "You lash out with both arms, rending all before you. Each creature in a 15-foot cone must succeed at a basic Reflex save against your class DC or take spirit damage equal to your normal Strike damage with your {i}hands of the wildling{/i}. " +
+            "You can choose to swing with abandon, which imposes a -2 circumstance penalty to enemies' saving throws, but causes you to become off-guard until the start of your next turn.",
+            [ExemplarTraits.Ikon],
+            null
+        ).WithIllustration(IllustrationName.DragonClaws), q =>
+        {
+            q.AfterYouTakeAction = async (q, action) =>
+            {
+                if (action.Item?.Runes.Any(rune => rune.ItemName == ikonRune) ?? false && action.HasTrait(Trait.Strike))
                 {
-                    if (qf.Owner.HasEffect(ExemplarIkonQEffectIds.TranscendenceTracker) || !qf.Owner.HasEffect(ExemplarIkonQEffectIds.QEmpoweredHandsOfTheWildling))
-                        return null;
+                    int dice = action.Item.WeaponProperties?.DamageDieCount ?? 0;
 
-                    var action = new CombatAction(
-                        qf.Owner,
-                        IllustrationName.DragonClaws,
-                        "Feral Swing",
-                        new[] { ModTraits.Transcendence, ModTraits.Ikon },
-                        "15-foot cone Reflex save or take spirit damage equal to your wildling Strike damage.",
-                        Target.Cone(3)
-                    )
-                    .WithActionCost(2)
-                    .WithSavingThrow(new SavingThrow(Defense.Will, qf.Owner.ClassOrSpellDC()))
-                    .WithEffectOnEachTarget(async (act, caster, target, result) =>
+                    IEnumerable<Creature> creatures = action.ChosenTargets.ChosenCreature?.Occupies.Neighbours.Creatures.Where(cr => cr != q.Owner) ?? [];
+                    foreach (var creature in creatures)
                     {
-                        int diceCount = 1;
-                        int diceSize = 6;
-                        var formula = DiceFormula.FromText($"{diceCount}d{diceSize}", "Feral Swing Spirit Damage");
-
-                        DamageKind damageKind = DamageKindHelper.GetDamageKindFromEffect(qf.Owner, ExemplarIkonQEffectIds.QEnergizedSpark);
-
-                        await CommonSpellEffects.DealBasicDamage(
-                            act, caster, target, result, formula, damageKind
-                        );
-
-                        // Remove the old tracker
-                        IkonEffectHelper.CleanupEmpoweredEffects(caster, ExemplarIkonQEffectIds.QEmpoweredHandsOfTheWildling);
-
-                    });
-
-                    var recklessAttack = new CombatAction(
-                        qf.Owner,
-                        IllustrationName.DragonClaws,
-                        "Feral Swing, Swing with abandon",
-                        new[] { ModTraits.Transcendence, ModTraits.Ikon },
-                        "Swing recklessly giving your enemy a -2 to their saving throw to this attack, and leaving you offguard. 15-foot cone Reflex save or take spirit damage equal to your wildling Strike damage. ",
-                        Target.Cone(3)
-                    )
-                    .WithActionCost(2)
-                    .WithSavingThrow(new SavingThrow(Defense.Will, qf.Owner.ClassOrSpellDC() + 2))
-                    .WithEffectOnEachTarget(async (act, caster, target, result) =>
+                        await CommonSpellEffects.DealDirectSplashDamage(action, DiceFormula.FromText(dice.ToString(), "Hands of the Wildling"), creature, Ikon.GetBestDamageKindForSpark(action.Owner, creature));
+                    }
+                }
+            };
+        }, q =>
+        {
+            return new SubmenuPossibility(IllustrationName.DragonClaws, "Feral Swing")
+            {
+                Subsections = [
+                    new PossibilitySection("")
                     {
-                        int diceCount = 1;
-                        int diceSize = 6;
-                        var formula = DiceFormula.FromText($"{diceCount}d{diceSize}", "Feral Swing Spirit Damage");
-
-                        DamageKind damageKind = DamageKindHelper.GetDamageKindFromEffect(qf.Owner, ExemplarIkonQEffectIds.QEnergizedSpark);
-
-                        await CommonSpellEffects.DealBasicDamage(
-                            act, caster, target, result, formula, damageKind
-                        );
-                        // CommonCombatActions.Demoralize
-                        // Remove the old tracker
-                        IkonEffectHelper.CleanupEmpoweredEffects(caster, ExemplarIkonQEffectIds.QEmpoweredHandsOfTheWildling);
-                        caster.AddQEffect(QEffect.FlatFooted("You are off-guard until the start of your next turn.").WithExpirationAtStartOfOwnerTurn());
-                    });
-                    //return both actions via submenu
-                    return new SubmenuPossibility(IllustrationName.DragonClaws, "Feral Swing: Choose an action")
-                    {
-                        Subsections = [
-                            new PossibilitySection("Select an action")
-                            {
-                                Possibilities = [
-                                    new ActionPossibility(action),
-                                    new ActionPossibility(recklessAttack)
-                                ]
-                            }
+                        Possibilities = [
+                            CreateFeralSwing(false),
+                            CreateFeralSwing(true)
                         ]
+                    }
+                ]
+            };
+            ActionPossibility CreateFeralSwing(bool abandon)
+            {
+                return new ActionPossibility(new CombatAction(
+                    q.Owner,
+                    IllustrationName.DragonClaws,
+                    "Feral Swing" + (abandon ? " (with abandon)" : ""),
+                    [ExemplarTraits.Transcendence],
+                    "You lash out with both arms, rending all before you. Each creature in a 15-foot cone must succeed at a basic Reflex save against your class DC or take spirit damage equal to your normal Strike damage with your {i}hands of the wildling{/i}." +
+                    (abandon ? " Swinging with abandon imposes a -2 circumstance bonus to enemies' saving throws, but causes you to become off-guard until the start of your next turn." : ""),
+                    Target.Cone(3).WithAdditionalRequirementOnCaster(caster =>
+                    {
+                        var hands = Ikon.GetIkonItem(q.Owner, ikonRune);
+                        if (hands == null)
+                        {
+                            return Usability.NotUsable("You must be wielding the {i}hands of the wildling{/i}");
+                        }
+                        return Usability.Usable;
+                    })
+                )
+                .WithActionCost(2)
+                .WithEffectOnChosenTargets(async (action, self, targets) =>
+                {
+                    var hands = Ikon.GetIkonItem(self, ikonRune);
+                    var penalty = new QEffect("Hands of the Wildling penalty", "", ExpirationCondition.Never, self)
+                    {
+                        BonusToDefenses = (q, penaltyAction, defense) => defense == Defense.Reflex && penaltyAction == action ? new Bonus(-2, BonusType.Circumstance, "Hands of the Wildling (with abandon)") : null
                     };
-                    // return new ActionPossibility(action);
-                };
-            });
+                    var strike = StrikeRules.CreateStrike(self, hands!, RangeKind.Melee, 0);
+                    foreach (var target in targets.AllCreaturesInArea)
+                    {
+                        if (abandon)
+                        {
+                            target.AddQEffect(penalty);
+                        }
 
-            ModManager.AddFeat(handsOfTheWildling);
-        }
+                        var checkResult = CommonSpellEffects.RollSavingThrow(target, action, Defense.Reflex, self.ClassDC());
+                        await CommonSpellEffects.DealDirectDamage(action, strike.TrueDamageFormula!, target, checkResult, Ikon.GetBestDamageKindForSpark(self, target));
+
+                        if (abandon)
+                        {
+                            target.RemoveAllQEffects(q => q == penalty);
+                        }
+                    }
+                }));
+            }
+        })
+        .WithRune(ikonRune)
+        .IkonFeat;
     }
 }

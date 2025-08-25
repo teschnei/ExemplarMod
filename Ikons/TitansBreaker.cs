@@ -1,103 +1,100 @@
-using System;
+using System.Collections.Generic;
 using System.Linq;
 using Dawnsbury.Core;
 using Dawnsbury.Core.CharacterBuilder.Feats;
-using Dawnsbury.Core.CharacterBuilder.FeatsDb.Common;
 using Dawnsbury.Core.CombatActions;
-using Dawnsbury.Core.Creatures;
-using Dawnsbury.Core.Mechanics.Core;
-using Dawnsbury.Core.Mechanics.Enumerations;
-using Dawnsbury.Core.Mechanics.Damage;
-using Dawnsbury.Core.Possibilities;
-using Dawnsbury.Display.Illustrations;
-using Dawnsbury.Modding;
-using Dawnsbury.Mods.Classes.Exemplar;
-using Dawnsbury.Core.Mechanics.Targeting;
-using Dawnsbury.Core.Roller;
 using Dawnsbury.Core.Mechanics;
-using Dawnsbury.Mods.Exemplar.Utilities;
-/*
-    TODO:
-    Currently this completely rewrites the damage type to be spirit / untyped, however
-    'If this Strike hits, your additional spirit damage from the ikon's immanence increases to 4 plus an extra die of weapon damage'
-    my reading of this means that only the 4 is spirit damage, the rest is weapon damage.
-*/
-namespace Dawnsbury.Mods.Exemplar
+using Dawnsbury.Core.Mechanics.Damage;
+using Dawnsbury.Core.Mechanics.Enumerations;
+using Dawnsbury.Core.Mechanics.Rules;
+using Dawnsbury.Core.Mechanics.Targeting;
+using Dawnsbury.Core.Mechanics.Treasure;
+using Dawnsbury.Core.Possibilities;
+using Dawnsbury.Core.Roller;
+using Dawnsbury.Display;
+using Dawnsbury.Modding;
+using Dawnsbury.Mods.Classes.Exemplar.RegisteredComponents;
+using static Dawnsbury.Mods.Classes.Exemplar.ExemplarClassLoader;
+
+namespace Dawnsbury.Mods.Classes.Exemplar;
+
+public class TitansBreaker
 {
-    public class Ikons_TitansBreaker
+    [FeatGenerator(0)]
+    public static IEnumerable<Feat> GetFeat()
     {
-        [DawnsburyDaysModMainMethod]
-        public static void Load()
+        ItemName ikonRune = ModManager.RegisterNewItemIntoTheShop("TitansBreaker", itemName =>
         {
-            // Register the Titan's Breaker ikon feat (add FeatName in ExemplarFeatNames.cs)
-            var titanBreaker = new TrueFeat(
-                ExemplarFeatNames.IkonTitansBreaker,
-                1,
-                "Titan's Breaker",
-                "{b}Immanence{/b} The titan's breaker deals 2 additional spirit damage per weapon damage die to creatures it Strikes. " +
-                "Constructs and objects are not immune to this spirit damage, and this spirit damage bypasses hardness equal to your level." +
-                "\n\n" +
-                "{b}Transcendence — Fracture Mountains (two-actions){/b} Spirit, Transcendence\n" +
-                "Make a melee Strike with the titan's breaker. This counts as two attacks for your multiple attack penalty. " +
-                "If it hits, you deal increased spirit damage as described.",
-                new[] { ModTraits.Ikon },
-                null
-            ).WithMultipleSelection()
-            .WithPermanentQEffect(null, qf =>
+            return new Item(itemName, IllustrationName.FearsomeRunestone, "Titan's Breaker", 1, 0, Trait.DoNotAddToShop, ExemplarTraits.Ikon)
+            .WithRuneProperties(new RuneProperties("Ikon", IkonRuneKind.TitansBreaker, "You wield a weapon whose blows shatter mountains with ease.",
+            "", item =>
             {
-                // Immanence: extra spirit damage per die
-                qf.BonusToDamage = (eff, action, defender) =>
+                item.Traits.AddRange([ExemplarTraits.Ikon, Trait.Divine]);
+            })
+            .WithCanBeAppliedTo((Item rune, Item weapon) =>
+            {
+                if (weapon.WeaponProperties == null)
                 {
-                    // check explicit QEffectId for Titan's Breaker empowerment
-                    if (!eff.Owner.HasEffect(ExemplarIkonQEffectIds.QEmpoweredTitansBreaker))
-                        return null;
-                    if (!action.HasTrait(Trait.Strike) || action.Item?.WeaponProperties == null || defender == null)
-                        return null;
-                    int dice = action.Item.WeaponProperties.DamageDieCount;
-                    return new Bonus(dice * 2, BonusType.Circumstance, "Titan's Breaker Immanence");
-                };
-
-                // Transcendence: Fracture Mountains
-                qf.ProvideMainAction = qf =>
+                    return "Must be a weapon.";
+                }
+                else if ((!weapon.HasTrait(Trait.Club)) && (!weapon.HasTrait(Trait.Hammer)) && (!weapon.HasTrait(Trait.Axe)) && (!weapon.HasTrait(Trait.Unarmed)))
                 {
-                    var owner = qf.Owner;
-                    // Prevent repeat usage in same turn
-                    if (qf.Owner.HasEffect(ExemplarIkonQEffectIds.TranscendenceTracker) || !qf.Owner.HasEffect(ExemplarIkonQEffectIds.QEmpoweredTitansBreaker))
-                        return null;
+                    return "Must be a Club, Axe, Hammer or Unarmed.";
+                }
+                return null;
+            }));
+        });
 
-                    var action = new CombatAction(
-                        owner,
-                        IllustrationName.Greatclub,
-                        "Fracture Mountains",
-                        new[] { Trait.Attack, ModTraits.Transcendence, ModTraits.Ikon },
-                        "Make a melee Strike with the titan's breaker. Counts as two attacks for your multiple attack penalty. " +
-                        "On a hit, you deal increased spirit damage as described.",
-                        Target.AdjacentCreature()
-                    ).WithActionCost(2);
+        yield return new Ikon(new Feat(
+            ExemplarFeats.TitansBreaker,
+            "You wield a weapon whose blows shatter mountains with ease.",
+            "{b}Usage{/b} any melee weapon in the club, hammer, or axe group, or any melee unarmed Strikes that deals bludgeoning damage\n\n" +
+            "{b}Immanence{/b} The {i}titan's breaker{/i} deals 2 additional spirit damage per weapon damage die to creatures it Strikes. " +
+            "Constructs and objects are not immune to this spirit damage, and this spirit damage bypasses hardness equal to your level.\n\n" +
+            $"{{b}}Transcendence — Fracture Mountains {RulesBlock.GetIconTextFromNumberOfActions(2)}{{/b}} (spirit, transcendence)\n" +
+            "Your spirit is so dense it takes on tangible force. Make a melee Strike with the {i}titan's breaker{/i}. This counts as two attacks " +
+            "when calculating your multiple attack penalty. If this Strike hits, your additional spirit damage from the ikon's immanence increases to 4 plus " +
+            "an extra die of weapon damage. If you're at least 10th level, it's increased to 6 spirit damage and two extra dice, and if you're at least 18th level " +
+            "it's increased to 8 spirit damage and three extra dice.",
+            [ExemplarTraits.Ikon],
+            null
+        ).WithIllustration(IllustrationName.Greatclub), q =>
+        {
+            //Flag for "is this Strike from Fracture Mountains?"
+            q.Tag = false;
 
-                    action.WithEffectOnEachTarget(async (act, self, target, result) =>
+            q.AddExtraKindedDamageOnStrike = (action, target) =>
+            {
+                if (action.Item?.Runes.Any(rune => rune.ItemName == ikonRune) ?? false)
+                {
+                    if ((bool)q.Tag == false)
                     {
-                        if (result < CheckResult.Success)
+                        int dice = action.Item.WeaponProperties?.DamageDieCount ?? 0;
+                        return new KindedDamage(DiceFormula.FromText($"{2 * dice}", "Titan's Breaker"), Ikon.GetBestDamageKindForSpark(action.Owner, target));
+                    }
+                    else
+                    {
+                        var breaker = action.Item;
+                        var damageDieSize = breaker?.WeaponProperties?.DamageDieSize ?? 0;
+                        bool weaponDieIncreased = false;
+
+                        foreach (QEffect qe in action.Owner.QEffects)
                         {
-                            return;
+                            if (!weaponDieIncreased && (qe.IncreaseItemDamageDie?.Invoke(qe, breaker!) ?? false))
+                            {
+                                damageDieSize = DamageDiceUtils.IncreaseDamageDiceByOneStep(damageDieSize);
+                                weaponDieIncreased = true;
+                            }
                         }
 
-                        // Determine weapon dice
-                        if (act.Item?.WeaponProperties == null)
-                            return;
-                        int baseDice = act.Item.WeaponProperties.DamageDieCount;
-                        int dieSize = (int)act.Item.WeaponProperties.DamageDieSize;
-
-                        // Scale damage by level thresholds
-                        int level = self.Level;
-                        int flatBonus;
-                        int extraDiceCount;
-                        if (level >= 18)
+                        int flatBonus = 0;
+                        int extraDiceCount = 0;
+                        if (action.Owner.Level >= 18)
                         {
                             flatBonus = 8;
                             extraDiceCount = 3;
                         }
-                        else if (level >= 10)
+                        else if (action.Owner.Level >= 10)
                         {
                             flatBonus = 6;
                             extraDiceCount = 2;
@@ -107,29 +104,37 @@ namespace Dawnsbury.Mods.Exemplar
                             flatBonus = 4;
                             extraDiceCount = 1;
                         }
-
-                        // Build formula: (baseDice + extraDiceCount)d(dieSize) + flatBonus
-                        int totalDice = baseDice + extraDiceCount;
-                        var formula = DiceFormula.FromText($"{totalDice}d{dieSize}+{flatBonus}", "Fracture Mountains");
-                        DamageKind damageKind = DamageKindHelper.GetDamageKindFromEffect(qf.Owner, ExemplarIkonQEffectIds.QEnergizedSpark);   
-                        
-                        await CommonSpellEffects.DealDirectDamage(
-                            action,
-                            formula,
-                            target,
-                            result,
-                            damageKind
-                        );
-
-                        // Cleanup: remove empowerment, grant free Shift, apply exhaustion
-                        IkonEffectHelper.CleanupEmpoweredEffects(self, ExemplarIkonQEffectIds.QEmpoweredTitansBreaker);
-                    });
-
-                    return new ActionPossibility(action);
-                };
-            });
-
-            ModManager.AddFeat(titanBreaker);
-        }
+                        return new KindedDamage(DiceFormula.FromText($"{extraDiceCount}d{damageDieSize}+{flatBonus}", "Fracture Mountains"), Ikon.GetBestDamageKindForSpark(action.Owner, target));
+                    }
+                }
+                return null;
+            };
+        },
+        q =>
+        {
+            return new ActionPossibility(new CombatAction(
+                q.Owner,
+                IllustrationName.Greatclub,
+                "Fracture Mountains",
+                [ExemplarTraits.Transcendence],
+                "Your spirit is so dense it takes on tangible force. Make a melee Strike with the {i}titan's breaker{/i}. This counts as two attacks " +
+                "when calculating your multiple attack penalty. If this Strike hits, your additional spirit damage from the ikon's immanence increases to 4 plus " +
+                "an extra die of weapon damage. If you're at least 10th level, it's increased to 6 spirit damage and two extra dice, and if you're at least 18th level " +
+                "it's increased to 8 spirit damage and three extra dice.",
+                Target.Reach(Ikon.GetIkonItem(q.Owner, ikonRune)!).WithAdditionalConditionOnTargetCreature(new IkonWieldedTargetingRequirement(ikonRune))
+            )
+            .WithActionCost(2)
+            .WithEffectOnChosenTargets(async (action, self, targets) =>
+            {
+                //Activate the Immanence's bigger damage mode
+                q.Tag = true;
+                var breaker = Ikon.GetIkonItem(self, ikonRune);
+                await self.MakeStrike(targets.ChosenCreature!, breaker!);
+                self.Actions.AttackedThisManyTimesThisTurn++;
+                q.Tag = false;
+            }));
+        })
+        .WithRune(ikonRune)
+        .IkonFeat;
     }
 }

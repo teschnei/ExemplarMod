@@ -1,107 +1,111 @@
-using System.Drawing;
+using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using Dawnsbury.Campaign.Encounters.A_Crisis_in_Dawnsbury;
 using Dawnsbury.Core;
 using Dawnsbury.Core.CharacterBuilder.Feats;
 using Dawnsbury.Core.CharacterBuilder.FeatsDb.Common;
 using Dawnsbury.Core.CombatActions;
-using Dawnsbury.Core.Creatures;
-using Dawnsbury.Core.Creatures.Parts;
 using Dawnsbury.Core.Mechanics;
 using Dawnsbury.Core.Mechanics.Core;
-using Dawnsbury.Core.Mechanics.Damage;
 using Dawnsbury.Core.Mechanics.Enumerations;
 using Dawnsbury.Core.Mechanics.Targeting;
-using Dawnsbury.Core.Mechanics.Targeting.Targets;
+using Dawnsbury.Core.Mechanics.Treasure;
 using Dawnsbury.Core.Possibilities;
-using Dawnsbury.Core.Roller;
 using Dawnsbury.Display;
-using Dawnsbury.Display.Illustrations;
 using Dawnsbury.Modding;
-using Dawnsbury.Mods.Classes.Exemplar;
-using Dawnsbury.Mods.Exemplar.Utilities;
-using Microsoft.Xna.Framework;
+using Dawnsbury.Mods.Classes.Exemplar.RegisteredComponents;
+using static Dawnsbury.Mods.Classes.Exemplar.ExemplarClassLoader;
 
-namespace Dawnsbury.Mods.Exemplar;
-/*
-    DONE
-*/
-public class Ikons_BandsOfImprisonment
+namespace Dawnsbury.Mods.Classes.Exemplar;
+
+public class BandsOfImprisonment
 {
-    [DawnsburyDaysModMainMethod]
-    public static void Load()
+    [FeatGenerator(0)]
+    public static IEnumerable<Feat> GetFeat()
     {
-        Feat bandsOfImprisonment = new TrueFeat(
-            ExemplarFeatNames.IkonBandsOfImprisonment,
-            1,
-            "These weighted bands don't enhance your power—rather, they keep your strength in check, honing your discipline.",
-            "{b}Immanence{/b} The bands of imprisonment tighten, keeping your mind sharp. You gain a +1 status bonus to Will saving throws and resistance to mental damage equal to half your level.\n\n" +
-            "{b}Transcendence — Break Free (two-actions){/b} You can attempt to Escape with a +2 status bonus on your check, then Stride up to twice your Speed in a straight line, and finally make a melee Strike. If you don't need to Escape or you can't move or choose not to, you still take the other actions listed.",
-            [ModTraits.Ikon, ModTraits.BodyIkon],
-            null
-        ).WithMultipleSelection()
-        .WithPermanentQEffect(null, qf =>
+        ItemName ikonRune = ModManager.RegisterNewItemIntoTheShop("BandsofImprisonment", itemName =>
         {
-            qf.ProvideMainAction = qf =>
+            return new Item(itemName, IllustrationName.FearsomeRunestone, "Bands of Imprisonment", 1, 0, Trait.DoNotAddToShop, ExemplarTraits.IkonBands)
+            .WithRuneProperties(new RuneProperties("Ikon", IkonRuneKind.BandOfImprisonment, "These weighted bands don't enhance your power—rather, they keep your strength in check, honing your discipline.",
+            "", item =>
             {
-                if (!qf.Owner.HasEffect(ExemplarIkonQEffectIds.QEmpoweredBandsOfImprisonment))
-                    return null;
-
-                var owner = qf.Owner;
-                var action = new CombatAction(
-                    owner,
-                    IllustrationName.FreedomOfMovement,
-                    "Break Free",
-                    [Trait.Move, Trait.Attack, ModTraits.Ikon, ModTraits.Transcendence, ModTraits.BodyIkon],
-                    "You attempt to Escape, then Stride up to twice your Speed in a straight line, and finally make a melee Strike.",
-                    Target.Self()
-                ).WithActionCost(2);
-
-                _ = action.WithEffectOnSelf(async (action, self) =>
+                item.Traits.AddRange([ExemplarTraits.Ikon, Trait.Divine]);
+                item.Name = "bands of imprisonment";
+                item.ShortName = "bands of imprisonment";
+            })
+            .WithCanBeAppliedTo((Item rune, Item item) =>
+            {
+                if (!item.HasTrait(Trait.Worn) || (item.WornAt != Trait.Shoes && item.WornAt != Trait.Bracers && item.WornAt != Trait.Headband))
                 {
-                    if (qf.Owner.HasEffect(ExemplarIkonQEffectIds.TranscendenceTracker) || !qf.Owner.HasEffect(ExemplarIkonQEffectIds.QEmpoweredBandsOfImprisonment))
-                        return;
-
-                    // Attempt Escape with +2 status bonus
-                    var escapeCheck = TaggedChecks.SkillCheck(Skill.Athletics + 2);
-
-                    var result = CommonSpellEffects.RollCheck("Escape", new ActiveRollSpecification(escapeCheck, Checks.FlatDC(20)), self, self);
-
-                    // Log result
-                    self.Overhead($"Escape: {result}", Microsoft.Xna.Framework.Color.White);
-
-                    if (!await self.StrideAsync(
-                        "Choose where to Stride. (1/2)",
-                        true))
+                    return "Must be worn anklets, bracers, or circlet.";
+                }
+                return null;
+            }));
+        });
+        ItemName freeItem = ModManager.RegisterNewItemIntoTheShop("OrdinaryBracers", itemName =>
+        {
+            return new Item(itemName, IllustrationName.BracersOfMissileDeflection, "Bracers", 1, 0, Trait.DoNotAddToShop)
+            .WithDescription("An ordinary pair of bracers.")
+            .WithWornAt(Trait.Bracers);
+        });
+        yield return new Ikon(new Feat(
+            ExemplarFeats.BandsOfImprisonment,
+            "These weighted bands don't enhance your power—rather, they keep your strength in check, honing your discipline.",
+            "{b}Usage{/b} worn anklets, bracers, or circlet (often a headband)\n\n" +
+            "{b}Immanence{/b} The {i}bands of imprisonment{i} tighten, keeping your mind sharp. You gain a +1 status bonus to Will saving throws and resistance to mental damage equal to half your level.\n\n" +
+            $"{{b}}Transcendence — Break Free {RulesBlock.GetIconTextFromNumberOfActions(2)}{{/b}} (transcendence)\nYou can attempt to Escape with a +2 status bonus on your check, then Stride up to twice your Speed in a straight line, and finally make a melee Strike. If you don't need to Escape or you can't move or choose not to, you still take the other actions listed.",
+            [ExemplarTraits.Ikon, ExemplarTraits.BodyIkon],
+            null
+        ).WithIllustration(IllustrationName.SpikedChain), q =>
+        {
+            q.StateCheck = q => q.Owner.WeaknessAndResistance.AddResistance(DamageKind.Mental, q.Owner.Level / 2);
+            q.BonusToDefenses = (qfSelf, action, defense) => defense == Defense.Will ? new Bonus(1, BonusType.Status, "Bands of Imprisonment") : null;
+        }, q =>
+        {
+            return new ActionPossibility(new CombatAction(
+                q.Owner,
+                IllustrationName.FreedomOfMovement,
+                "Break Free",
+                [ExemplarTraits.Transcendence],
+                "You can attempt to Escape with a +2 status bonus on your check, then Stride up to twice your Speed in a straight line, and finally make a melee Strike. If you don't need to Escape or you can't move or choose not to, you still take the other actions listed.",
+                Target.Self()
+            ).WithActionCost(2)
+            .WithEffectOnSelf(async (action, self) =>
+            {
+                self.AddQEffect(new QEffect(ExpirationCondition.Ephemeral)
+                {
+                    BonusToAttackRolls = (q, action, target) => action.ActionId == ActionId.Escape ? new Bonus(2, BonusType.Status, "Break Free", true) : null,
+                    BonusToSkillChecks = (skill, action, creature) => action.ActionId == ActionId.Escape ? new Bonus(2, BonusType.Status, "Break Free", true) : null,
+                    BonusToAllSpeeds = q => new Bonus(q.Owner.Speed, BonusType.Untyped, "", false)
+                });
+                var grappled = self.QEffects.Where(q => q.Id == QEffectId.Grappled).FirstOrDefault();
+                bool canCancel = true;
+                bool escaped = true;
+                if (grappled != null)
+                {
+                    var escape = Possibilities.CreateEscape(self, grappled);
+                    await escape.AllExecute();
+                    if (escape.CheckResult < CheckResult.Success)
+                    {
+                        escaped = false;
+                    }
+                }
+                if (escaped)
+                {
+                    //TODO: test if the BonusToAllSpeeds works, then remove the second Stride
+                    if (!await self.StrideAsync("Choose where to Stride. (1/2)", allowCancel: canCancel, allowPass: !canCancel) && canCancel)
+                    {
                         action.RevertRequested = true;
+                    }
                     else
                     {
-                        _ = await self.StrideAsync("Choose where to Stride. And you should be in reach of an enemy. (2/2)", allowPass: true);
+                        await self.StrideAsync("Choose where to Stride. And you should be in reach of an enemy. (2/2)", allowPass: true);
                         await CommonCombatActions.StrikeAdjacentCreature(self, null);
                     }
-                    // After your Transcendence effect finishes:
-                    IkonEffectHelper.CleanupEmpoweredEffects(qf.Owner, ExemplarIkonQEffectIds.QEmpoweredBandsOfImprisonment);
-                });
-
-                return new ActionPossibility(action);
-            };
-            qf.BonusToDefenses = (qfSelf, action, defense) =>
-            {
-                if (!qfSelf.Owner.HasEffect(ExemplarIkonQEffectIds.QEmpoweredBandsOfImprisonment))
-                    return null; // Only applies if empowered!
-
-                var currentWill = qf.Owner.Defenses.GetBaseValue(Defense.Will);
-                if (defense == Defense.Will)
-                {
-                    return new Bonus(1, BonusType.Status, "Bands of Imprisonment");
                 }
-                qf.Owner.WeaknessAndResistance.AddResistance(DamageKind.Mental, qf.Owner.Level / 2);
-
-                return null;
-            };
-        });
-
-        ModManager.AddFeat(bandsOfImprisonment);
+            }));
+        })
+        .WithRune(ikonRune)
+        .WithFreeWornItem(freeItem)
+        .IkonFeat;
     }
 }

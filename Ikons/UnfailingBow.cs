@@ -1,157 +1,140 @@
-// using System.Linq;
-// using Dawnsbury.Core;
-// using Dawnsbury.Core.CharacterBuilder.Feats;
-// using Dawnsbury.Core.CombatActions;
-// using Dawnsbury.Core.Creatures;
-// using Dawnsbury.Core.Mechanics;
-// using Dawnsbury.Core.Mechanics.Core;
-// using Dawnsbury.Core.Mechanics.Enumerations;
-// using Dawnsbury.Core.Coroutines.Requests;
-// using Dawnsbury.Core.Possibilities;
-// using Dawnsbury.Display.Illustrations;
-// using Dawnsbury.Modding;
-// using Dawnsbury.Mods.Classes.Exemplar;
-// using Dawnsbury.Core.Roller;
-// using Dawnsbury.Core.CharacterBuilder.FeatsDb.Common;
-// using Dawnsbury.Core.Mechanics.Targeting;
-// using System;
-// /*
-//     Skipped, transcendence is hard.
-// */
-// namespace Dawnsbury.Mods.Exemplar
-// {
-//     public class Ikons_UnfailingBow
-//     {
-//         [DawnsburyDaysModMainMethod]
-//         public static void Load()
-//         {
-//             var unfailingBow = new TrueFeat(
-//                 ExemplarFeatNames.IkonUnfailingBow,
-//                 1,
-//                 "Unfailing Bow",
-//                 "The shots fired by this weapon seem guided by divine accuracy, finding the swiftest targets.\n\n" +
-//                 "{b}Immanence{/b} The unfailing bow deals an additional 1 spirit damage per weapon damage die to creatures it Strikes, or 1d4 additional spirit damage per weapon die on a critical hit.\n\n" +
-//                 "{b}Transcendence — Arrow Splits Arrow (one-action){/b} Requirements: Your previous action was to Strike with the unfailing bow. " +
-//                 "Effect: You repeat your motions exactly, your attack landing in the same location as your previous shot. You make a Strike against the same target using the same d20 result.",
-//                 new[] { ModTraits.Ikon },
-//                 null
-//             ).WithMultipleSelection()
-//             .WithPermanentQEffect(null, qf =>
-//             {
-//                 // Immanence: +1 spirit per die; on crit, splash 1d4 per die
-//                 qf.BonusToDamage = (eff, action, defender) =>
-//                 {
-//                     if (!eff.Owner.HasEffect(ExemplarIkonQEffectIds.QEmpoweredUnfailingBow))
-//                         return null;
-//                     if (!action.HasTrait(Trait.Strike) || action.Item == null || defender == null)
-//                         return null;
+using System.Collections.Generic;
+using System.Linq;
+using Dawnsbury.Core;
+using Dawnsbury.Core.CharacterBuilder.Feats;
+using Dawnsbury.Core.CombatActions;
+using Dawnsbury.Core.Mechanics.Core;
+using Dawnsbury.Core.Mechanics.Damage;
+using Dawnsbury.Core.Mechanics.Enumerations;
+using Dawnsbury.Core.Mechanics.Targeting;
+using Dawnsbury.Core.Mechanics.Treasure;
+using Dawnsbury.Core.Possibilities;
+using Dawnsbury.Core.Roller;
+using Dawnsbury.Display;
+using Dawnsbury.Modding;
+using Dawnsbury.Mods.Classes.Exemplar.RegisteredComponents;
+using static Dawnsbury.Mods.Classes.Exemplar.ExemplarClassLoader;
 
-//                     int dice = action.Item.WeaponProperties?.DamageDieCount ?? 1;
-//                     return new Bonus(dice, BonusType.Circumstance, "Unfailing Bow Immanence");
-//                 };
+namespace Dawnsbury.Mods.Classes.Exemplar;
 
-//                 qf.AfterYouDealDamage = async (owner, action, target) =>
-//                 {
-//                     if (!owner.HasEffect(ExemplarIkonQEffectIds.QEmpoweredUnfailingBow))
-//                         return;
-//                     if (!action.HasTrait(Trait.Strike) || target == null)
-//                         return;
-//                     if (action.CheckResult == CheckResult.CriticalSuccess)
-//                     {
-//                         int dice = action.Item?.WeaponProperties?.DamageDieCount ?? 1;
-//                         var formula = DiceFormula.FromText($"{dice}d4", "Unfailing Bow Crit Splash");
-
-//                         DamageKind damageKind = DamageKindHelper.GetDamageKindFromEffect(qf.Owner, ExemplarIkonQEffectIds.QEnergizedSpark);   
-
-//                         await CommonSpellEffects.DealDirectDamage(
-//                             action, formula, target, action.CheckResult, damageKind
-//                         );
-//                     }
-//                 };
-
-//                 // Transcendence: repeat last shot with same d20 result
-//                 qf.ProvideMainAction = qf =>
-//                 {
-//                     var owner = qf.Owner;
-//                     if (qf.Owner.HasEffect(ExemplarIkonQEffectIds.TranscendenceTracker) || !qf.Owner.HasEffect(ExemplarIkonQEffectIds.QEmpoweredUnfailingBow))
-//                         return null;
-
-//                     var action = new CombatAction(
-//                         owner,
-//                         IllustrationName.ArrowProjectile,
-//                         "Arrow Splits Arrow",
-//                         new[] { ModTraits.Transcendence, ModTraits.Ikon },
-//                         "Repeat your last unfailing bow Strike against the same target using the same d20 result.",
-//                         Target.Self()
-//                     ).WithActionCost(1);
-
-//                     action.WithEffectOnSelf(async (act, self) =>
-//                     {
-//                         // Validate previous Strike
-//                         var prev = self.Actions.ActionHistoryThisEncounter.LastOrDefault();
-//                         if (prev == null || !prev.HasTrait(Trait.Strike) || prev.Item != self.PrimaryWeaponIncludingRanged)
-//                         {
-//                             self.Overhead(
-//                                 "Your last action must be a Strike with the unfailing bow.",
-//                                 Microsoft.Xna.Framework.Color.Orange
-//                             );
-//                             self.Actions.RevertExpendingOfResources(1, act);
-//                             return;
-//                         }
-
-//                         var target = prev.ChosenTargets?.ChosenCreature;
-//                         if (target == null)
-//                         {
-//                             self.Overhead(
-//                                 "No valid target for repeat shot.",
-//                                 Microsoft.Xna.Framework.Color.Orange
-//                             );
-//                             self.Actions.RevertExpendingOfResources(1, act);
-//                             return;
-//                         }
-//                         /*
-//                             Is there a way to force the the previous hit die to be pushed in? 
-//                         */
-
-//                         // Repeat the strike with forced result
-//                         if (prev.Item == null || prev.ChosenTargets == null)
-//                         {
-//                             self.Overhead(
-//                                 prev.Item == null 
-//                                     ? "The previous action's item is invalid." 
-//                                     : "No valid targets to repeat the shot.",
-//                                 Microsoft.Xna.Framework.Color.Orange
-//                             );
-//                             self.Actions.RevertExpendingOfResources(1, act);
-//                             return;
-//                         }
-
-//                         var repeat = self.CreateStrike(prev.Item);
-//                         repeat.ChosenTargets = prev.ChosenTargets;
-//                         await repeat.AllExecute();
-
-//                         // Cleanup: remove empowerment, grant free Shift, exhaustion
-//                         self.RemoveAllQEffects(q => ExemplarIkonQEffectIds.EmpoweredIkonIds.Contains(q.Id));
-//                         self.AddQEffect(new QEffect(
-//                             "First Shift Free",
-//                             "Your next Shift Immanence is free."
-//                         )
-//                         { Id = ExemplarIkonQEffectIds.FirstShiftFree });
-
-//                         self.AddQEffect(new QEffect(
-//                             "Spark Exhaustion",
-//                             "You cannot use another Transcendence this turn.",
-//                             ExpirationCondition.ExpiresAtStartOfYourTurn,
-//                             self
-//                         )
-//                         { Id = ExemplarIkonQEffectIds.TranscendenceTracker });
-//                     });
-
-//                     return new ActionPossibility(action);
-//                 };
-//             });
-
-//             ModManager.AddFeat(unfailingBow);
-//         }
-//     }
-// }
+public class UnfailingBow
+{
+    [FeatGenerator(0)]
+    public static IEnumerable<Feat> GetFeat()
+    {
+        ItemName ikonRune = ModManager.RegisterNewItemIntoTheShop("UnfailingBow", itemName =>
+        {
+            return new Item(itemName, IllustrationName.FearsomeRunestone, "Unfailing Bow", 1, 0, Trait.DoNotAddToShop, ExemplarTraits.IkonRanged)
+            .WithRuneProperties(new RuneProperties("Ikon", IkonRuneKind.UnfailingBow, "The shots fired by this weapon seem guided by divine accuracy, finding the swiftest targets.",
+            "", item =>
+            {
+                item.Traits.AddRange([ExemplarTraits.Ikon, Trait.Divine]);
+            })
+            .WithCanBeAppliedTo((Item rune, Item weapon) =>
+            {
+                if (weapon.WeaponProperties == null)
+                {
+                    return "Must be a weapon.";
+                }
+                if (!weapon.HasTrait(Trait.Ranged))
+                {
+                    return "Must be a ranged weapon.";
+                }
+                return null;
+            }));
+        });
+        yield return new Ikon(new Feat(
+            ExemplarFeats.UnfailingBow,
+            "The shots fired by this weapon seem guided by divine accuracy, finding the swiftest targets.",
+            "{b}Usage{/b} a ranged weapon\n\n" +
+            "{b}Immanence{/b} The {i}unfailing bow{/i} deals an additional 1 spirit damage per weapon damage die to creatures it Strikes, or 1d4 additional spirit damage per weapon die on a critical hit.\n\n" +
+            $"{{b}}Transcendence — Arrow Splits Arrow {RulesBlock.GetIconTextFromNumberOfActions(2)}{{/b}} (transcendence)\n{{b}}Requirements{{/b}} Your previous action was to Strike with the {{i}}unfailing bow{{/i}}.\n" +
+            "{b}Effect{/b} You repeat your motions exactly, your attack landing in the same location as your previous shot. You make a Strike against the same target. The result of your d20 roll is the same as the result of the required shot, " +
+            "though any penalties (such as your multiple attack penalty) apply normally to this shot and you don't automatically adjust the degree of success if the initial roll was a natural 1 or 20.",
+            [ExemplarTraits.Ikon],
+            null
+        ).WithIllustration(IllustrationName.ArrowProjectile), q =>
+        {
+            q.AddExtraKindedDamageOnStrike = (action, target) =>
+            {
+                if (action.Item?.Runes.Any(rune => rune.ItemName == ikonRune) ?? false)
+                {
+                    int dice = action.Item.WeaponProperties?.DamageDieCount ?? 0;
+                    if (action.ChosenTargets.CheckResults[target] == CheckResult.Success)
+                    {
+                        return new KindedDamage(DiceFormula.FromText($"{1 * dice}", "Unfailing Bow"), Ikon.GetBestDamageKindForSpark(action.Owner, target));
+                    }
+                    return new KindedDamage(DiceFormula.FromText($"{1 * dice}d4", "Unfailing Bow"), Ikon.GetBestDamageKindForSpark(action.Owner, target));
+                }
+                return null;
+            };
+            q.AfterYouMakeAttackRoll = (q, breakdownResult) =>
+            {
+                if ((FeatName?)q.Tag == ExemplarFeats.UnfailingBow)
+                {
+                    if (breakdownResult.D20Roll == 20)
+                    {
+                        if (breakdownResult.ThresholdToDowngrade <= 10)
+                        {
+                            breakdownResult.CheckResult.WorsenByOneStep();
+                        }
+                    }
+                }
+                else
+                {
+                    q.Value = breakdownResult.D20Roll;
+                }
+            };
+        },
+        q =>
+        {
+            var unfailing = Ikon.GetIkonItem(q.Owner, ikonRune);
+            return new ActionPossibility(new CombatAction(
+                q.Owner,
+                IllustrationName.ArrowProjectile,
+                "Arrow Splits Arrow",
+                [ExemplarTraits.Transcendence],
+                "You repeat your motions exactly, your attack landing in the same location as your previous shot. You make a Strike against the same target. The result of your d20 roll is the same as the result of the required shot, " +
+                "though any penalties (such as your multiple attack penalty) apply normally to this shot and you don't automatically adjust the degree of success if the initial roll was a natural 1 or 20.",
+                Target.Ranged(unfailing?.WeaponProperties?.MaximumRange ?? 100).WithAdditionalConditionOnTargetCreature((self, target) =>
+                {
+                    var unfailing = Ikon.GetIkonItem(q.Owner, ikonRune);
+                    if (unfailing == null)
+                    {
+                        return Usability.NotUsable("You must be wielding the {i}unfailing bow{/i}.");
+                    }
+                    if (((unfailing.HasTrait(Trait.Reload1) || unfailing.HasTrait(Trait.Reload2)) && unfailing.EphemeralItemProperties.NeedsReload) ||
+                        (unfailing.HasTrait(Trait.Repeating) && unfailing.EphemeralItemProperties.AmmunitionLeftInMagazine <= 0))
+                    {
+                        return Usability.NotUsable("Your {i}unfailing bow must be loaded{/i}.");
+                    }
+                    var lastAction = self.Actions.ActionHistoryThisTurn.LastOrDefault();
+                    if (lastAction == null || !lastAction.HasTrait(Trait.Strike) ||
+                        lastAction.CheckResult < CheckResult.Success ||
+                        (lastAction.Item != unfailing))
+                    {
+                        return Usability.NotUsable("Your last action must be a successful Strike with the {i}unfailing bow{/i}.");
+                    }
+                    if (lastAction.ChosenTargets.ChosenCreature != target)
+                    {
+                        return Usability.NotUsableOnThisCreature("You must target the same creature as your previous Strike.");
+                    }
+                    return Usability.Usable;
+                })
+            )
+            .WithActionCost(2)
+            .WithSavingThrow(new SavingThrow(Defense.Reflex, q.Owner.ClassDC()))
+            .WithEffectOnChosenTargets(async (action, self, targets) =>
+            {
+                var unfailing = Ikon.GetIkonItem(self, ikonRune);
+                var lastAction = self.Actions.ActionHistoryThisTurn.LastOrDefault();
+                q.Tag = ExemplarFeats.UnfailingBow;
+                //See Patches.cs for the guaranteed roll number
+                await self.MakeStrike(lastAction!.ChosenTargets.ChosenCreature!, unfailing!);
+                q.Tag = null;
+            }));
+        })
+        .WithRune(ikonRune)
+        .IkonFeat;
+    }
+}

@@ -2,229 +2,164 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 using Dawnsbury.Core;
-using Dawnsbury.Core.CharacterBuilder;
 using Dawnsbury.Core.CharacterBuilder.Feats;
 using Dawnsbury.Core.CharacterBuilder.Selections.Options;
 using Dawnsbury.Core.CombatActions;
-using Dawnsbury.Core.Creatures;
 using Dawnsbury.Core.Mechanics;
 using Dawnsbury.Core.Mechanics.Enumerations;
-using Dawnsbury.Core.Possibilities;
-using Dawnsbury.Display.Illustrations;
-using Dawnsbury.Modding;
-using Dawnsbury.Mods.Classes.Exemplar;
 using Dawnsbury.Core.Mechanics.Core;
 using Dawnsbury.Core.Mechanics.Targeting;
-using Dawnsbury.Core.Coroutines.Requests;
-using Dawnsbury.Auxiliary;
-using Dawnsbury.Core.Animations;
-using System.Reflection.Metadata.Ecma335;
+using Dawnsbury.Core.Mechanics.Treasure;
+using Dawnsbury.Core.Possibilities;
 using Dawnsbury.Display;
-using Dawnsbury.Mods.Exemplar.Utilities;
+using Dawnsbury.Modding;
+using Dawnsbury.Mods.Classes.Exemplar.RegisteredComponents;
+using static Dawnsbury.Mods.Classes.Exemplar.ExemplarClassLoader;
 
-namespace Dawnsbury.Mods.Exemplar
+namespace Dawnsbury.Mods.Classes.Exemplar;
+
+public class PeltOfTheBeast
 {
-    public class Ikons_PeltOfTheBeast
+    [FeatGenerator(0)]
+    public static IEnumerable<Feat> GetFeat()
     {
-        // 1) Dummy FeatNames for each attunement
-        public static readonly FeatName IkonPeltBeastCold =
-            ModManager.RegisterFeatName("IkonPeltBeastCold", "Pelt of the Beast: Cold Attunement");
-        public static readonly FeatName IkonPeltBeastElectricity =
-            ModManager.RegisterFeatName("IkonPeltBeastElectricity", "Pelt of the Beast: Electricity Attunement");
-        public static readonly FeatName IkonPeltBeastFire =
-            ModManager.RegisterFeatName("IkonPeltBeastFire", "Pelt of the Beast: Fire Attunement");
-        public static readonly FeatName IkonPeltBeastPoison =
-            ModManager.RegisterFeatName("IkonPeltBeastPoison", "Pelt of the Beast: Poison Attunement");
-        public static readonly FeatName IkonPeltBeastSonic =
-            ModManager.RegisterFeatName("IkonPeltBeastSonic", "Pelt of the Beast: Sonic Attunement");
-
-        private static readonly Dictionary<FeatName,string> PeltAttunementDescriptions = new()
+        ItemName ikonRune = ModManager.RegisterNewItemIntoTheShop("PeltOfTheBeast", itemName =>
         {
-            { IkonPeltBeastCold,        "Your hide shivers against chilling assaults, granting resistance to cold." },
-            { IkonPeltBeastElectricity, "Your hide crackles with static wards against lightning strikes." },
-            { IkonPeltBeastFire,        "Your hide smolders with embers, softening the sting of fire." },
-            { IkonPeltBeastPoison,      "Your hide seeps toxins back, reducing the venom's venomous bite." },
-            { IkonPeltBeastSonic,       "Your hide vibrates with harmonics, dulling the roar of sonic blasts." }
+            return new Item(itemName, IllustrationName.FearsomeRunestone, "Pelt of the Beast", 1, 0, Trait.DoNotAddToShop, ExemplarTraits.IkonCloakBelt)
+            .WithRuneProperties(new RuneProperties("Ikon", IkonRuneKind.PeltOfTheBeast, "This animal hide, whether worn about the shoulders or waist, is all you need to survive in the harshest elements.",
+            "", item =>
+            {
+                item.Traits.AddRange([ExemplarTraits.Ikon, Trait.Divine]);
+            })
+            .WithCanBeAppliedTo((Item rune, Item item) =>
+            {
+                if (!item.HasTrait(Trait.Worn) || (item.WornAt != Trait.Cloak && item.WornAt != Trait.Belt))
+                {
+                    return "Must be a worn cloak or belt.";
+                }
+                return null;
+            }));
+        });
+        ItemName freeItem = ModManager.RegisterNewItemIntoTheShop("OrdinaryCloak", itemName =>
+        {
+            return new Item(itemName, IllustrationName.CloakOfEnergyResistance, "Cloak", 1, 0, Trait.DoNotAddToShop)
+            .WithDescription("An ordinary cloak.")
+            .WithWornAt(Trait.Cloak);
+        });
+
+        Dictionary<FeatName, (DamageKind, Trait)> peltFeatTypes = new()
+        {
+            [ExemplarFeats.PeltOfTheBeastCold] = (DamageKind.Cold, Trait.Cold),
+            [ExemplarFeats.PeltOfTheBeastElectricity] = (DamageKind.Electricity, Trait.Electricity),
+            [ExemplarFeats.PeltOfTheBeastFire] = (DamageKind.Fire, Trait.Fire),
+            [ExemplarFeats.PeltOfTheBeastPoison] = (DamageKind.Poison, Trait.Poison),
+            [ExemplarFeats.PeltOfTheBeastSonic] = (DamageKind.Sonic, Trait.Sonic)
         };
 
-        [DawnsburyDaysModMainMethod]
-        public static void Load()
+        var peltFeats = peltFeatTypes.Select(feats =>
         {
-            var peltAttunements = new (FeatName Name, string Title)[]
+            return new Feat(feats.Key, null, $"Attune the Pelt of the Beast to {feats.Value.Item1.ToString()}", [ExemplarTraits.PeltOfTheBeastAttune], null)
+                .WithOnCreature(creature =>
+                {
+                    var pelt = creature.FindQEffect(ExemplarQEffects.PeltOfTheBeastAttunement);
+                    if (pelt != null)
+                    {
+                        pelt.Tag = feats.Value;
+                    }
+                });
+        });
+
+        foreach (var feat in peltFeats)
+        {
+            yield return feat;
+        }
+
+        yield return new Ikon(new Feat(
+            ExemplarFeats.PeltOfTheBeast,
+            "This animal hide, whether worn about the shoulders or waist, is all you need to survive in the harshest elements.",
+            "When you make your daily preparations, choose cold, electricity, fire, poison, or sonic damage. The pelt attunes to that damage type.\n\n" +
+            "{b}Immanence{/b} You gain resistance equal to half your level to the damage type the pelt is attuned to.\n\n" +
+            $"{{b}}Transcendence — Survive the Wilds {RulesBlock.GetIconTextFromNumberOfActions(1)}{{/b}} (aura, manipulate, transcendence)\n" +
+            "You wrap the pelt around yourself. You can choose to change the damage type the pelt is attuned to. The pelt shines gold, drawing the offending " +
+            "energies into itself. Until the start of your next turn, this shine creates an aura in a 15-foot emanation. You and all allies in the emanation gain a " +
+            "+2 circumstance bonus to AC and saving throws against effects with that trait.",
+            [ExemplarTraits.Ikon],
+            null
+        ).WithIllustration(IllustrationName.MagicHide)
+        .WithOnSheet(sheet =>
+        {
+            sheet.AddSelectionOption(new SingleFeatSelectionOption(
+                key: "PeltOfBeast:Attunement",
+                name: "Pelt of the Beast Attunement",
+                level: SelectionOption.MORNING_PREPARATIONS_LEVEL,
+                eligible: ft => ft.HasTrait(ExemplarTraits.PeltOfTheBeastAttune)
+            ));
+        })
+        .WithPermanentQEffect(null, q =>
+        {
+            q.Id = ExemplarQEffects.PeltOfTheBeastAttunement;
+        }), q =>
+        {
+            q.StateCheck = (qe) =>
             {
-                (IkonPeltBeastCold,        "Pelt of the Beast: Cold Attunement"),
-                (IkonPeltBeastElectricity, "Pelt of the Beast: Electricity Attunement"),
-                (IkonPeltBeastFire,        "Pelt of the Beast: Fire Attunement"),
-                (IkonPeltBeastPoison,      "Pelt of the Beast: Poison Attunement"),
-                (IkonPeltBeastSonic,       "Pelt of the Beast: Sonic Attunement")
+                var pelt = Ikon.GetIkonItemWorn(qe.Owner, ikonRune);
+                var peltq = qe.Owner.FindQEffect(ExemplarQEffects.PeltOfTheBeastAttunement);
+                if (pelt != null && peltq != null && peltq.Tag is ValueTuple<DamageKind, Trait> tag)
+                {
+                    qe.Owner.WeaknessAndResistance.AddResistance(tag.Item1, qe.Owner.Level / 2);
+                }
+            };
+        },
+        q =>
+        {
+            var peltActions = peltFeatTypes.Select(feats =>
+            {
+                return new ActionPossibility(new CombatAction(q.Owner, IllustrationName.MagicHide,
+                    $"Survive the Wilds ({feats.Value.Item1.ToString()})", [Trait.Aura, Trait.Manipulate, ExemplarTraits.Transcendence],
+                    "You wrap the pelt around yourself. You can choose to change the damage type the pelt is attuned to. The pelt shines gold, drawing the offending " +
+                    "energies into itself. Until the start of your next turn, this shine creates an aura in a 15-foot emanation. You and all allies in the emanation gain a " +
+                    "+2 circumstance bonus to AC and saving throws against effects with that trait.",
+                    Target.Self().WithAdditionalRestriction(self =>
+                    {
+                        if (Ikon.GetIkonItemWorn(self, ikonRune) == null)
+                        {
+                            return "You must be wearing the pelt of the beast.";
+                        }
+                        return null;
+                    }))
+                    .WithActionCost(1)
+                    .WithEffectOnChosenTargets(async (action, self, targets) =>
+                    {
+                        self.AddQEffect(new QEffect("Survive the Wilds", $"You and all allies in the emanation gain a +2 circumstance bonus to AC and saving throws against effects with the {feats.Value.Item1.ToString()} trait.", ExpirationCondition.ExpiresAtStartOfYourTurn, self, IllustrationName.MagicHide)
+                        {
+                            SpawnsAura = q => q.Owner.AnimationData.AddAuraAnimation(IllustrationName.MagicCircle150, 3)
+                        }.AddGrantingOfTechnical(cr => cr.FriendOf(q.Owner), qe =>
+                        {
+                            qe.BonusToDefenses = (qe, action, defense) =>
+                            {
+                                if (qe.Owner.DistanceTo(q.Owner) <= 3 && (action?.HasTrait(feats.Value.Item2) ?? false) && defense is Defense.AC or Defense.Reflex or Defense.Will or Defense.Fortitude)
+                                {
+                                    return new Bonus(2, BonusType.Circumstance, "Survive the Wilds", true);
+                                }
+                                return null;
+                            };
+                        }));
+                    })) as Possibility;
+            });
+            return new SubmenuPossibility(IllustrationName.MagicHide, "Survive the Wilds")
+            {
+                Subsections =
+                [
+                    new PossibilitySection("SurvivetheWilds")
+                    {
+                        Possibilities = peltActions?.ToList() ?? []
+                    }
+                ]
             };
 
-            foreach (var (fn, title) in peltAttunements)
-            {
-                // pull the long description, or empty if missing
-                var desc = PeltAttunementDescriptions.TryGetValue(fn, out var d) ? d : "";
-
-                ModManager.AddFeat(new TrueFeat(
-                    fn,
-                    1,
-                    title,    // display name
-                    desc,     // ← now your new flavor text
-                    Array.Empty<Trait>(), 
-                    null
-                ));
-            }
-
-            // 3) The real “Pelt of the Beast” ikon
-            var pelt = new TrueFeat(
-                ExemplarFeatNames.IkonPeltOfTheBeast,
-                1,
-                "Pelt Of The Beast",
-                "This animal hide…\n\n" +
-                "{b}Immanence{/b} At daily preparations, choose one attunement: Cold, Electricity, Fire, Poison, or Sonic. " +
-                "You gain resistance equal to half your level to that damage type.\n\n" +
-                "{b}Transcendence — Survive the Wilds (one-action){/b} Wrapping the pelt, you may re-attune. " +
-                "You and allies in 15-ft. emanation gain +2 circumstance bonus to AC & saves vs. that damage type until the start of your next turn.",
-                new[] { ModTraits.Ikon, ModTraits.BodyIkon }, null
-            ).WithMultipleSelection()
-            // 4) Morning-prep dropdown
-            .WithOnSheet(sheet =>
-            {
-                sheet.AddSelectionOption(
-                    new SingleFeatSelectionOption(
-                        key: "PeltOfBeast:Attunement",
-                        name: "Pelt of the Beast Attunement",
-                        level: SelectionOption.MORNING_PREPARATIONS_LEVEL,
-                        eligible: ft =>
-                            ft.FeatName == IkonPeltBeastCold
-                         || ft.FeatName == IkonPeltBeastElectricity
-                         || ft.FeatName == IkonPeltBeastFire
-                         || ft.FeatName == IkonPeltBeastPoison
-                         || ft.FeatName == IkonPeltBeastSonic
-                    ).WithIsOptional()
-                );
-            })
-            // 5) Passive “resistance” + the one-action Transcendence
-            .WithPermanentQEffect(null, qf =>
-            {
-                // Immanence: grant you resistance as a reactive BonusToDefenses
-                qf.BonusToDefenses = (eff, action, def) =>
-                {
-                    if (action == null)
-                        return null;
-                    if (!eff.Owner.HasEffect(ExemplarIkonQEffectIds.QEmpoweredPeltOfTheBeast))
-                        return null;
-
-                    // figure out which dummy feat you have
-                    var owner = eff.Owner;
-                    DamageKind kind =
-                        owner.HasFeat(IkonPeltBeastCold) ? DamageKind.Cold :
-                        owner.HasFeat(IkonPeltBeastElectricity) ? DamageKind.Electricity :
-                        owner.HasFeat(IkonPeltBeastFire) ? DamageKind.Fire :
-                        owner.HasFeat(IkonPeltBeastPoison) ? DamageKind.Poison 
-                        : DamageKind.Sonic ;
-
-                    // if the incoming action deals that kind, treat it as resistance half-your-level
-                    if (true)
-                    {
-                        eff.Owner.WeaknessAndResistance.AddResistance(kind, owner.Level / 2);
-                    }
-
-
-                    return null;
-                };
-
-                // Transcendence — recast that one-action effect
-                qf.ProvideMainAction = qf =>
-                {
-                    var owner = qf.Owner;
-                    if (qf.Owner.HasEffect(ExemplarIkonQEffectIds.TranscendenceTracker) || !qf.Owner.HasEffect(ExemplarIkonQEffectIds.QEmpoweredPeltOfTheBeast))
-                        return null;
-
-                    var act = new CombatAction(
-                        owner,
-                        IllustrationName.MagicHide,
-                        "Survive the Wilds",
-                        new[] { Trait.Aura, Trait.Manipulate, ModTraits.Transcendence, ModTraits.Ikon },
-                        "Re-wrap the pelt (you may re-attune) and grant +2 circumstance bonus to AC & saves against the attuned type in 15-ft. emanation.",
-                        Target.Self()
-                    ).WithActionCost(1);
-
-                    act.WithEffectOnSelf(async (action, self) =>
-                    {
-                        // 1) Build an array of display-strings for each dummy-feat
-                        var options = new[] {
-                            (IkonPeltBeastCold, Label: "Cold"),
-                            (IkonPeltBeastElectricity, Label: "Electricity"),
-                            (IkonPeltBeastFire, Label : "Fire"),
-                            (IkonPeltBeastPoison,Label: "Poison"),
-                            (IkonPeltBeastSonic, Label: "Sonic")
-                        };
-                        var labels = options.Select(fn => fn.Label).ToArray();  // use ToString(), not .Name
-
-                        // 2) Prompt the player with buttons
-                        var choice = await self.AskForChoiceAmongButtons(
-                            IllustrationName.MagicHide,
-                            "Re-choose your Pelt of the Beast attunement",
-                            labels  // this is now a string[], exactly what AskForChoiceAmongButtons wants
-                        );
-
-                        // 3) Figure out which feat they picked
-                        var pick = options.First(fn => fn.Label == choice.Text);
-
-                        // 4) Announce it
-                        self.Overhead($"Pelt attuned to {pick.Label}.", Microsoft.Xna.Framework.Color.Gold);
-                        AuraAnimation auraAnimation = qf.Owner.AnimationData.AddAuraAnimation(IllustrationName.MagicCircle150, 3F);
-
-                        // 5) Blast out the +2 aura vs. the new damage kind
-                        var kind = pick.Item1 == IkonPeltBeastCold ? Trait.Cold
-                                : pick.Item1 == IkonPeltBeastElectricity ? Trait.Electricity
-                                : pick.Item1 == IkonPeltBeastFire ? Trait.Fire
-                                : pick.Item1 == IkonPeltBeastPoison ? Trait.Poison
-                                : Trait.Sonic;
-
-                        foreach (var ally in self.Battle.AllCreatures)
-                        {
-                            if (ally.DistanceTo(self) > 3
-                                || ally.HasEffect(ExemplarIkonQEffectIds.QMirroredAegisAura))
-                                continue;
-                            ally.AddQEffect(new QEffect(
-                                    "Pelt Aura",
-                                    $"+2 circumstance bonus to AC & saves vs. {kind}",
-                                    ExpirationCondition.ExpiresAtStartOfYourTurn,
-                                    self, IllustrationName.MagicHide
-                                )
-                            {
-                                WhenExpires = delegate { auraAnimation.MoveTo(0f); },
-                                Id = ExemplarIkonQEffectIds.QPeltAura,
-                                BonusToDefenses = (qfSelf, act2, def2) =>
-                                {
-                                    if (act2 == null)
-                                        return null;
-                                    if (def2 == Defense.AC)
-                                    {
-                                        return new Bonus(2, BonusType.Circumstance, "Survive the Wilds");
-                                    }
-                                    else if (act2.HasTrait(kind))
-                                    {
-                                        return new Bonus(2, BonusType.Circumstance, "Survive the Wilds");
-                                    }
-                                    return null;
-                                },
-
-                            });
-                        }
-
-
-
-                        // 3) Clean up empowerment + grant your free shift / exhaustion tracker
-                        IkonEffectHelper.CleanupEmpoweredEffects(self, ExemplarIkonQEffectIds.QEmpoweredPeltOfTheBeast);
-                    });
-
-                    return new ActionPossibility(act);
-                };
-            });
-
-            ModManager.AddFeat(pelt);
-        }
+        })
+        .WithRune(ikonRune)
+        .WithFreeWornItem(freeItem)
+        .IkonFeat;
     }
 }

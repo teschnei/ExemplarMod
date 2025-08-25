@@ -1,115 +1,119 @@
-using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using Dawnsbury.Core;
 using Dawnsbury.Core.CharacterBuilder.Feats;
 using Dawnsbury.Core.CharacterBuilder.FeatsDb.Common;
 using Dawnsbury.Core.CombatActions;
-using Dawnsbury.Core.Creatures;
 using Dawnsbury.Core.Mechanics;
 using Dawnsbury.Core.Mechanics.Core;
-using Dawnsbury.Core.Mechanics.Damage;
 using Dawnsbury.Core.Mechanics.Enumerations;
 using Dawnsbury.Core.Mechanics.Targeting;
-using Dawnsbury.Core.Mechanics.Targeting.Targets;
+using Dawnsbury.Core.Mechanics.Treasure;
 using Dawnsbury.Core.Possibilities;
-using Dawnsbury.Core.Roller;
-using Dawnsbury.Display.Illustrations;
+using Dawnsbury.Display;
 using Dawnsbury.Modding;
-using Dawnsbury.Mods.Classes.Exemplar;
-using Dawnsbury.Mods.Exemplar.Utilities;
+using Dawnsbury.Mods.Classes.Exemplar.RegisteredComponents;
+using static Dawnsbury.Mods.Classes.Exemplar.ExemplarClassLoader;
 
-namespace Dawnsbury.Mods.Exemplar
+namespace Dawnsbury.Mods.Classes.Exemplar;
+
+public class MortalHarvest
 {
-    public class Ikons_MortalHarvest
+    [FeatGenerator(0)]
+    public static IEnumerable<Feat> GetFeat()
     {
-        [DawnsburyDaysModMainMethod]
-        public static void Load()
+        ItemName ikonRune = ModManager.RegisterNewItemIntoTheShop("MortalHarvest", itemName =>
         {
-            var mortalHarvest = new TrueFeat(
-                // Make sure you add this in ExemplarFeatNames.cs
-                ExemplarFeatNames.IkonMortalHarvest,
-                1,
-                "This weapon, once used for felling trees or crops, now harvests lives instead.",
-                "{b}Immanence{/b} The mortal harvest deals 1 persistent spirit damage per weapon damage die to creatures it Strikes.\n\n" +
-                "{b}Transcendence — Reap the Field (one-action){/b} [Requirements] Your previous action was a successful Strike with the mortal harvest. " +
-                "Time seems to lag as you blur across the battlefield, deciding the fate of many in a moment. " +
-                "Stride up to half your Speed and make another melee Strike with the mortal harvest against a different creature. " +
-                "This Strike uses the same multiple attack penalty as your previous Strike, but counts toward your multiple attack penalty as normal.",
-                new[] { ModTraits.Ikon },
-                null
-            ).WithMultipleSelection()
-            .WithPermanentQEffect(null, qf =>
+            return new Item(itemName, IllustrationName.FearsomeRunestone, "Mortal Harvest", 1, 0, Trait.DoNotAddToShop, ExemplarTraits.IkonSickleAxeFlailPolearm)
+            .WithRuneProperties(new RuneProperties("Ikon", IkonRuneKind.MortalHarvest, "This weapon, once used for felling trees or crops, now harvests lives instead.",
+            "", item =>
             {
-                // Immanence: apply persistent spirit damage per die
-                qf.AfterYouDealDamage = async (selfQf, action, target) =>
+                item.Traits.AddRange([ExemplarTraits.Ikon, Trait.Divine]);
+            })
+            .WithCanBeAppliedTo((Item rune, Item weapon) =>
+            {
+                if (weapon.WeaponProperties == null)
                 {
-                    if (!qf.Owner.HasEffect(ExemplarIkonQEffectIds.QEmpoweredMortalHarvest))
-                        return;
-
-                    // Only on successful Strikes
-                    if (!action.HasTrait(Trait.Strike) || action.Item?.WeaponProperties == null || action.ChosenTargets?.ChosenCreature == null)
-                        return;
-
-                    int dice = action.Item.WeaponProperties.DamageDieCount;
-                    // var formula = DiceFormula.FromText($"{dice}", "Mortal Harvest persistent spirit");
-                    var formula = ($"{dice}");
-
-                    // await CommonSpellEffects.ApplyPersistentDamage(action, formula, target, action.CheckResult, DamageKind.Spirit);
-                    await CommonSpellEffects.DealBasicPersistentDamage(target,action.CheckResult, formula, DamageKind.Negative );
-                };
-
-                // Transcendence: Reap the Field
-                qf.ProvideMainAction = qf =>
+                    return "Must be a weapon.";
+                }
+                if ((!weapon.HasTrait(Trait.Axe)) && (!weapon.HasTrait(Trait.Flail)) && (!weapon.HasTrait(Trait.Polearm)) && (!weapon.HasTrait(Trait.Sickle)))
                 {
-                    if (qf.Owner.HasEffect(ExemplarIkonQEffectIds.TranscendenceTracker) || !qf.Owner.HasEffect(ExemplarIkonQEffectIds.QEmpoweredMortalHarvest) )
-                        return null;
+                    return "Must be a Sickle, Axe, Flail, or Polearm group.";
+                }
+                return null;
+            }));
+        });
 
-                    var action = new CombatAction(
-                        qf.Owner,
-                        IllustrationName.Scythe,
-                        "Reap the Field",
-                        new[] { ModTraits.Transcendence, ModTraits.Ikon },
-                        "Stride up to half your Speed and make another Strike with the mortal harvest against a different creature.",
-                        Target.Self()
-                    )
-                    .WithActionCost(1);
-
-                    action.WithEffectOnSelf(async (act, self) =>
+        yield return new Ikon(new Feat(
+            ExemplarFeats.MortalHarvest,
+            "This weapon, once used for felling trees or crops, now harvests lives instead.",
+            "{b}Usage{/b} a sickle or any weapon from the axe, flail, or polearm group\n\n" +
+            "{b}Immanence{/b} The {i}mortal harvest{/i} deals 1 persistent spirit damage per weapon damage die to creatures it Strikes.\n\n" +
+            $"{{b}}Transcendence — Reap the Field {RulesBlock.GetIconTextFromNumberOfActions(1)}{{/b}} (transcendence)\n{{b}}Requirements{{/b}} Your previous action was a successful Strike with the mortal harvest.\n " +
+            "{b}Effect{/b} Time seems to lag as you blur across the battlefield, deciding the fate of many in a moment. " +
+            "Stride up to half your Speed and make another melee Strike with the {i}mortal harvest{/i} against a different creature. " +
+            "This Strike uses the same multiple attack penalty as your previous Strike, but counts toward your multiple attack penalty as normal.",
+            [ExemplarTraits.Ikon],
+            null
+        ).WithIllustration(IllustrationName.Scythe), q =>
+        {
+            q.YouDealDamageWithStrike = (qe, action, diceFormula, target) =>
+            {
+                if (action.Item?.Runes.Any(rune => rune.ItemName == ikonRune) ?? false)
+                {
+                    target.AddQEffect(QEffect.PersistentDamage($"{action.Item?.WeaponProperties?.DamageDieCount}".ToString(), Ikon.GetBestDamageKindForSpark(action.Owner, target)));
+                }
+                return diceFormula;
+            };
+        },
+        q =>
+        {
+            return new ActionPossibility(new CombatAction(
+                q.Owner,
+                IllustrationName.Scythe,
+                "Reap the Field",
+                [ExemplarTraits.Transcendence],
+                "Stride up to half your Speed and make another Strike with the {i}mortal harvest{/i} against a different creature. This Strike uses the same multiple attack penalty as your previous Strike, but counts toward your multiple attack penalty as normal.",
+                Target.Self().WithAdditionalRestriction(self =>
+                {
+                    var harvest = Ikon.GetIkonItem(q.Owner, ikonRune);
+                    if (harvest == null)
                     {
-                        // Verify last action was a successful Strike with this weapon
-                        var prev = self.Actions.ActionHistoryThisEncounter.LastOrDefault();
-                        if (prev == null || !prev.HasTrait(Trait.Strike))
-                        {
-                            self.Overhead("Your last action must be a successful strike with the mortal harvest.", Microsoft.Xna.Framework.Color.Orange);
-                            self.Actions.RevertExpendingOfResources(1,act);
-                            return;
-                        }
-                        //map pen
-                        var pen = 5;
-                        if (prev.HasTrait(Trait.Agile))
-                        {
-                            pen = 4;
-                        }
+                        return "You must be wielding the Mortal Harvest.";
+                    }
+                    var lastAction = self.Actions.ActionHistoryThisTurn.LastOrDefault();
+                    if (lastAction == null || !lastAction.HasTrait(Trait.Strike) ||
+                        lastAction.CheckResult < CheckResult.Success ||
+                        (lastAction.Item != harvest))
+                    {
+                        return "Your last action must be a successful Strike with the {i}mortal harvest{/i}.";
+                    }
+                    return null;
+                })
+            )
+            .WithActionCost(1)
+            .WithEffectOnSelf(async (act, self) =>
+            {
+                var prev = self.Actions.ActionHistoryThisEncounter.LastOrDefault();
+                var pen = 5;
+                if (prev?.HasTrait(Trait.Agile) ?? false)
+                {
+                    pen = 4;
+                }
 
-                        // Stride up to half Speed
-                        await self.StrideAsync("Choose where to stride (half Speed).", allowPass: false, maximumHalfSpeed: true);
+                // Stride up to half Speed
+                await self.StrideAsync("Choose where to stride (half Speed).", allowPass: false, maximumHalfSpeed: true);
 
-                        //Cleanup: currently this is to offset the MAP penalty.
-                        qf.BonusToAttackRolls = (eff, act, defender) => 
-                            qf.Owner == self ? new Bonus(pen, BonusType.Untyped, "Mortal Harvest") : null;
+                //Cleanup: currently this is to offset the MAP penalty.
+                q.BonusToAttackRolls = (eff, act, defender) =>
+                    q.Owner == self ? new Bonus(pen, BonusType.Untyped, "") : null;
 
-                        // Now strike a different creature
-                        await CommonCombatActions.StrikeAdjacentCreature(self, null);
-
-                        // Clean up empowerment
-                        IkonEffectHelper.CleanupEmpoweredEffects(self, ExemplarIkonQEffectIds.QEmpoweredMortalHarvest);
-                    });
-
-                    return new ActionPossibility(action);
-                };
-            });
-
-            ModManager.AddFeat(mortalHarvest);
-        }
+                //TODO: only allow striking with the Mortal Harvest itself
+                await CommonCombatActions.StrikeAdjacentCreature(self, null);
+                q.BonusToAttackRolls = null;
+            }));
+        })
+        .WithRune(ikonRune)
+        .IkonFeat;
     }
 }

@@ -1,136 +1,114 @@
-using System.Linq;
-using System.Runtime.Serialization;
+using System.Collections.Generic;
 using Dawnsbury.Core;
-using Dawnsbury.Core.Animations;
-using Dawnsbury.Core.Animations.AuraAnimations;
 using Dawnsbury.Core.CharacterBuilder.Feats;
-using Dawnsbury.Core.CharacterBuilder.FeatsDb.Spellbook;
 using Dawnsbury.Core.CombatActions;
 using Dawnsbury.Core.Creatures;
 using Dawnsbury.Core.Mechanics;
 using Dawnsbury.Core.Mechanics.Core;
 using Dawnsbury.Core.Mechanics.Enumerations;
 using Dawnsbury.Core.Mechanics.Targeting;
+using Dawnsbury.Core.Mechanics.Treasure;
 using Dawnsbury.Core.Possibilities;
-using Dawnsbury.Display.Illustrations;
+using Dawnsbury.Display;
 using Dawnsbury.Modding;
-using Dawnsbury.Mods.Classes.Exemplar;
-using Dawnsbury.Mods.Exemplar.Utilities;
+using Dawnsbury.Mods.Classes.Exemplar.RegisteredComponents;
 using Microsoft.Xna.Framework;
+using static Dawnsbury.Mods.Classes.Exemplar.ExemplarClassLoader;
 
-namespace Dawnsbury.Mods.Exemplar
+namespace Dawnsbury.Mods.Classes.Exemplar;
+
+public class MirroredAegis
 {
-    public class Ikons_MirroredAegis
+    [FeatGenerator(0)]
+    public static IEnumerable<Feat> GetFeat()
     {
-        [DawnsburyDaysModMainMethod]
-        public static void Load()
+        ItemName ikonRune = ModManager.RegisterNewItemIntoTheShop("MirroredAegis", itemName =>
         {
-            Feat mirroredAegis = new TrueFeat(
-                ExemplarFeatNames.IkonMirroredAegis,
-                1,
-                "This shield is polished so brightly it can reflect even spiritual and ethereal attacks.",
-                "{b}Immanence{/b} While empowered, allies within 3 squares of you gain +1 status bonus to AC and Reflex, and +1 status bonus to saves against force, spirit, vitality, and void.\n\n" +
-                "{b}Transcendence — Raise the Walls (one action){/b} You and one ally within 15 feet gain +1 status bonus to AC, Reflex, and saves against force, spirit, vitality, and void for 1 minute.",
-                [ModTraits.Ikon],
-                null
-            ).WithMultipleSelection()
-            .WithPermanentQEffect(null, qf =>
+            return new Item(itemName, IllustrationName.FearsomeRunestone, "Mirrored Aegis", 1, 0, Trait.DoNotAddToShop, ExemplarTraits.IkonShield)
+            .WithRuneProperties(new RuneProperties("Ikon", IkonRuneKind.MirroredAegis, "This shield is polished so brightly it can reflect even spiritual and ethereal attacks.",
+            "", item =>
             {
-                // Immanence aura
-                qf.StateCheck = effect =>
+                item.Traits.AddRange([ExemplarTraits.Ikon, Trait.Divine]);
+            })
+            .WithCanBeAppliedTo((Item rune, Item shield) =>
+            {
+                if (!shield.HasTrait(Trait.Shield))
                 {
-                    if (!effect.Owner.HasEffect(ExemplarIkonQEffectIds.QEmpoweredMirroredAegis))
-                        return;
+                    return "Must be a Shield.";
+                }
+                return null;
+            }));
+        });
 
-                    AuraAnimation auraAnimation = qf.Owner.AnimationData.AddAuraAnimation(IllustrationName.BlessCircle, 3f);
-
-                    foreach (var ally in effect.Owner.Battle.AllCreatures)
+        yield return new Ikon(new Feat(
+            ExemplarFeats.MirroredAegis,
+            "This shield is polished so brightly it can reflect even spiritual and ethereal attacks.",
+            "{b}Usage{/b} any shield\n\n" +
+            "{b}Immanence{/b} The {i}mirrored aegis{/i} emits an aura in a 15-foot emanation that protects you and all allies in the aura from harm, granting a +1 status bonus to AC.\n\n" +
+            $"{{b}}Transcendence — Raise the Walls {RulesBlock.GetIconTextFromNumberOfActions(1)}{{/b}} (force, transcendence)\n" +
+            "You raise the {i}mirrored aegis{/i}, which summons ethereal shields that surround you and one ally of your choice within 15 feet in a tortoise shield formation. You and the ally gain a +1 status bonus to AC, Reflex saves, and any save against a force, spirit, vitality, or void effect for 1 minute.",
+            [ExemplarTraits.Ikon],
+            null
+        ).WithIllustration(IllustrationName.DragonClaws), q =>
+        {
+            q.AddGrantingOfTechnical(cr => cr.FriendOf(q.Owner), qe =>
+            {
+                qe.BonusToDefenses = (qe, action, defense) =>
+                {
+                    var aegis = Ikon.GetIkonItem(q.Owner, ikonRune);
+                    if (aegis != null && qe.Owner.DistanceTo(q.Owner) <= 3 && defense == Defense.AC)
                     {
-                        if (ally.DistanceTo(effect.Owner) > 3
-                            || ally.HasEffect(ExemplarIkonQEffectIds.QMirroredAegisAura))
-                            continue;
-
-
-                        // MagicCircleAuraAnimation 
-                        ally.AddQEffect(new QEffect("Mirrored Aura", "+1 to AC, Reflex, and key saves", ExpirationCondition.ExpiresAtEndOfYourTurn, qf.Owner, IllustrationName.ShieldSpell)
-                        {
-                            WhenExpires = delegate
-                            {
-                                auraAnimation.MoveTo(0f);
-                            },
-                            Id = ExemplarIkonQEffectIds.QMirroredAegisAura,
-                            BonusToDefenses = (eff, act, def) =>
-                            {
-                                if (act == null || eff?.Owner == null)
-                                    return null;
-                                    
-                                if (def == Defense.AC || def == Defense.Reflex || !act.HasTrait(Trait.Force) || !act.HasTrait(Trait.Positive) || !act.HasTrait(Trait.Negative))
-                                {
-                                    return new Bonus(1, BonusType.Status, "Mirrored Aegis");
-                                }
-                                return null;
-                            },
-                        });
+                        return new Bonus(1, BonusType.Status, "Mirrored Aegis", true);
                     }
-                };
-
-                // Transcendence action
-                qf.ProvideMainAction = qf =>
-                {
-                    if (qf.Owner.HasEffect(ExemplarIkonQEffectIds.TranscendenceTracker) || !qf.Owner.HasEffect(ExemplarIkonQEffectIds.QEmpoweredMirroredAegis))
-                        return null;
-
-                    var action = new CombatAction(
-                        qf.Owner,
-                        IllustrationName.SteelShield,
-                        "Raise the Walls",
-                        [ModTraits.Transcendence, ModTraits.Ikon],
-                        "You and an ally within 15 feet gain +1 status bonus to AC, Reflex, and key saves for 1 minute.",
-                        Target.Self()
-                    ).WithActionCost(1);
-
-                    action.WithEffectOnEachTarget(async (act, caster, target, _) =>
-                    {
-                        // Choose an ally (or self if no other)
-                        var candidates = caster.Battle.AllCreatures
-                            .Where(a => a.DistanceTo(caster) <= 3)
-                            .ToList();
-                        var ally = candidates.Count == 1
-                            ? candidates[0]
-                            : await caster.Battle.AskToChooseACreature(
-                                caster, candidates,
-                                IllustrationName.SteelShield,
-                                "Choose an ally to shield",
-                                "Shield", "Cancel"
-                              );
-
-                        void ApplyShield(Creature cr)
-                        {
-
-                            cr.AddQEffect(new QEffect("Ethereal Shield", "+1 to AC, Reflex, and key saves", ExpirationCondition.CountsDownAtEndOfYourTurn, qf.Owner, IllustrationName.Shield)
-                            {
-                                Value = 10,
-                                BonusToDefenses = (eff, act2, def) =>
-                                    (def == Defense.AC || def == Defense.Reflex ||
-                                    (act2 != null && (!act2.HasTrait(Trait.Force) || !act2.HasTrait(Trait.Positive) || !act2.HasTrait(Trait.Negative))))
-                                        ? new Bonus(1, BonusType.Status, "Raise the Walls")
-                                        : null,
-                            });
-                        }
-
-                        ApplyShield(caster);
-                        if (ally != null)
-                            ApplyShield(ally);
-
-                        // Remove empowerment and grant free shift
-                        IkonEffectHelper.CleanupEmpoweredEffects(caster, ExemplarIkonQEffectIds.QEmpoweredMirroredAegis);
-                    });
-
-                    return new ActionPossibility(action);
+                    return null;
                 };
             });
+            q.SpawnsAura = q => q.Owner.AnimationData.AddAuraAnimation(IllustrationName.BlessCircle, 3, Color.White);
+        }, q =>
+        {
+            return new ActionPossibility(new CombatAction(
+                q.Owner,
+                IllustrationName.SteelShield,
+                "Raise the Walls",
+                [ExemplarTraits.Transcendence],
+                "You raise the {i}mirrored aegis{/i}, which summons ethereal shields that surround you and one ally of your choice within 15 feet in a tortoise shield formation. You and the ally gain a +1 status bonus to AC, Reflex saves, and any save against a force, spirit, vitality, or void effect for 1 minute.",
+                Target.RangedFriend(3).WithAdditionalConditionOnTargetCreature((self, target) =>
+                {
+                    var aegis = Ikon.GetIkonItem(q.Owner, ikonRune);
+                    if (aegis == null)
+                    {
+                        return Usability.NotUsable("You must be wielding the mirrored aegis.");
+                    }
+                    return Usability.Usable;
+                })
+            ).WithActionCost(1)
+            .WithEffectOnChosenTargets(async (action, self, targets) =>
+            {
+                void ApplyShield(Creature cr)
+                {
+                    cr.AddQEffect(new QEffect("Raise the Walls", "Ethereal shields from a mirrored aegis protect you, granting you a +1 status bonus to AC, Reflex saves, and any save against a force, spirit, vitality, or void effect.", ExpirationCondition.Never, q.Owner, IllustrationName.Shield)
+                    {
+                        Id = ExemplarQEffects.RaiseTheWalls,
+                        BonusToDefenses = (_, offensiveAction, defense) =>
+                            (defense == Defense.AC || defense == Defense.Reflex ||
+                            (offensiveAction != null && (offensiveAction.HasTrait(Trait.Force) || offensiveAction.HasTrait(Trait.Positive) || offensiveAction.HasTrait(Trait.Negative))))
+                                ? new Bonus(1, BonusType.Status, "Raise the Walls")
+                                : null,
+                    });
+                }
 
-            ModManager.AddFeat(mirroredAegis);
-        }
+                foreach (var creature in self.Battle.AllCreatures)
+                {
+                    creature.RemoveAllQEffects(q => q.Id == ExemplarQEffects.RaiseTheWalls && q.Source == self);
+                }
+                ApplyShield(self);
+                if (targets.ChosenCreature != null && targets.ChosenCreature != self)
+                {
+                    ApplyShield(targets.ChosenCreature);
+                }
+            }));
+        })
+        .WithRune(ikonRune)
+        .IkonFeat;
     }
 }
