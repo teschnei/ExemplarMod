@@ -29,6 +29,7 @@ public static class ExemplarTraits
     public static readonly Trait IkonShoes = ModManager.RegisterTrait("Ikon13", new TraitProperties("Ikon", true, "Drag onto any worn shoes."));
     public static readonly Trait IkonBludgeon = ModManager.RegisterTrait("Ikon14", new TraitProperties("Ikon", true, "Drag onto any melee weapon in the club, hammer, or axe group, or any your melee unarmed Strikes that deals bludgeoning damage."));
     public static readonly Trait IkonHeadBelt = ModManager.RegisterTrait("Ikon15", new TraitProperties("Ikon", true, "Drag onto any headwear or belt worn item."));
+    public static readonly Trait IkonTwinStars = ModManager.RegisterTrait("Ikon16", new TraitProperties("Ikon", true, "Drag onto any one-handed melee weapon."));
     //Feats that add effects to Ikons
     public static readonly Trait IkonExpansion = ModManager.RegisterTrait("IkonExpansion", new TraitProperties("Ikon", true));
     public static readonly Trait Transcendence = ModManager.RegisterTrait("Transcendence", new TraitProperties("Transcendence", false));
@@ -37,4 +38,7 @@ public static class ExemplarTraits
     public static readonly Trait Epithet = ModManager.RegisterTrait("Epithet", new TraitProperties("Epithet", false));
     public static readonly Trait RootEpithet = ModManager.RegisterTrait("RootEpithet", new TraitProperties("Root Epithet", false));
     public static readonly Trait DominionEpithet = ModManager.RegisterTrait("DominionEpithet", new TraitProperties("Dominion Epithet", false));
+
+    //Misc traits that don't exist in DD
+    public static readonly Trait Twin = ModManager.RegisterTrait("Twin", new TraitProperties("Twin", true, "When you attack with a twin weapon, you add a circumstance bonus to the damage roll equal to the weapon’s number of damage dice if you have previously attacked with a different weapon of the same type this turn."));
 }

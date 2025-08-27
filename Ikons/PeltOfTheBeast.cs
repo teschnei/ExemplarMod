@@ -26,7 +26,7 @@ public class PeltOfTheBeast
         ItemName ikonRune = ModManager.RegisterNewItemIntoTheShop("PeltOfTheBeast", itemName =>
         {
             return new Item(itemName, IllustrationName.FearsomeRunestone, "Pelt of the Beast", 1, 0, Trait.DoNotAddToShop, ExemplarTraits.IkonCloakBelt)
-            .WithRuneProperties(new RuneProperties("Ikon", IkonRuneKind.PeltOfTheBeast, "This animal hide, whether worn about the shoulders or waist, is all you need to survive in the harshest elements.",
+            .WithRuneProperties(new RuneProperties("Ikon", IkonRuneKind.Ikon, "This animal hide, whether worn about the shoulders or waist, is all you need to survive in the harshest elements.",
             "", item =>
             {
                 item.Traits.AddRange([ExemplarTraits.Ikon, Trait.Divine]);

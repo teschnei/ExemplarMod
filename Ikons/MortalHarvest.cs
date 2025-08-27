@@ -25,7 +25,7 @@ public class MortalHarvest
         ItemName ikonRune = ModManager.RegisterNewItemIntoTheShop("MortalHarvest", itemName =>
         {
             return new Item(itemName, IllustrationName.FearsomeRunestone, "Mortal Harvest", 1, 0, Trait.DoNotAddToShop, ExemplarTraits.IkonSickleAxeFlailPolearm)
-            .WithRuneProperties(new RuneProperties("Ikon", IkonRuneKind.MortalHarvest, "This weapon, once used for felling trees or crops, now harvests lives instead.",
+            .WithRuneProperties(new RuneProperties("Ikon", IkonRuneKind.Ikon, "This weapon, once used for felling trees or crops, now harvests lives instead.",
             "", item =>
             {
                 item.Traits.AddRange([ExemplarTraits.Ikon, Trait.Divine]);

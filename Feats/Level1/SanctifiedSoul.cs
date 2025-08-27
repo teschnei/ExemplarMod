@@ -34,6 +34,7 @@ public class SanctifiedSoul
                     }
                 })).ToList()
         )
+        .WithEquivalent(sheet => sheet.HasFeat(ExemplarFeats.VowOfMortalDefiance))
         .WithPermanentQEffect(null, qf =>
         {
             qf.Id = ExemplarQEffects.SanctifiedSoul;

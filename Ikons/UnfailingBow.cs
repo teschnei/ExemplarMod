@@ -25,7 +25,7 @@ public class UnfailingBow
         ItemName ikonRune = ModManager.RegisterNewItemIntoTheShop("UnfailingBow", itemName =>
         {
             return new Item(itemName, IllustrationName.FearsomeRunestone, "Unfailing Bow", 1, 0, Trait.DoNotAddToShop, ExemplarTraits.IkonRanged)
-            .WithRuneProperties(new RuneProperties("Ikon", IkonRuneKind.UnfailingBow, "The shots fired by this weapon seem guided by divine accuracy, finding the swiftest targets.",
+            .WithRuneProperties(new RuneProperties("Ikon", IkonRuneKind.Ikon, "The shots fired by this weapon seem guided by divine accuracy, finding the swiftest targets.",
             "", item =>
             {
                 item.Traits.AddRange([ExemplarTraits.Ikon, Trait.Divine]);
@@ -70,7 +70,7 @@ public class UnfailingBow
             };
             q.AfterYouMakeAttackRoll = (q, breakdownResult) =>
             {
-                if ((FeatName?)q.Tag == ExemplarFeats.UnfailingBow)
+                if (q.Id == Ikon.IkonLUT[ExemplarFeats.UnfailingBow].EmpoweredQEffectId)
                 {
                     if (breakdownResult.D20Roll == 20)
                     {
@@ -82,7 +82,7 @@ public class UnfailingBow
                 }
                 else
                 {
-                    q.Value = breakdownResult.D20Roll;
+                    q.Tag = breakdownResult.D20Roll;
                 }
             };
         },
@@ -128,10 +128,8 @@ public class UnfailingBow
             {
                 var unfailing = Ikon.GetIkonItem(self, ikonRune);
                 var lastAction = self.Actions.ActionHistoryThisTurn.LastOrDefault();
-                q.Tag = ExemplarFeats.UnfailingBow;
                 //See Patches.cs for the guaranteed roll number
                 await self.MakeStrike(lastAction!.ChosenTargets.ChosenCreature!, unfailing!);
-                q.Tag = null;
             }));
         })
         .WithRune(ikonRune)

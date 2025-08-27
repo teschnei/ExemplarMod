@@ -10,6 +10,7 @@ using Dawnsbury.Core.CharacterBuilder.Selections.Options;
 using Dawnsbury.Core.Mechanics;
 using Dawnsbury.Core.Mechanics.Core;
 using Dawnsbury.Core.Mechanics.Enumerations;
+using Dawnsbury.Core.Mechanics.Rules;
 using Dawnsbury.Core.Mechanics.Treasure;
 using Dawnsbury.Core.Possibilities;
 using Dawnsbury.Core.Roller;
@@ -139,17 +140,19 @@ public static class ExemplarBaseClass
 
     private static void EnsureCorrectRunes(CalculatedCharacterSheetValues sheet)
     {
-        var allFeats = AllFeats.All.Where(feat => feat.HasTrait(ExemplarTraits.Ikon)).Select(feat => Ikon.IkonLUT[feat.FeatName]).Where(ikon => ikon.Rune != null);
+        var allFeats = Ikon.IkonLUT.Values.Where(kvp => kvp.Rune != null);
         List<Inventory> inventories = [sheet.Sheet.CampaignInventory, .. sheet.Sheet.InventoriesByLevel.Values];
         foreach (var inventory in inventories)
         {
             var toAdd = new List<Item>();
             var toRemove = new List<Item>();
+            List<Item?> allItems = [inventory.LeftHand, inventory.RightHand, inventory.Armor, .. inventory.Backpack];
             foreach (var ikon in allFeats)
             {
                 ItemName ikonRune = (ItemName)ikon.Rune!;
-                List<Item?> allItems = [inventory.LeftHand, inventory.RightHand, inventory.Armor, .. inventory.Backpack];
-                var items = allItems.Where(item => item != null && (item.ItemName == ikonRune || item.Runes.Any(rune => rune.ItemName == ikonRune)));
+                List<Item> items = [.. allItems.Where(item => item != null && item.ItemName == ikonRune),
+                                    .. allItems.Where(item => item != null && item.Runes.Any(rune => rune.ItemName == ikonRune))
+                                               .Select(item => item?.Runes.Where(rune => rune.ItemName == ikonRune).FirstOrDefault())];
                 var amount = sheet.AllFeats.Contains(ikon.IkonFeat) ? 1 : 0;
                 if (items.Count() < amount)
                 {
@@ -169,6 +172,22 @@ public static class ExemplarBaseClass
                     toRemove.AddRange(items.Skip(amount)!);
                 }
             }
+            foreach (var (featName, ikonRune) in Ikon.ExtraRunes)
+            {
+                List<Item> items = [.. allItems.Where(item => item != null && item.ItemName == ikonRune),
+                                    .. allItems.Where(item => item != null && item.Runes.Any(rune => rune.ItemName == ikonRune))
+                                               .Select(item => item?.Runes.Where(rune => rune.ItemName == ikonRune).FirstOrDefault())];
+                var amount = sheet.AllFeatNames.Contains(featName) ? 1 : 0;
+                if (items.Count() < amount)
+                {
+                    Item newItem = Items.CreateNew(ikonRune);
+                    toAdd.Add(newItem);
+                }
+                else if (items.Count() > amount)
+                {
+                    toRemove.AddRange(items.Skip(amount)!);
+                }
+            }
             foreach (var item in toAdd)
             {
                 AddItem(inventory, item);
@@ -182,30 +201,28 @@ public static class ExemplarBaseClass
 
     private static void RemoveItem(Inventory inventory, Item item)
     {
-        if (inventory.LeftHand == item)
+        if (inventory.Backpack.Remove(item))
         {
-            inventory.LeftHand = null;
+
         }
-        else if (inventory.RightHand == item)
+        else if (inventory.LeftHand?.Runes.Contains(item) ?? false)
         {
-            inventory.RightHand = null;
+            inventory.LeftHand = RunestoneRules.RecreateWithUnattachedSubitem(inventory.LeftHand, item, true);
         }
-        else if (inventory.Armor == item)
+        else if (inventory.RightHand?.Runes.Contains(item) ?? false)
         {
-            inventory.Armor = null;
+            inventory.RightHand = RunestoneRules.RecreateWithUnattachedSubitem(inventory.RightHand, item, true);
         }
-        else if (!inventory.Backpack.Remove(item))
+        else if (inventory.Armor?.Runes.Contains(item) ?? false)
         {
-            if (!(inventory.LeftHand?.Runes.Remove(item) ?? false))
+            inventory.Armor = RunestoneRules.RecreateWithUnattachedSubitem(inventory.Armor, item, true);
+        }
+        else
+        {
+            var index = inventory.Backpack.FindIndex(item => item?.Runes.Contains(item) ?? false);
+            if (index >= 0)
             {
-                if (!(inventory.RightHand?.Runes.Remove(item) ?? false))
-                {
-                    if (!(inventory.Armor?.Runes.Remove(item) ?? false))
-                    {
-                        var found = inventory.Backpack.Where(i => i?.Runes.Any(rune => rune == item) ?? false).FirstOrDefault();
-                        inventory.Backpack.Remove(found);
-                    }
-                }
+                inventory.Backpack[index] = RunestoneRules.RecreateWithUnattachedSubitem(inventory.Backpack[index]!, item, true);
             }
         }
     }

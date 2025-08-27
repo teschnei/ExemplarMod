@@ -3,7 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Dawnsbury.Core.CharacterBuilder.Feats;
+using Dawnsbury.Core.Mechanics;
+using Dawnsbury.Core.Mechanics.Core;
 using Dawnsbury.Modding;
+using Dawnsbury.Mods.Classes.Exemplar.RegisteredComponents;
 using HarmonyLib;
 
 namespace Dawnsbury.Mods.Classes.Exemplar;
@@ -43,6 +46,25 @@ public static class ExemplarClassLoader
                 ModManager.AddFeat(feat);
             }
         }
+
+        //Implementation of "Twin" trait
+        ModManager.RegisterActionOnEachCreature(creature =>
+        {
+            creature.AddQEffect(new QEffect()
+            {
+                BonusToDamage = (q, action, target) =>
+                {
+                    if (action.Item?.HasTrait(ExemplarTraits.Twin) ?? false)
+                    {
+                        if (q.Owner.Actions.ActionHistoryThisTurn.Where(hist => hist.Item != action.Item && hist.Item?.BaseItemName == action.Item?.BaseItemName).Count() > 0)
+                        {
+                            return new Bonus(action.Item.WeaponProperties?.DamageDieCount ?? 0, BonusType.Circumstance, "Twin", true);
+                        }
+                    }
+                    return null;
+                }
+            });
+        });
 
         var harmony = new Harmony("junabell.dawnsburydays.exemplar");
         harmony.PatchAll();

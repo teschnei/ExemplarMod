@@ -26,7 +26,7 @@ public class TitansBreaker
         ItemName ikonRune = ModManager.RegisterNewItemIntoTheShop("TitansBreaker", itemName =>
         {
             return new Item(itemName, IllustrationName.FearsomeRunestone, "Titan's Breaker", 1, 0, Trait.DoNotAddToShop, ExemplarTraits.Ikon)
-            .WithRuneProperties(new RuneProperties("Ikon", IkonRuneKind.TitansBreaker, "You wield a weapon whose blows shatter mountains with ease.",
+            .WithRuneProperties(new RuneProperties("Ikon", IkonRuneKind.Ikon, "You wield a weapon whose blows shatter mountains with ease.",
             "", item =>
             {
                 item.Traits.AddRange([ExemplarTraits.Ikon, Trait.Divine]);

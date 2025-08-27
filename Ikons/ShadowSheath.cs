@@ -28,7 +28,7 @@ public class ShadowSheath
         ItemName ikonRune = ModManager.RegisterNewItemIntoTheShop("ShadowSheath", itemName =>
         {
             return new Item(itemName, IllustrationName.FearsomeRunestone, "Shadow Sheath", 1, 0, Trait.DoNotAddToShop, ExemplarTraits.IkonThrown)
-            .WithRuneProperties(new RuneProperties("Ikon", IkonRuneKind.ShadowSheath, "With an infinite array of darts, throwing knives, or similar weapons, you never need to worry about being unarmed.",
+            .WithRuneProperties(new RuneProperties("Ikon", IkonRuneKind.Ikon, "With an infinite array of darts, throwing knives, or similar weapons, you never need to worry about being unarmed.",
             "", item =>
             {
                 item.Traits.AddRange([ExemplarTraits.Ikon, Trait.Divine]);

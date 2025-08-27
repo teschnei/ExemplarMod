@@ -11,17 +11,21 @@ using Dawnsbury.Core.Mechanics.Targeting;
 using Dawnsbury.Core.Mechanics.Targeting.TargetingRequirements;
 using Dawnsbury.Core.Mechanics.Treasure;
 using Dawnsbury.Core.Possibilities;
+using Dawnsbury.Modding;
 using Dawnsbury.Mods.Classes.Exemplar.RegisteredComponents;
 
 namespace Dawnsbury.Mods.Classes.Exemplar;
 
 public class Ikon
 {
+    public static readonly string IkonKey = "IkonEmpowered";
     public static Dictionary<FeatName, Ikon> IkonLUT = new();
+    public static Dictionary<FeatName, ItemName> ExtraRunes = new();
 
     public Feat IkonFeat { get; }
     public ItemName? Rune { get; private set; }
     public ItemName? FreeWornItem { get; private set; }
+    public QEffectId EmpoweredQEffectId { get; private set; }
 
     private Action<QEffect> Immanence { get; }
     private Func<QEffect, Possibility?> Transcendence { get; }
@@ -31,6 +35,7 @@ public class Ikon
         IkonFeat = ikon;
         Immanence = immanence;
         Transcendence = transcendence;
+        EmpoweredQEffectId = ModManager.RegisterEnumMember<QEffectId>($"Empowered{ikon.FeatName.ToString()}");
 
         IkonLUT.Add(ikon.FeatName, this);
     }
@@ -52,8 +57,8 @@ public class Ikon
         var q = new QEffect($"Empowered {IkonFeat.Name}", $"Your {IkonFeat.Name} is housing your divine spark, granting you its Immanence and Transcendence abilities.",
                 ExpirationCondition.Never, exemplar, IllustrationName.SpiritualWeapon)
         {
-            Id = ExemplarQEffects.IkonEmpowered,
-            Tag = (this, (object?)null),
+            Id = EmpoweredQEffectId,
+            Key = IkonKey,
             ProvideMainAction = q =>
             {
                 var poss = Transcendence?.Invoke(q);
@@ -77,10 +82,9 @@ public class Ikon
         return new CombatAction(exemplar, IllustrationName.SpiritualWeapon, $"Empower {IkonFeat.Name}",
             [ExemplarTraits.Exemplar, Trait.Divine, Trait.Basic],
             $"{IkonFeat.FullTextDescription}", Target.Self())
-            .WithActionCost(exemplar.HasEffect(ExemplarQEffects.IkonEmpowered) ? 1 : 0)
+            .WithActionCost(exemplar.QEffects.Any(q => q.Key == IkonKey) ? 1 : 0)
             .WithEffectOnEachTarget(async (spell, caster, target, result) =>
             {
-                caster.RemoveAllQEffects(q => q.Id == ExemplarQEffects.IkonEmpowered);
                 caster.AddQEffect(GetEmpoweredQEffect(exemplar));
             }
         );

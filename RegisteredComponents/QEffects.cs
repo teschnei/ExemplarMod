@@ -7,7 +7,6 @@ namespace Dawnsbury.Mods.Classes.Exemplar.RegisteredComponents;
 public static class ExemplarQEffects
 {
     public static readonly QEffectId ShiftImmanence = ModManager.RegisterEnumMember<QEffectId>("ShiftImmanence");
-    public static readonly QEffectId IkonEmpowered = ModManager.RegisterEnumMember<QEffectId>("IkonEmpowered");
 
     public static readonly QEffectId PeltOfTheBeastAttunement = ModManager.RegisterEnumMember<QEffectId>("PeltOfTheBeastAttunement");
     public static readonly QEffectId SkinHardAsHornAttunement = ModManager.RegisterEnumMember<QEffectId>("SkinHardAsHornAttunement");
@@ -16,6 +15,8 @@ public static class ExemplarQEffects
     //Level 1 Feats
     public static readonly QEffectId EnergizedSpark = ModManager.RegisterEnumMember<QEffectId>("EnergizedSpark");
     public static readonly QEffectId SanctifiedSoul = ModManager.RegisterEnumMember<QEffectId>("SanctifiedSoul");
+    public static readonly QEffectId VowOfMortalDefiance = ModManager.RegisterEnumMember<QEffectId>("VowOfMortalDefiance");
+    public static readonly QEffectId VowOfMortalDefianceUsed = ModManager.RegisterEnumMember<QEffectId>("VowOfMortalDefianceUsed");
 
     //Level 4 Feats
     public static readonly QEffectId SteelOnSteel = ModManager.RegisterEnumMember<QEffectId>("SteelOnSteel");

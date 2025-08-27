@@ -25,7 +25,7 @@ public class BandsOfImprisonment
         ItemName ikonRune = ModManager.RegisterNewItemIntoTheShop("BandsofImprisonment", itemName =>
         {
             return new Item(itemName, IllustrationName.FearsomeRunestone, "Bands of Imprisonment", 1, 0, Trait.DoNotAddToShop, ExemplarTraits.IkonBands)
-            .WithRuneProperties(new RuneProperties("Ikon", IkonRuneKind.BandOfImprisonment, "These weighted bands don't enhance your power—rather, they keep your strength in check, honing your discipline.",
+            .WithRuneProperties(new RuneProperties("Ikon", IkonRuneKind.Ikon, "These weighted bands don't enhance your power—rather, they keep your strength in check, honing your discipline.",
             "", item =>
             {
                 item.Traits.AddRange([ExemplarTraits.Ikon, Trait.Divine]);

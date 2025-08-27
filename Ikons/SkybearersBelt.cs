@@ -30,7 +30,7 @@ public class SkybearersBelt
         ItemName ikonRune = ModManager.RegisterNewItemIntoTheShop("SkybearersBelt", itemName =>
         {
             return new Item(itemName, IllustrationName.FearsomeRunestone, "Skybearer's Belt", 1, 0, Trait.DoNotAddToShop, ExemplarTraits.IkonBelt)
-            .WithRuneProperties(new RuneProperties("Ikon", IkonRuneKind.SkybearersBelt, "This girdle wraps around your waist, magnifying your strength to the point you feel you could carry the sky itself.",
+            .WithRuneProperties(new RuneProperties("Ikon", IkonRuneKind.Ikon, "This girdle wraps around your waist, magnifying your strength to the point you feel you could carry the sky itself.",
             "", item =>
             {
                 item.Traits.AddRange([ExemplarTraits.Ikon, Trait.Divine]);

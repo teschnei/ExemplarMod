@@ -26,7 +26,7 @@ public class GleamingBlade
         ItemName ikonRune = ModManager.RegisterNewItemIntoTheShop("GleamingBlade", itemName =>
         {
             return new Item(itemName, IllustrationName.FearsomeRunestone, "Gleaming Blade", 1, 0, Trait.DoNotAddToShop, ExemplarTraits.IkonSwordKnife)
-            .WithRuneProperties(new RuneProperties("Ikon", IkonRuneKind.GleamingBlade, "This blade glitters with such sharpness it seems to cut the very air in front of it.",
+            .WithRuneProperties(new RuneProperties("Ikon", IkonRuneKind.Ikon, "This blade glitters with such sharpness it seems to cut the very air in front of it.",
             "", item =>
             {
                 item.Traits.AddRange([ExemplarTraits.Ikon, Trait.Divine]);
@@ -87,9 +87,10 @@ public class GleamingBlade
                 };
 
                 StrikeModifiers strikeModifiers = new StrikeModifiers();
+                //TODO: it's probably better to use a QEffect with Convert for this
                 strikeModifiers.ReplacementDamageKind = Ikon.GetBestDamageKindForSpark(self, targets.ChosenCreature!);
                 var map = self.Actions.AttackedThisManyTimesThisTurn;
-                var strike = self.CreateStrike(blade, map, strikeModifiers);
+                var strike = self.CreateStrike(blade, map, strikeModifiers).WithActionCost(0);
                 await self.MakeStrike(strike, targets.ChosenCreature!);
                 self.AddQEffect(penalty);
                 await self.MakeStrike(strike, targets.ChosenCreature!);

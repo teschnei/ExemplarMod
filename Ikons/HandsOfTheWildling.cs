@@ -30,7 +30,7 @@ public class HandsOfTheWildling
             //TODO: figure out a way to apply this to an unarmed strike of choice
             //TODO: okay there are no free-hand weapons in DD either
             return new Item(itemName, IllustrationName.FearsomeRunestone, "Hands of the Wildling", 1, 0, Trait.DoNotAddToShop, ExemplarTraits.IkonFreeHand)
-            .WithRuneProperties(new RuneProperties("Ikon", IkonRuneKind.HandsOfTheWildling, "Tattooed fists, savage claws, or even powerful gauntlets - you swing each with the fury of an animal from the woods.",
+            .WithRuneProperties(new RuneProperties("Ikon", IkonRuneKind.Ikon, "Tattooed fists, savage claws, or even powerful gauntlets - you swing each with the fury of an animal from the woods.",
             "", item =>
             {
                 item.Traits.AddRange([ExemplarTraits.Ikon, Trait.Divine]);

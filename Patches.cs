@@ -1,4 +1,3 @@
-using Dawnsbury.Core.CharacterBuilder.Feats;
 using Dawnsbury.Core.CombatActions;
 using Dawnsbury.Mods.Classes.Exemplar.RegisteredComponents;
 using HarmonyLib;
@@ -10,10 +9,10 @@ public static class UnfailingBowPatch
 {
     static void Postfix(CombatAction combatAction, ref int __result)
     {
-        var unfailing = combatAction.Owner.FindQEffect(ExemplarQEffects.IkonEmpowered);
-        if (unfailing != null && (FeatName?)unfailing.Tag == ExemplarFeats.UnfailingBow)
+        var unfailing = combatAction.Owner.FindQEffect(Ikon.IkonLUT[ExemplarFeats.UnfailingBow].EmpoweredQEffectId);
+        if (unfailing != null && unfailing.Tag != null)
         {
-            __result = (int)unfailing.Value!;
+            __result = (int)unfailing.Tag;
         }
     }
 }

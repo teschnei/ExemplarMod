@@ -23,7 +23,7 @@ public class FetchingBangles
         ItemName ikonRune = ModManager.RegisterNewItemIntoTheShop("FetchingBangles", itemName =>
         {
             return new Item(itemName, IllustrationName.FearsomeRunestone, "Fetching Bangles", 1, 0, Trait.DoNotAddToShop, ExemplarTraits.IkonBracers)
-            .WithRuneProperties(new RuneProperties("Ikon", IkonRuneKind.FetchingBangles, "These lovely armbands sparkle and gleam, reflecting your own incredible magnetism.",
+            .WithRuneProperties(new RuneProperties("Ikon", IkonRuneKind.Ikon, "These lovely armbands sparkle and gleam, reflecting your own incredible magnetism.",
             "", item =>
             {
                 item.Traits.AddRange([ExemplarTraits.Ikon, Trait.Divine]);
