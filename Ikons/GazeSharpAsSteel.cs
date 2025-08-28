@@ -26,7 +26,7 @@ public class GazeSharpAsSteel
             "{b}Immanence{/b} Your vision sharpens and allows you to sense an enemy's attack almost as soon as it begins, granting you a +1 status bonus to Perception checks and a +2 status bonus to your AC against ranged attacks.\n\n" +
             $"{{b}}Transcendence — A Moment Unending {RulesBlock.GetIconTextFromNumberOfActions(1)}{{/b}} (concentrate, prediction, transcendence)\n" +
             "You take in every movement around you, affording you unparalleled accuracy. Your next successful Strike against an enemy before the end of your next turn deals an additional 1d6 precision damage (2d6 at 10th level, 3d6 at 18th).",
-            [ExemplarTraits.Ikon],
+            [ExemplarTraits.Ikon, ExemplarTraits.IkonBody],
             null
         ).WithIllustration(IllustrationName.Blinded), q =>
         {

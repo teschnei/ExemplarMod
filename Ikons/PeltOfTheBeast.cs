@@ -83,7 +83,7 @@ public class PeltOfTheBeast
             "You wrap the pelt around yourself. You can choose to change the damage type the pelt is attuned to. The pelt shines gold, drawing the offending " +
             "energies into itself. Until the start of your next turn, this shine creates an aura in a 15-foot emanation. You and all allies in the emanation gain a " +
             "+2 circumstance bonus to AC and saving throws against effects with that trait.",
-            [ExemplarTraits.Ikon],
+            [ExemplarTraits.Ikon, ExemplarTraits.IkonWorn],
             null
         ).WithIllustration(IllustrationName.MagicHide)
         .WithOnSheet(sheet =>

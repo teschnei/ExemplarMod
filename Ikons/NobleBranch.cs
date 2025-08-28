@@ -55,7 +55,7 @@ public class NobleBranch
             "{b}Immanence{/b} The {i}noble branch{/i} deals 2 additional spirit damage per weapon damage die to creatures it Strikes.\n\n" +
             $"{{b}}Transcendence — Strike, Breathe, Rend {RulesBlock.GetIconTextFromNumberOfActions(1)}{{/b}} (spirit, transcendence)\n{{b}}Requirements{{/b}} Your last action this turn was a successful Strike with the {{i}}noble branch{{/i}}.\n" +
             "{b}Effect{/b} You channel a rending pulse of energy down your weapon in the moment of contact. The target of the Strike takes spirit damage equal to the {i}noble branch's{/i} weapon damage dice.",
-            [ExemplarTraits.Ikon],
+            [ExemplarTraits.Ikon, ExemplarTraits.IkonWeapon],
             null
         ).WithIllustration(IllustrationName.Quarterstaff), q =>
         {

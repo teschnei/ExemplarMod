@@ -51,7 +51,7 @@ public class VictorsWreath
             $"{{b}}Transcendence — One Moment till Glory {RulesBlock.GetIconTextFromNumberOfActions(1)}{{/b}} (concentrate, emotion, mental, transcendence)\n" +
             "You rally your allies, carrying them from the brink of disaster to the verge of victory. Each ally in your aura can immediately attempt a new saving throw with a +2 status bonus against one ongoing negative effect or condition currently affecting them, " +
             "even if that effect would not normally allow a new saving throw.",
-            [ExemplarTraits.Ikon],
+            [ExemplarTraits.Ikon, ExemplarTraits.IkonWorn],
             null
         ).WithIllustration(IllustrationName.TiaraOfOpenSkies), q =>
         {

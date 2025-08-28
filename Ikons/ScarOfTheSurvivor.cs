@@ -26,7 +26,7 @@ public class ScarOfTheSurvivor
             "{b}Immanence{/b} Divine energy spreads outward from your scar, reinforcing your flesh. You gain the benefits of the Diehard feat and a +1 status bonus to Fortitude saving throws.\n\n" +
             $"{{b}}Transcendence — No Scar but This {RulesBlock.GetIconTextFromNumberOfActions(1)}{{/b}} (concentrate, healing, transcendence, vitality)\n" +
             "Your wounds knit shut with hardly a scratch. You regain 1d8 Hit Points. At 3rd level and every 2 levels thereafter, the healing increases by 1d8.",
-            [ExemplarTraits.Ikon],
+            [ExemplarTraits.Ikon, ExemplarTraits.IkonBody],
             null
         ).WithIllustration(IllustrationName.BloodVendetta), q =>
         {

@@ -51,7 +51,7 @@ public class FetchingBangles
             "An enemy in the aura that attempts to move away from you must succeed at a Will save against your class DC or its move action is disrupted.\n\n" +
             $"{{b}}Transcendence — Embrace of Destiny {RulesBlock.GetIconTextFromNumberOfActions(1)}{{/b}} (mental, spirit, transcendence)\n" +
             "Choose an enemy within 20 feet of you. It must succeed at a Will save against your class DC or be pulled directly toward you into a square adjacent to you.",
-            [ExemplarTraits.Ikon],
+            [ExemplarTraits.Ikon, ExemplarTraits.IkonWorn],
             null
         ).WithIllustration(IllustrationName.DoublingRings), q =>
         {

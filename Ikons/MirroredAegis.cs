@@ -47,7 +47,7 @@ public class MirroredAegis
             "{b}Immanence{/b} The {i}mirrored aegis{/i} emits an aura in a 15-foot emanation that protects you and all allies in the aura from harm, granting a +1 status bonus to AC.\n\n" +
             $"{{b}}Transcendence — Raise the Walls {RulesBlock.GetIconTextFromNumberOfActions(1)}{{/b}} (force, transcendence)\n" +
             "You raise the {i}mirrored aegis{/i}, which summons ethereal shields that surround you and one ally of your choice within 15 feet in a tortoise shield formation. You and the ally gain a +1 status bonus to AC, Reflex saves, and any save against a force, spirit, vitality, or void effect for 1 minute.",
-            [ExemplarTraits.Ikon],
+            [ExemplarTraits.Ikon, ExemplarTraits.IkonWorn],
             null
         ).WithIllustration(IllustrationName.DragonClaws), q =>
         {

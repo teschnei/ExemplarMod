@@ -56,7 +56,7 @@ public class TitansBreaker
             "when calculating your multiple attack penalty. If this Strike hits, your additional spirit damage from the ikon's immanence increases to 4 plus " +
             "an extra die of weapon damage. If you're at least 10th level, it's increased to 6 spirit damage and two extra dice, and if you're at least 18th level " +
             "it's increased to 8 spirit damage and three extra dice.",
-            [ExemplarTraits.Ikon],
+            [ExemplarTraits.Ikon, ExemplarTraits.IkonWeapon],
             null
         ).WithIllustration(IllustrationName.Greatclub), q =>
         {

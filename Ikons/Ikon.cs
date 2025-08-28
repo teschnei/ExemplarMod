@@ -59,19 +59,8 @@ public class Ikon
         {
             Id = EmpoweredQEffectId,
             Key = IkonKey,
-            ProvideMainAction = q =>
-            {
-                var poss = Transcendence?.Invoke(q);
-                if (poss is ActionPossibility action)
-                {
-                    action.CombatAction.WithEffectOnChosenTargets(async (self, targets) =>
-                    {
-                        q.ExpiresAt = ExpirationCondition.Immediately;
-                        q.Owner.FindQEffect(ExemplarQEffects.ShiftImmanence)!.Tag = IkonFeat;
-                    });
-                }
-                return poss;
-            }
+            ProvideMainAction = q => CreateTranscendence(Transcendence, q, IkonFeat),
+            WhenExpires = q => q.Owner.RemoveAllQEffects(q => q.Id == ExemplarQEffects.IkonExpansion)
         };
         Immanence(q);
         return q;
@@ -85,6 +74,7 @@ public class Ikon
             .WithActionCost(exemplar.QEffects.Any(q => q.Key == IkonKey) ? 1 : 0)
             .WithEffectOnEachTarget(async (spell, caster, target, result) =>
             {
+                caster.RemoveAllQEffects(q => q.Key == IkonKey);
                 caster.AddQEffect(GetEmpoweredQEffect(exemplar));
             }
         );
@@ -111,6 +101,32 @@ public class Ikon
         }
         //TODO: also check special resistances with the trait list
         return target.WeaknessAndResistance.WhatDamageKindIsBestAgainstMe([DamageKind.Force]);
+    }
+
+    public static IEnumerable<Feat> AddExpansionFeat(string technicalName, string flavorText, string rulesText, List<Trait> traits, Func<Ikon, bool> predicate, Action<Ikon, Feat> modifyFeat)
+    {
+        return IkonLUT.Values.Where(predicate).Select(ikon =>
+        {
+            var feat = new Feat(ModManager.RegisterFeatName(ikon.IkonFeat.FeatName.ToStringOrTechnical() + technicalName, ikon.IkonFeat.Name), flavorText, rulesText, traits, null)
+                .WithPrerequisite(sheet => sheet.HasFeat(ikon.IkonFeat), $"You must have the {ikon.IkonFeat.Name} ikon.")
+                .WithIllustration(ikon.IkonFeat.Illustration);
+            modifyFeat(ikon, feat);
+            return feat;
+        });
+    }
+
+    public static Possibility? CreateTranscendence(Func<QEffect, Possibility?> transcendence, QEffect q, Feat ikonFeat)
+    {
+        var poss = transcendence.Invoke(q);
+        if (poss is ActionPossibility action)
+        {
+            action.CombatAction.WithEffectOnChosenTargets(async (self, targets) =>
+            {
+                q.ExpiresAt = ExpirationCondition.Immediately;
+                q.Owner.FindQEffect(ExemplarQEffects.ShiftImmanence)!.Tag = ikonFeat;
+            });
+        }
+        return poss?.WithPossibilityGroup("Transcendence");
     }
 }
 

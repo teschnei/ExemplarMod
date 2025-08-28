@@ -1,87 +1,75 @@
+using System.Collections.Generic;
 using System.Linq;
-using System.Security;
-using Dawnsbury.Core;
 using Dawnsbury.Core.CharacterBuilder.Feats;
-using Dawnsbury.Core.CharacterBuilder.Selections.Options;
-using Dawnsbury.Core.Coroutines.Options;
-using Dawnsbury.Core.Creatures;
 using Dawnsbury.Core.Mechanics;
 using Dawnsbury.Core.Mechanics.Enumerations;
-using Dawnsbury.Modding;
-using Dawnsbury.Mods.Classes.Exemplar;
 using Dawnsbury.Mods.Classes.Exemplar.RegisteredComponents;
-/*
-    Todo: Currently this feat does not check if the current ikon is empowered.
-    It should check if the current ikon is empowered and then add the thrown trait to the weapon.
-*/
-namespace Dawnsbury.Mods.Classes.Exemplar
+using static Dawnsbury.Mods.Classes.Exemplar.ExemplarClassLoader;
+
+namespace Dawnsbury.Mods.Classes.Exemplar;
+
+public class HurlAtTheHorizon
 {
-    /*
-    public class Exemplar_HurlAtTheHorizon
+    [FeatGenerator(2)]
+    public static IEnumerable<Feat> GetFeat()
     {
-        [DawnsburyDaysModMainMethod]
-        public static void Load()
-        {
-            // Define the feat
-            var feat = new TrueFeat(
-                ExemplarFeats.HurlAtTheHorizon,
-                2,
-                "Hurl At The Horizon",
-                "{b}Immanence{/b} Your imbued weapon gains the Thrown 15 feet trait, or if it already has the Thrown trait, its thrown range increases by 10 feet.",
-                new[] { ExemplarBaseClass.TExemplar },
-                null
-            )
-            .WithOnSheet(sheet =>
+        var flavorText = "Your weapon flies from your hand as if propelled under its own power.";
+        var rulesText = "{b}Usage{/b} imbued into a thrown or melee weapon ikon\n\n The imbued ikon gains the following ability.\n\n" +
+            "{b}Immanence{/b} Your weapon gains the thrown 15 feet trait, or increases its thrown distance by 10 feet if it already has the thrown trait.\n\n" +
+            "{i}Note: there is no warning for using this on an incompatible item, it will just do nothing{/i}.";
+        yield return new TrueFeat(
+            ExemplarFeats.HurlAtTheHorizon,
+            2,
+            flavorText,
+            rulesText,
+            [ExemplarTraits.Exemplar, ExemplarTraits.IkonExpansion],
+            Ikon.AddExpansionFeat("HurlAtTheHorizon", flavorText, rulesText, [], ikon => ikon.IkonFeat.HasTrait(ExemplarTraits.IkonWeapon), (ikon, feat) =>
             {
-                //list of all feats that have the Ikon trait
-                var ikonFeats = sheet.AllFeats
-                    .Where(f => f.Traits.Contains(ModTraits.Ikon))
-                    .ToList();
-                // Add the feat to the character sheet
-                sheet.AddSelectionOption(
-                    new SingleFeatSelectionOption(
-                        key: "HurlAtTheHorizon",
-                        name: "Hurl At The Horizon",
-                        level: 2,
-                        eligible: ft => ikonFeats.Contains(ft) && ft.Traits.Contains(ModTraits.Ikon) &&
-                            ft.FeatName != ExemplarFeatNames.FeatHurlAtTheHorizon &&
-                            !ft.HasTrait(ModTraits.BodyIkon)
-                    )
-                );
-            })
-            .WithPermanentQEffect(null, qf =>
-            {
-                // When empowered, adjust your equipped weapon
-                qf.StateCheck = effect =>
+                feat.WithOnCreature(creature =>
                 {
-                    var weapon = effect.Owner.HeldItems
-                        .FirstOrDefault(item => item.WeaponProperties != null);
-                    if (weapon == null)
-                        return;
-                    // Check if the effect is empowered already.
-                    if (weapon.Traits.Contains(ModTraits.hurlAtTheHorizon))
-                        return;
-
-                    // Check if the weapon is a melee weapon and does not have thrown 10 or 20 feet.
-                    if (!weapon.HasTrait(Trait.Thrown) ||
-                        (!weapon.HasTrait(Trait.Thrown10Feet) && !weapon.HasTrait(Trait.Thrown20Feet)))
+                    var ikonItem = creature.HeldItems.Concat(creature.CarriedItems)
+                        .Where(item => item.Runes.Any(rune => rune.ItemName == ikon.Rune)).FirstOrDefault();
+                    if (ikonItem != null && ((ikonItem.WeaponProperties?.Throwable ?? false) || !ikonItem.HasTrait(Trait.Ranged)))
                     {
-                        // If the weapon doesn't have the Thrown trait, add it
-                        weapon.Traits.Add(Trait.Thrown10Feet);
-                        weapon.Traits.Add(ModTraits.hurlAtTheHorizon);
-                        //give it the empowered trait as to not double give.
+                        creature.AddQEffect(new QEffect()
+                        {
+                            AfterYouAcquireEffect = async (q, newQ) =>
+                            {
+                                if (newQ.Id == ikon.EmpoweredQEffectId)
+                                {
+                                    var oldRange = ikonItem!.WeaponProperties?.RangeIncrement ?? 0;
+                                    var oldForcedMelee = ikonItem!.WeaponProperties?.ForcedMelee;
+                                    bool addedThrown = false;
+                                    if (ikonItem.HasTrait(Trait.Thrown10Feet) || ikonItem.HasTrait(Trait.Thrown20Feet))
+                                    {
+                                        ikonItem.WeaponProperties?.WithRangeIncrement(oldRange + 2);
+                                    }
+                                    else if (ikonItem.WeaponProperties != null)
+                                    {
+                                        addedThrown = true;
+                                        ikonItem.Traits.Add(Trait.Thrown10Feet);
+                                        ikonItem.WeaponProperties.WithThrownXFeet(3);
+                                    }
+                                    q.Owner.AddQEffect(new QEffect()
+                                    {
+                                        Id = ExemplarQEffects.IkonExpansion,
+                                        WhenExpires = q =>
+                                        {
+                                            ikonItem.WeaponProperties?.WithThrownXFeet(oldRange);
+                                            if (addedThrown)
+                                            {
+                                                ikonItem.Traits.Remove(Trait.Thrown10Feet);
+                                                ikonItem.WeaponProperties!.Throwable = false;
+                                                ikonItem.WeaponProperties!.ForcedMelee = oldForcedMelee ?? false;
+                                            }
+                                        }
+                                    });
+                                }
+                            }
+                        });
                     }
-                    else if (!weapon.HasTrait(Trait.Thrown20Feet))
-                    {
-                        // If the weapon already has the Thrown trait, increase its range
-                        weapon.Traits.Add(ModTraits.hurlAtTheHorizon);
-                        weapon.Traits.Add(Trait.Thrown20Feet);
-                    }
-                };
-            });
-
-            ModManager.AddFeat(feat);
-        }
+                });
+            }).ToList()
+        );
     }
-    */
 }

@@ -10,6 +10,9 @@ public static class ExemplarTraits
     public static readonly Trait Sanctified = ModManager.RegisterTrait("Sanctified", new TraitProperties("Sanctified", false));
     //Base Ikons
     public static readonly Trait Ikon = ModManager.RegisterTrait("Ikon", new TraitProperties("Ikon", true, "Divine power inhabits this item. When filled with an exemplar's divine spark, it will grant it's {i}immanence{/i} ability and {/i}transcendence{/i} action."));
+    public static readonly Trait IkonWeapon = ModManager.RegisterTrait("IkonWeapon", new TraitProperties("IkonWeapon", false));
+    public static readonly Trait IkonWorn = ModManager.RegisterTrait("IkonWorn", new TraitProperties("IkonWorn", false));
+    public static readonly Trait IkonBody = ModManager.RegisterTrait("IkonBody", new TraitProperties("IkonBody", false));
     public static readonly Trait PeltOfTheBeastAttune = ModManager.RegisterTrait("PeltOfTheBeastAttune", new TraitProperties("PeltOfTheBeastAttune", false));
     public static readonly Trait SkinHardAsHornAttune = ModManager.RegisterTrait("SkinHardAsHornAttune", new TraitProperties("SkinHardAsHornAttune", false));
 
@@ -29,11 +32,10 @@ public static class ExemplarTraits
     public static readonly Trait IkonShoes = ModManager.RegisterTrait("Ikon13", new TraitProperties("Ikon", true, "Drag onto any worn shoes."));
     public static readonly Trait IkonBludgeon = ModManager.RegisterTrait("Ikon14", new TraitProperties("Ikon", true, "Drag onto any melee weapon in the club, hammer, or axe group, or any your melee unarmed Strikes that deals bludgeoning damage."));
     public static readonly Trait IkonHeadBelt = ModManager.RegisterTrait("Ikon15", new TraitProperties("Ikon", true, "Drag onto any headwear or belt worn item."));
-    public static readonly Trait IkonTwinStars = ModManager.RegisterTrait("Ikon16", new TraitProperties("Ikon", true, "Drag onto any one-handed melee weapon."));
+    public static readonly Trait IkonTwinStars = ModManager.RegisterTrait("Ikon16", new TraitProperties("Ikon", true, "Drag onto any one-handed melee weapon ikon."));
     //Feats that add effects to Ikons
     public static readonly Trait IkonExpansion = ModManager.RegisterTrait("IkonExpansion", new TraitProperties("Ikon", true));
     public static readonly Trait Transcendence = ModManager.RegisterTrait("Transcendence", new TraitProperties("Transcendence", false));
-    public static readonly Trait BodyIkon = ModManager.RegisterTrait("BodyIkon", new TraitProperties("Body Ikon", false));
     public static readonly Trait HurlAtTheHorizon = ModManager.RegisterTrait("HurlAtTheHorizon", new TraitProperties("Hurl At The Horizon", false));
     public static readonly Trait Epithet = ModManager.RegisterTrait("Epithet", new TraitProperties("Epithet", false));
     public static readonly Trait RootEpithet = ModManager.RegisterTrait("RootEpithet", new TraitProperties("Root Epithet", false));

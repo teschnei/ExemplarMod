@@ -54,7 +54,7 @@ public class Starshot
             $"{{b}}Transcendence — Giant-Felling Comet {RulesBlock.GetIconTextFromNumberOfActions(2)}{{/b}} (spirit, transcendence)\nYou shoot the {{i}}starshot{{/i}}, causing a detonation in a 5-foot burst within 60 feet. " +
             "Each creature in the area must succeed at a basic Reflex save against your class DC or take spirit damage equal to your normal Strike damage with the {i}starshot{/i}. " +
             "Creatures larger than you take a -2 circumstance penalty to their saving throws. This shot requires any ammunition that would normally be required.",
-            [ExemplarTraits.Ikon],
+            [ExemplarTraits.Ikon, ExemplarTraits.IkonWeapon],
             null
         ).WithIllustration(IllustrationName.MagicFang), q =>
         {

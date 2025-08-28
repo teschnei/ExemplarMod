@@ -53,7 +53,7 @@ public class BandsOfImprisonment
             "{b}Usage{/b} worn anklets, bracers, or circlet (often a headband)\n\n" +
             "{b}Immanence{/b} The {i}bands of imprisonment{i} tighten, keeping your mind sharp. You gain a +1 status bonus to Will saving throws and resistance to mental damage equal to half your level.\n\n" +
             $"{{b}}Transcendence — Break Free {RulesBlock.GetIconTextFromNumberOfActions(2)}{{/b}} (transcendence)\nYou can attempt to Escape with a +2 status bonus on your check, then Stride up to twice your Speed in a straight line, and finally make a melee Strike. If you don't need to Escape or you can't move or choose not to, you still take the other actions listed.",
-            [ExemplarTraits.Ikon, ExemplarTraits.BodyIkon],
+            [ExemplarTraits.Ikon, ExemplarTraits.IkonWorn],
             null
         ).WithIllustration(IllustrationName.SpikedChain), q =>
         {

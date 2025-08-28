@@ -48,8 +48,7 @@ public class EnergizedSpark
             1,
             "The energy of your spirit manifests as crackling lightning, the chill of winter, or the power of an element.",
             "Choose one of the following traits: air (slashing), cold, earth (bludgeoning), electricity, fire, metal (slashing), poison, sonic, vitality, void, water (bludgeoning), or wood (piercing). " +
-            "Your spirit damage dealt by your exemplar abilities will gain the trait and deal the corresponding damage type if it would deal more damage." +
-            "{i}Special{/i} You can select this feat multiple times, choosing a different damage type each time.",
+            "Your spirit damage dealt by your exemplar abilities will gain the trait and deal the corresponding damage type if it would deal more damage.",
             [ExemplarTraits.Exemplar],
             sparkOptions.Select(options => new Feat(options.Key, "", "", [options.Value.Item1], null)
                 .WithOnCreature(creature =>

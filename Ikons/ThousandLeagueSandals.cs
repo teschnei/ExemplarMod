@@ -50,7 +50,7 @@ public class ThousandLeagueSandals
             "{b}Immanence{/b} Your sandals ease your travels on the path ahead, granting you a +10-foot status bonus to your Speed.\n\n" +
             $"{{b}}Transcendence — Marathon Dash {RulesBlock.GetIconTextFromNumberOfActions(1)}{{/b}} (transcendence)\n" +
             "Your feet carry you so quickly they leave a slipstream that speeds your allies on. You Stride. Each ally within 10 feet of you at the start of your movement can Stride as a reaction.",
-            [ExemplarTraits.Ikon],
+            [ExemplarTraits.Ikon, ExemplarTraits.IkonWorn],
             null
         ).WithIllustration(IllustrationName.FreedomOfMovement), q =>
         {

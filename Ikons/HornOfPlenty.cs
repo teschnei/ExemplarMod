@@ -45,7 +45,7 @@ public class HornOfPlenty
             "The {i}horn of plenty{/i} allows you to transfer the effects of potions and elixirs to your allies. " +
             "You Interact to draw a consumable from the horn and then Interact to drink it. Rather than nourishing yourself, the item's effects are transferred to a willing ally within 60 feet, as if " +
             "they had consumed it themself.  If the consumable restores Hit Points, you can choose to divide the amount it restores between you and the ally freely (after rolling dice to determine the amount).",
-            [ExemplarTraits.Ikon],
+            [ExemplarTraits.Ikon, ExemplarTraits.IkonWorn],
             null
         ).WithIllustration(IllustrationName.BagOfHolding2)
         .WithOnCreature(self =>

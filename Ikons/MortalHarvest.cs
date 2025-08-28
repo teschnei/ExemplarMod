@@ -53,7 +53,7 @@ public class MortalHarvest
             "{b}Effect{/b} Time seems to lag as you blur across the battlefield, deciding the fate of many in a moment. " +
             "Stride up to half your Speed and make another melee Strike with the {i}mortal harvest{/i} against a different creature. " +
             "This Strike uses the same multiple attack penalty as your previous Strike, but counts toward your multiple attack penalty as normal.",
-            [ExemplarTraits.Ikon],
+            [ExemplarTraits.Ikon, ExemplarTraits.IkonWeapon],
             null
         ).WithIllustration(IllustrationName.Scythe), q =>
         {

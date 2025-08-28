@@ -57,7 +57,7 @@ public class ShadowSheath
             "{b}Requirements{/b} Your previous action was an unsuccessful Strike with the weapon from the {i}shadow sheath{/i}; {b}Effect{/b} The shadow weapon you threw fades, the distraction covering " +
             "your true intention all along—a second strike hidden in the blind spot of the first! Interact to draw another weapon from the {i}shadow sheath{/i}, then Strike with it at the same multiple attack penalty as the unsuccessful attack. " +
             "The opponent is off-guard to this attack. This strike counts towards your multiple attack penalty as normal. After the Strike resolves, you can Interact to draw another weapon from the {i}shadow sheath{/i}.",
-            [ExemplarTraits.Ikon, Trait.Extradimensional],
+            [ExemplarTraits.Ikon, Trait.Extradimensional, ExemplarTraits.IkonWeapon],
             null
         ).WithIllustration(IllustrationName.ShadowProjectile), q =>
         {
