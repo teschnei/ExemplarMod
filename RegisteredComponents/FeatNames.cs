@@ -78,15 +78,23 @@ public static class ExemplarFeats
     //Level 2 Feats
     public static readonly FeatName HurlAtTheHorizon = ModManager.RegisterFeatName("HurlAtTheHorizon", "Hurl At The Horizon");
     public static readonly FeatName LeapTheFalls = ModManager.RegisterFeatName("LeapTheFalls", "Leap The Falls");
+    public static readonly FeatName LightningSwap = ModManager.RegisterFeatName("LightningSwap", "Lightning Swap");
+    public static readonly FeatName RedGoldMortality = ModManager.RegisterFeatName("RedGoldMortality", "Red-Gold Mortality");
 
     //Level 4 Feats
+    public static readonly FeatName OnlyTheWorthy = ModManager.RegisterFeatName("OnlyTheWorthy", "Only the Worthy");
     public static readonly FeatName SteelOnSteel = ModManager.RegisterFeatName("SteelOnSteel", "Steel On Steel");
     public static readonly FeatName ThroughTheNeedlesEye = ModManager.RegisterFeatName("ThroughTheNeedlesEye", "Through The Needle's Eye");
 
     //Level 6 Feats
+    public static readonly FeatName BindingSerpentsCelestialArrow = ModManager.RegisterFeatName("BindingSerpentsCelestialArrow", "Binding Serpents Celestial Arrow");
     public static readonly FeatName FlowOfWar = ModManager.RegisterFeatName("FlowOfWar", "Flow Of War");
+    public static readonly FeatName MotionlessCutter = ModManager.RegisterFeatName("MotionlessCutter", "Motionless Cutter");
     public static readonly FeatName ReactiveStrike = ModManager.RegisterFeatName("ReactiveStrike", "Reactive Strike");
 
     //Level 8 Feats
     public static readonly FeatName AdditionalIkon = ModManager.RegisterFeatName("AdditionalIkon", "Additional Ikon");
+    public static readonly FeatName BattleHymnToTheLost = ModManager.RegisterFeatName("BattleHymnToTheLost", "Battle Hymn to the Lost");
+    public static readonly FeatName RaiseIsland = ModManager.RegisterFeatName("RaiseIsland", "Raise Island");
+    public static readonly FeatName RejoiceInSolsticeStorm = ModManager.RegisterFeatName("RejoiceInSolsticeStorm", "Rejoice in Solstice Storm");
 }

@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Dawnsbury.Core.CharacterBuilder.Feats;
+using Dawnsbury.Core.CombatActions;
 using Dawnsbury.Core.Mechanics;
 using Dawnsbury.Core.Mechanics.Core;
+using Dawnsbury.Core.Mechanics.Enumerations;
 using Dawnsbury.Modding;
 using Dawnsbury.Mods.Classes.Exemplar.RegisteredComponents;
 using HarmonyLib;
@@ -64,6 +66,17 @@ public static class ExemplarClassLoader
                     return null;
                 }
             });
+        });
+
+        //Implementation of "Lightning Swap" feat
+        ModManager.RegisterActionOnEachActionPossibility(action =>
+        {
+            if (action.Owner.HasEffect(ExemplarQEffects.LightningSwap) &&
+                (action.ActionId == ActionId.DrawItem || action.ActionId == ActionId.ReplaceItemInHand) &&
+                ((action.Item?.HasTrait(Trait.Weapon) ?? false) || (action.Item?.HasTrait(Trait.Shield) ?? false)))
+            {
+                action.ActionCost = 0;
+            }
         });
 
         var harmony = new Harmony("junabell.dawnsburydays.exemplar");

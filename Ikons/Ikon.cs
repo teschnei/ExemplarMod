@@ -133,17 +133,19 @@ public class Ikon
 public class IkonWieldedTargetingRequirement : CreatureTargetingRequirement
 {
     public ItemName IkonRune { get; }
+    public string IkonName { get; }
 
-    public IkonWieldedTargetingRequirement(ItemName ikonRune)
+    public IkonWieldedTargetingRequirement(ItemName ikonRune, string ikonName)
     {
         IkonRune = ikonRune;
+        IkonName = ikonName;
     }
 
     public override Usability Satisfied(Creature source, Creature target)
     {
         if (Ikon.GetIkonItem(source, IkonRune) == null)
         {
-            return Usability.NotUsable($"You must be wielding the {{i}}{IkonRune.ToString().ToLower()}{{/i}}.");
+            return Usability.NotUsable($"You must be wielding the {{i}}{IkonName}{{/i}}.");
         }
         return Usability.Usable;
     }
