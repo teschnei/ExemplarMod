@@ -42,6 +42,7 @@ public static class ExemplarFeats
     //Root epithets
     public static readonly FeatName TheBrave = ModManager.RegisterFeatName("TheBrave", "The Brave");
     public static readonly FeatName TheCunning = ModManager.RegisterFeatName("TheCunning", "The Cunning");
+    public static readonly FeatName TheDeft = ModManager.RegisterFeatName("TheDeft", "The Deft");
     public static readonly FeatName TheMournful = ModManager.RegisterFeatName("TheMournful", "The Mournful");
     public static readonly FeatName TheProud = ModManager.RegisterFeatName("TheProud", "The Proud");
     public static readonly FeatName TheRadiant = ModManager.RegisterFeatName("TheRadiant", "The Radiant");

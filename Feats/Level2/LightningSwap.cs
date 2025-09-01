@@ -6,6 +6,7 @@ using Dawnsbury.Core.Mechanics;
 using Dawnsbury.Core.Mechanics.Enumerations;
 using Dawnsbury.Core.Mechanics.Targeting;
 using Dawnsbury.Core.Possibilities;
+using Dawnsbury.Modding;
 using Dawnsbury.Mods.Classes.Exemplar.RegisteredComponents;
 using static Dawnsbury.Mods.Classes.Exemplar.ExemplarClassLoader;
 
@@ -16,6 +17,16 @@ public class LightningSwap
     [FeatGenerator(2)]
     public static IEnumerable<Feat> GetFeat()
     {
+        ModManager.RegisterActionOnEachActionPossibility(action =>
+        {
+            if (action.Owner.HasEffect(ExemplarQEffects.LightningSwap) &&
+                (action.ActionId == ActionId.DrawItem || action.ActionId == ActionId.ReplaceItemInHand) &&
+                ((action.Item?.HasTrait(Trait.Weapon) ?? false) || (action.Item?.HasTrait(Trait.Shield) ?? false)))
+            {
+                action.ActionCost = 0;
+            }
+        });
+
         yield return new TrueFeat(
             ExemplarFeats.LightningSwap,
             2,

@@ -120,6 +120,7 @@ public class Ikon
         var poss = transcendence.Invoke(q);
         if (poss is ActionPossibility action)
         {
+            action.CombatAction.ActionId = ExemplarActions.SparkTranscendence;
             action.CombatAction.WithEffectOnChosenTargets(async (self, targets) =>
             {
                 q.ExpiresAt = ExpirationCondition.Immediately;

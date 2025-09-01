@@ -1,115 +1,47 @@
-// file: Exemplar_EpithetTheRadiant.cs
-using Microsoft.Xna.Framework;
+using System.Collections.Generic;
+using System.Linq;
 using Dawnsbury.Core;
 using Dawnsbury.Core.CharacterBuilder.Feats;
-using Dawnsbury.Core.Creatures;
-using Dawnsbury.Core.Mechanics.Enumerations;
-using Dawnsbury.Core.Mechanics.Targeting;
-using Dawnsbury.Core.Possibilities;
 using Dawnsbury.Core.CombatActions;
-using Dawnsbury.Modding;
-using Dawnsbury.Mods.Classes.Exemplar;
-using Dawnsbury.Core.Mechanics;
+using Dawnsbury.Core.Mechanics.Enumerations;
 using Dawnsbury.Mods.Classes.Exemplar.RegisteredComponents;
+using static Dawnsbury.Mods.Classes.Exemplar.ExemplarClassLoader;
 
-namespace Dawnsbury.Mods.Classes.Exemplar
+namespace Dawnsbury.Mods.Classes.Exemplar;
+
+public class TheRadiant
 {
-    public class Exemplar_EpithetTheRadiant
+    [FeatGenerator(3)]
+    public static IEnumerable<Feat> GetFeat()
     {
-        [DawnsburyDaysModMainMethod]
-        public static void Load()
-        {
-            var theRadiant = new TrueFeat(
-                ExemplarFeats.TheRadiant,
-                3,
-                "The Radiant",
-                "Leaders must live bigger lives than any other, shining so brightly that they attract followers, inspire troops, and change the course of kingdoms. " +
-                "You are trained in Diplomacy. After you Spark Transcendence, you inspire an ally within 6 squares (30 ft), restoring Hit Points equal to 2 + double your level; this is a mental and emotion effect. " +
+        yield return new Feat(
+            ExemplarFeats.TheRadiant,
+                "Leaders must live bigger lives than any other, shining so brightly that they attract followers, inspire troops, and change the course of kingdoms.",
+                "You are trained in Diplomacy. After you Spark Transcendence, you inspire an ally within 30 feet, restoring Hit Points equal to 2 + double your level; this is a mental and emotion effect. " +
                 "The ally is then immune to this effect for 10 minutes.",
-                new[] { ExemplarTraits.RootEpithet },
-                null
-            )
-            .WithOnSheet(sheet =>
+            [ExemplarTraits.RootEpithet],
+            null
+        )
+        .WithOnSheet(sheet =>
+        {
+            sheet.TrainInThisOrSubstitute(Skill.Diplomacy);
+        })
+        .WithPermanentQEffect("After you Spark Transcendence, you inspire an ally within 30 feet, restoring Hit Points equal to 2 + double your level; this is a mental and emotion effect. " +
+            "The ally is then immune to this effect for 10 minutes.", q =>
+        {
+            q.AfterYouTakeAction = async (q, action) =>
             {
-                // Grant training in Diplomacy
-                sheet.GrantFeat(FeatName.Diplomacy);
-            })
-            .WithPermanentQEffect(null, qf =>
-            {
-                qf.AfterYouTakeAction = async (selfQf, action) =>
+                if (action.ActionId == ExemplarActions.SparkTranscendence)
                 {
-                    // Only trigger once per turn, after any Transcendence use
-                    if (!action.HasTrait(ExemplarTraits.Transcendence)
-                        || selfQf.Owner.HasEffect(ExemplarIkonQEffectIds.QTheRadiantUsedThisTurn))
-                        return;
-
-                    qf.ProvideMainAction = qf2 =>
+                    var target = await q.Owner.Battle.AskToChooseACreature(q.Owner,
+                        q.Owner.Battle.AllCreatures.Where(cr => cr.FriendOf(q.Owner) && cr.DistanceTo(q.Owner) <= 6 && !cr.IsImmuneTo(Trait.Mental) && !cr.IsImmuneTo(Trait.Emotion) && !cr.HasEffect(ExemplarQEffects.TheRadiantUsedOnTarget)),
+                        IllustrationName.QuestionMark, $"The Radiant: Choose a creature to heal {2 + (q.Owner.Level * 2)} HP.", $"Choose this creature to heal {2 + (q.Owner.Level * 2)} HP.", "Don't heal anyone");
+                    if (target != null)
                     {
-                        //prevent from using twice in a turn.
-                        if (selfQf.Owner.HasEffect(ExemplarIkonQEffectIds.QTheRadiantUsedThisTurn))
-                            return null;
-                        // Build the free Inspire action
-                        var inspire = new CombatAction(
-                            qf2.Owner,
-                            IllustrationName.HealCompanion,
-                            "The Radiant: Inspire",
-                            new[]
-                            {
-                                ExemplarTraits.Epithet,
-                                ExemplarTraits.Transcendence,
-                                Trait.Emotion,
-                                Trait.Mental
-                            },
-                            "Restore Hit Points equal to 2 + double your level; the ally is then immune to this effect for 10 minutes.",
-                            Target.RangedFriend(6)  // 6 squares = 30 ft
-                        ).WithActionCost(0);
-
-                        inspire.WithEffectOnEachTarget(async (act, caster, target, result) =>
-                        {
-                            // Prevent re-targeting the same ally within 10 minutes
-                            if (target.HasEffect(ExemplarIkonQEffectIds.QTheRadiantImmune))
-                            {
-                                target.Overhead("They are already inspired recently.", Color.Orange);
-                                return;
-                            }
-
-                            // Heal: 2 + (2 × your level)
-                            int amount = 2 + 2 * caster.Level;
-                            await target.HealAsync(amount.ToString(), act);
-
-                            // Grant 10-minute immunity (≈100 × 6s ticks)
-                            target.AddQEffect(new QEffect(
-                                "Immune to The Radiant",
-                                "You cannot be inspired by The Radiant again for 10 minutes.",
-                                ExpirationCondition.CountsDownAtEndOfYourTurn,
-                                caster,
-                                IllustrationName.Protection
-                            )
-                            {
-                                Id = ExemplarIkonQEffectIds.QTheRadiantImmune,
-                                Value = 100
-                            });
-
-                            // Mark this use so it can’t reappear until your next turn
-                            caster.AddQEffect(new QEffect(
-                                "The Radiant Used",
-                                "You have used The Radiant this turn.",
-                                ExpirationCondition.CountsDownAtStartOfSourcesTurn,
-                                caster,
-                                IllustrationName.Chaos
-                            )
-                            {
-                                Id = ExemplarIkonQEffectIds.QTheRadiantUsedThisTurn,
-                                Value = 1
-                            });
-                        });
-
-                        return new ActionPossibility(inspire);
-                    };
-                };
-            });
-
-            ModManager.AddFeat(theRadiant);
-        }
+                        await target.HealAsync($"{2 + (q.Owner.Level * 2)}", CombatAction.CreateSimple(q.Owner, "The Radiant", [Trait.Emotion, Trait.Mental]));
+                    }
+                }
+            };
+        });
     }
 }

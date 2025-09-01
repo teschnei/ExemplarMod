@@ -1,111 +1,53 @@
-// file: Exemplar_EpithetTheMournful.cs
+using System.Collections.Generic;
 using System.Linq;
-using Microsoft.Xna.Framework;
 using Dawnsbury.Core;
 using Dawnsbury.Core.CharacterBuilder.Feats;
-using Dawnsbury.Core.CharacterBuilder.AbilityScores;
-using Dawnsbury.Core.Creatures;
-using Dawnsbury.Core.Mechanics.Enumerations;
-using Dawnsbury.Core.Mechanics.Targeting;
-using Dawnsbury.Core.Possibilities;
-using Dawnsbury.Core.CombatActions;
-using Dawnsbury.Modding;
-using Dawnsbury.Mods.Classes.Exemplar;
 using Dawnsbury.Core.Mechanics;
+using Dawnsbury.Core.Mechanics.Enumerations;
 using Dawnsbury.Mods.Classes.Exemplar.RegisteredComponents;
+using static Dawnsbury.Mods.Classes.Exemplar.ExemplarClassLoader;
 
-namespace Dawnsbury.Mods.Classes.Exemplar
+namespace Dawnsbury.Mods.Classes.Exemplar;
+
+public class TheMournful
 {
-    public class Exemplar_EpithetTheMournful
+    [FeatGenerator(3)]
+    public static IEnumerable<Feat> GetFeat()
     {
-        [DawnsburyDaysModMainMethod]
-        public static void Load()
-        {
-            var theMournful = new TrueFeat(
-                ExemplarFeats.TheMournful,
-                3,
-                "The Mournful",
+        yield return new Feat(
+            ExemplarFeats.TheMournful,
                 "To be a hero is to endure countless hardships and stand where others have fallen, shouldering dreams and destinies in their stead. " +
-                "Though this weight may reach your eyes, you bear this burden so that those under you can live smiling. " +
+                "Though this weight may reach your eyes, you bear this burden so that those under you can live smiling.",
                 "You are trained in Diplomacy. After you Spark Transcendence, your act resonates with bittersweet poignancy, making one enemy of your choice within 30 feet who witnessed the act dazzled as tears or memories dance in their eyes. " +
                 "The enemy remains dazzled until the start of your next turn, and then they are immune to this effect for 10 minutes.",
-                new[] { ExemplarTraits.RootEpithet },
-                null
-            )
-            .WithOnSheet(sheet =>
+            [ExemplarTraits.RootEpithet],
+            null
+        )
+        .WithOnSheet(sheet =>
+        {
+            sheet.TrainInThisOrSubstitute(Skill.Diplomacy);
+        })
+        .WithPermanentQEffect("After you Spark Transcendence, your act resonates with bittersweet poignancy, making one enemy of your choice within 30 feet who witnessed the act dazzled as tears or memories dance in their eyes. " +
+            "The enemy remains dazzled until the start of your next turn, and then they are immune to this effect for 10 minutes.", q =>
+        {
+            q.AfterYouTakeAction = async (q, action) =>
             {
-                // Grant training in Diplomacy
-                sheet.GrantFeat(FeatName.Diplomacy);
-            })
-            .WithPermanentQEffect(null, qf =>
-            {
-                qf.AfterYouTakeAction = async (selfQf, action) =>
+                if (action.ActionId == ExemplarActions.SparkTranscendence)
                 {
-                    // Only once per turn, and only after a Transcendence ability
-                    if (!action.HasTrait(ExemplarTraits.Transcendence)
-                        || selfQf.Owner.HasEffect(ExemplarIkonQEffectIds.QTheMournfulUsedThisTurn))
-                        return;
-
-                    // Inject the free “Dazzle” action
-                    qf.ProvideMainAction = qf2 =>
+                    var target = await q.Owner.Battle.AskToChooseACreature(q.Owner,
+                        q.Owner.Battle.AllCreatures.Where(cr => cr.EnemyOf(q.Owner) && cr.DistanceTo(q.Owner) <= 6 && !cr.HasEffect(ExemplarQEffects.TheMournfulUsedOnTarget)),
+                        IllustrationName.QuestionMark, "The Mournful: Choose a creature to dazzle with your act.", "Choose this creature to inflict dazzle.", "Don't dazzle anyone");
+                    if (target != null)
                     {
-                        if (selfQf.Owner.HasEffect(ExemplarIkonQEffectIds.QTheMournfulUsedThisTurn))
-                            return null;
-
-                        var dazzle = new CombatAction(
-                            qf2.Owner,
-                            IllustrationName.Dazzled,
-                            "The Mournful: Dazzle",
-                            new[] { ExemplarTraits.Epithet, ExemplarTraits.Transcendence },
-                            "Dazzle one enemy within 30 feet who witnessed your Transcendence— they become Dazzled until the start of your next turn, then immune to this effect for 10 minutes.",
-                            Target.Distance(6)
-                        ).WithActionCost(0);
-
-                        dazzle.WithEffectOnEachTarget(async (act, caster, target, result) =>
+                        target.AddQEffect(QEffect.Dazzled().WithExpirationAtStartOfSourcesTurn(q.Owner, 1));
+                        target.AddQEffect(new QEffect()
                         {
-                            // Prevent re-targeting the same creature
-                            if (target.HasEffect(ExemplarIkonQEffectIds.QTheMournfulImmune))
-                            {
-                                target.Overhead("They are already immune.", Color.Orange);
-                                return;
-                            }
-
-                            // Apply the Dazzled effect
-                            target.AddQEffect(QEffect.Dazzled().WithExpirationAtStartOfSourcesTurn(caster, 1));
-
-                            // Then apply 10-minute immunity (≈100 counts of 6s)
-                            target.AddQEffect(new QEffect(
-                                "Immune to The Mournful",
-                                "You cannot be Dazzled by The Mournful again for 10 minutes.",
-                                ExpirationCondition.CountsDownAtEndOfYourTurn,
-                                caster,
-                                IllustrationName.Protection
-                            )
-                            {
-                                Id = ExemplarIkonQEffectIds.QTheMournfulImmune,
-                                Value = 100
-                            });
-
-                            // Mark usage for this turn
-                            caster.AddQEffect(new QEffect(
-                                "The Mournful Used",
-                                "You have used The Mournful this turn.",
-                                ExpirationCondition.ExpiresAtStartOfYourTurn,
-                                caster,
-                                IllustrationName.Protection
-                            )
-                            {
-                                Id = ExemplarIkonQEffectIds.QTheMournfulUsedThisTurn,
-                                Value = 1
-                            });
+                            Id = ExemplarQEffects.TheMournfulUsedOnTarget,
+                            CountsAsADebuff = true
                         });
-
-                        return new ActionPossibility(dazzle);
-                    };
-                };
-            });
-
-            ModManager.AddFeat(theMournful);
-        }
+                    }
+                }
+            };
+        });
     }
 }

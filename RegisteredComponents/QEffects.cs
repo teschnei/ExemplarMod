@@ -27,18 +27,12 @@ public static class ExemplarQEffects
     public static readonly QEffectId SteelOnSteel = ModManager.RegisterEnumMember<QEffectId>("SteelOnSteel");
     public static readonly QEffectId EmpoweredThroughTheNeedlesEye = ModManager.RegisterEnumMember<QEffectId>("EmpoweredThroughTheNeedlesEye");
 
-    //non-ikon epithet
+    //Epithets
     public static readonly QEffectId TheBraveUsedOnTarget = ModManager.RegisterEnumMember<QEffectId>("TheBraveUsedOnTarget");
-    public static readonly QEffectId TheBraveUsedOnSelf = ModManager.RegisterEnumMember<QEffectId>("TheBraveUsedOnSelf");
-    public static readonly QEffectId TheCunningUsedThisTurn = ModManager.RegisterEnumMember<QEffectId>("QTheCunningUsedThisTurn");
-
-    public static readonly QEffectId TheMournfulUsedThisTurn = ModManager.RegisterEnumMember<QEffectId>("TheMournfulUsedThisTurn");
-    public static readonly QEffectId TheMournfulImmune = ModManager.RegisterEnumMember<QEffectId>("TheMournfulImmune");
-    public static readonly QEffectId PeerlessUnderHeavenImmune = ModManager.RegisterEnumMember<QEffectId>("PeerlessUnderHeavenImmune");
-    public static readonly QEffectId TheProudUsedThisTurn = ModManager.RegisterEnumMember<QEffectId>("TheProudUsedThisTurn");
-    public static readonly QEffectId TheProudEffect = ModManager.RegisterEnumMember<QEffectId>("TheProudEffect");
-    public static readonly QEffectId TheRadiantUsedThisTurn = ModManager.RegisterEnumMember<QEffectId>("TheRadiantUsedThisTurn");
-    public static readonly QEffectId TheRadiantImmune = ModManager.RegisterEnumMember<QEffectId>("TheRadiantImmune");
+    public static readonly QEffectId TheCunning = ModManager.RegisterEnumMember<QEffectId>("TheCunning");
+    public static readonly QEffectId TheDeft = ModManager.RegisterEnumMember<QEffectId>("TheDeft");
+    public static readonly QEffectId TheMournfulUsedOnTarget = ModManager.RegisterEnumMember<QEffectId>("TheMournfulUsedOnTarget");
+    public static readonly QEffectId TheRadiantUsedOnTarget = ModManager.RegisterEnumMember<QEffectId>("TheRadiantUsedOnTarget");
 }
 
 public static class ExemplarLongTermEffects
