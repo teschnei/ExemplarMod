@@ -11,10 +11,11 @@ using Dawnsbury.Core.Mechanics.Targeting.TargetingRequirements;
 using Dawnsbury.Core.Mechanics.Targeting.Targets;
 using Dawnsbury.Core.Possibilities;
 using Dawnsbury.Core.Roller;
+using Dawnsbury.Mods.Classes.Exemplar.Ikons;
 using Dawnsbury.Mods.Classes.Exemplar.RegisteredComponents;
 using static Dawnsbury.Mods.Classes.Exemplar.ExemplarClassLoader;
 
-namespace Dawnsbury.Mods.Classes.Exemplar;
+namespace Dawnsbury.Mods.Classes.Exemplar.Feats.Level1;
 
 public class VowOfMortalDefiance
 {

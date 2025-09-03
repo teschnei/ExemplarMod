@@ -1,4 +1,5 @@
 using Dawnsbury.Core.CombatActions;
+using Dawnsbury.Mods.Classes.Exemplar.Ikons;
 using Dawnsbury.Mods.Classes.Exemplar.RegisteredComponents;
 using HarmonyLib;
 

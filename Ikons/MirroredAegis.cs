@@ -15,7 +15,7 @@ using Dawnsbury.Mods.Classes.Exemplar.RegisteredComponents;
 using Microsoft.Xna.Framework;
 using static Dawnsbury.Mods.Classes.Exemplar.ExemplarClassLoader;
 
-namespace Dawnsbury.Mods.Classes.Exemplar;
+namespace Dawnsbury.Mods.Classes.Exemplar.Ikons;
 
 public class MirroredAegis
 {

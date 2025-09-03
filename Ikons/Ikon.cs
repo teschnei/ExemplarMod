@@ -14,7 +14,7 @@ using Dawnsbury.Core.Possibilities;
 using Dawnsbury.Modding;
 using Dawnsbury.Mods.Classes.Exemplar.RegisteredComponents;
 
-namespace Dawnsbury.Mods.Classes.Exemplar;
+namespace Dawnsbury.Mods.Classes.Exemplar.Ikons;
 
 public class Ikon
 {

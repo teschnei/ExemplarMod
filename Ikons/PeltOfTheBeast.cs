@@ -16,7 +16,7 @@ using Dawnsbury.Modding;
 using Dawnsbury.Mods.Classes.Exemplar.RegisteredComponents;
 using static Dawnsbury.Mods.Classes.Exemplar.ExemplarClassLoader;
 
-namespace Dawnsbury.Mods.Classes.Exemplar;
+namespace Dawnsbury.Mods.Classes.Exemplar.Ikons;
 
 public class PeltOfTheBeast
 {

@@ -7,10 +7,11 @@ using Dawnsbury.Core.Mechanics;
 using Dawnsbury.Core.Mechanics.Core;
 using Dawnsbury.Core.Mechanics.Enumerations;
 using Dawnsbury.Core.Roller;
+using Dawnsbury.Mods.Classes.Exemplar.Ikons;
 using Dawnsbury.Mods.Classes.Exemplar.RegisteredComponents;
 using static Dawnsbury.Mods.Classes.Exemplar.ExemplarClassLoader;
 
-namespace Dawnsbury.Mods.Classes.Exemplar;
+namespace Dawnsbury.Mods.Classes.Exemplar.Feats.Level2;
 
 public class RedGoldMortality
 {

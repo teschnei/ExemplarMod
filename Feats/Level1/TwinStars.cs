@@ -2,10 +2,11 @@ using System.Collections.Generic;
 using System.Linq;
 using Dawnsbury.Core.CharacterBuilder.Feats;
 using Dawnsbury.Core.Mechanics.Enumerations;
+using Dawnsbury.Mods.Classes.Exemplar.Ikons;
 using Dawnsbury.Mods.Classes.Exemplar.RegisteredComponents;
 using static Dawnsbury.Mods.Classes.Exemplar.ExemplarClassLoader;
 
-namespace Dawnsbury.Mods.Classes.Exemplar;
+namespace Dawnsbury.Mods.Classes.Exemplar.Feats.Level1;
 
 public class TwinStars
 {
