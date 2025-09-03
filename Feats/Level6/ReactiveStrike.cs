@@ -1,35 +1,29 @@
-using System.Linq;
-using Dawnsbury.Core;
+using System.Collections.Generic;
 using Dawnsbury.Core.CharacterBuilder.Feats;
 using Dawnsbury.Core.Creatures;
-using Dawnsbury.Core.CharacterBuilder.FeatsDb.Common;
-using Dawnsbury.Modding;
-using Dawnsbury.Mods.Classes.Exemplar;
-using Dawnsbury.Core.CharacterBuilder;
-using Dawnsbury.Core.CharacterBuilder.Selections.Options;
+using Dawnsbury.Core.Mechanics;
 using Dawnsbury.Mods.Classes.Exemplar.RegisteredComponents;
+using static Dawnsbury.Mods.Classes.Exemplar.ExemplarClassLoader;
 
-namespace Dawnsbury.Mods.Classes.Exemplar
+namespace Dawnsbury.Mods.Classes.Exemplar.Feats.Level6;
+
+public class ReactiveStrike
 {
-    public class Exemplar_ReactiveStrike
+    [FeatGenerator(6)]
+    public static IEnumerable<Feat> GetFeat()
     {
-
-        [DawnsburyDaysModMainMethod]
-        public static void Load()
+        yield return new TrueFeat(
+            ExemplarFeats.FlowOfWar,
+            6,
+            "You swat at a foe that leaves an opening.",
+            "{b}Trigger{/b} A creature within your reach uses a manipulate action or a move action, makes a ranged attack, or leaves a square during a move action it's using.\n\n" +
+            "Make a melee Strike against the triggering creature. If your attack is a critical hit and the trigger was a manipulate action, you disrupt that action. This Strike doesn't count towards your multiple attack penalty, and your multiple attack penalty doesn't apply to this Strike.",
+            [ExemplarTraits.Exemplar],
+            null
+        )
+        .WithOnCreature(delegate (Creature cr)
         {
-            var ReactiveStrike = new TrueFeat(
-                ExemplarFeats.ReactiveStrike,
-                6,
-                "Reactive Strike",
-                "You lash out at a foe that leaves an opening. Make a melee Strike against the triggering creature. If your attack is a critical hit and the trigger was a manipulate action, you disrupt that action. This Strike doesn't count toward your multiple attack penalty, and your multiple attack penalty doesn't apply to this Strike.",
-                [ExemplarTraits.Exemplar],
-                null
-            )
-            .WithOnSheet(sheet =>
-            {
-                sheet.GrantFeat(FeatName.AttackOfOpportunity);
-            });
-            ModManager.AddFeat(ReactiveStrike);
-        }
+            cr.AddQEffect(QEffect.AttackOfOpportunity());
+        });
     }
 }

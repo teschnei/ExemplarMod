@@ -23,9 +23,8 @@ public static class ExemplarQEffects
     //Level 2 Feats
     public static readonly QEffectId LightningSwap = ModManager.RegisterEnumMember<QEffectId>("LightningSwap");
 
-    //Level 4 Feats
-    public static readonly QEffectId SteelOnSteel = ModManager.RegisterEnumMember<QEffectId>("SteelOnSteel");
-    public static readonly QEffectId EmpoweredThroughTheNeedlesEye = ModManager.RegisterEnumMember<QEffectId>("EmpoweredThroughTheNeedlesEye");
+    //Level 6 Feats
+    public static readonly QEffectId FlowOfWarUsed = ModManager.RegisterEnumMember<QEffectId>("FlowOfWarUsed");
 
     //Epithets
     public static readonly QEffectId TheBraveUsedOnTarget = ModManager.RegisterEnumMember<QEffectId>("TheBraveUsedOnTarget");

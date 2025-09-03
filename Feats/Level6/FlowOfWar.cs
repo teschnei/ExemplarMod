@@ -1,57 +1,52 @@
-using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using Dawnsbury.Core;
 using Dawnsbury.Core.CharacterBuilder.Feats;
-using Dawnsbury.Core.CharacterBuilder.FeatsDb.Common;
-using Dawnsbury.Core.CharacterBuilder.Selections.Options;
 using Dawnsbury.Core.CombatActions;
 using Dawnsbury.Core.Mechanics;
 using Dawnsbury.Core.Mechanics.Enumerations;
 using Dawnsbury.Core.Mechanics.Targeting;
 using Dawnsbury.Core.Possibilities;
-using Dawnsbury.Modding;
-using Dawnsbury.Mods.Classes.Exemplar;
+using Dawnsbury.Mods.Classes.Exemplar.RegisteredComponents;
+using static Dawnsbury.Mods.Classes.Exemplar.ExemplarClassLoader;
 
-namespace Dawnsbury.Mods.Classes.Exemplar
+namespace Dawnsbury.Mods.Classes.Exemplar.Feats.Level6;
+
+public class FlowOfWar
 {
-    /*
-    public class Exemplar_FlowOfWar
+    [FeatGenerator(6)]
+    public static IEnumerable<Feat> GetFeat()
     {
-        [DawnsburyDaysModMainMethod]
-        public static void Load()
+        yield return new TrueFeat(
+            ExemplarFeats.FlowOfWar,
+            6,
+            "Divine battle instincts take over your body, letting you move and lash out with instrinctive speed.",
+            "{b}Frequency{/b} once per combat\n{b}Trigger{/b}Your turn begins.\n\nYou become quickened until the end of your turn and can use the extra action only to Strike or Stride.",
+            [ExemplarTraits.Exemplar],
+            null
+        )
+        .WithActionCost(0)
+        .WithPermanentQEffect("You become quickened until the end of your turn and can use the extra action only to Strike or Stride.", q =>
         {
-            var feat = new TrueFeat(
-                ExemplarFeatNames.FeatFlowOfWar, // Replace with actual feat name
-                6, // Replace with actual level
-                "Flow Of War", // Replace with actual feat display name
-                "Frequency once per hour Trigger Your turn begins. Divine battle instincts take over your body, letting you move and lash out with instinctive speed. You become quickened until the end of your turn and can use the extra action only to Strike or Stride.",
-                new[] { ModTraits.Ikon }, 
-                null
-            )
-            .WithPermanentQEffect(null, qf =>
-            {
-                qf.ProvideMainAction = qf =>
+            q.ProvideMainAction = q.Owner.Actions.ActionHistoryThisTurn.Count() == 0 && !q.Owner.HasEffect(ExemplarQEffects.FlowOfWarUsed) ? q => new ActionPossibility(new CombatAction(
+                    q.Owner,
+                    IllustrationName.Haste,
+                    "Flow of War",
+                    [],
+                    "You become quickened until the end of your turn and can use the extra action only to Strike or Stride.",
+                    Target.Self()
+                )
+                .WithActionCost(0)
+                .WithEffectOnChosenTargets(async (self, targets) =>
                 {
-                    var action = new CombatAction(
-                        qf.Owner,
-                        IllustrationName.Haste, // Replace with actual illustration
-                        "Template Action", // Replace with actual action name
-                        new[] { ModTraits.Transcendence }, // Replace with actual traits
-                        "Description of the action goes here.", // Replace with actual action description
-                        Target.Self()
-                    ).WithActionCost(1);
-
-                    action.WithEffectOnSelf(async (act, self) =>
+                    self.AddQEffect(QEffect.Quickened(action => action.HasTrait(Trait.Strike) || action.HasTrait(Trait.Move)).WithExpirationAtEndOfOwnerTurn());
+                    self.AddQEffect(new QEffect()
                     {
-                        self.AddQEffect(QEffect.Quickened(act => true).WithExpirationAtEndOfOwnerTurn());
+                        Id = ExemplarQEffects.FlowOfWarUsed,
+                        ExpiresAt = ExpirationCondition.Never
                     });
-
-                    return new ActionPossibility(action);
-                };
-            });
-
-            ModManager.AddFeat(feat);
-        }
+                })
+            ) : null;
+        });
     }
-    */
 }

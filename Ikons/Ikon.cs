@@ -127,6 +127,24 @@ public class Ikon
                 q.Owner.FindQEffect(ExemplarQEffects.ShiftImmanence)!.Tag = ikonFeat;
             });
         }
+        else if (poss is SubmenuPossibility submenu)
+        {
+            foreach (var section in submenu.Subsections)
+            {
+                foreach (var subposs in section.Possibilities)
+                {
+                    if (subposs is ActionPossibility subpossAction)
+                    {
+                        subpossAction.CombatAction.ActionId = ExemplarActions.SparkTranscendence;
+                        subpossAction.CombatAction.WithEffectOnChosenTargets(async (self, targets) =>
+                        {
+                            q.ExpiresAt = ExpirationCondition.Immediately;
+                            q.Owner.FindQEffect(ExemplarQEffects.ShiftImmanence)!.Tag = ikonFeat;
+                        });
+                    }
+                }
+            }
+        }
         return poss?.WithPossibilityGroup("Transcendence");
     }
 }
