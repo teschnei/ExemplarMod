@@ -19,6 +19,9 @@ namespace Dawnsbury.Mods.Classes.Exemplar.Ikons;
 public class Ikon
 {
     public static readonly string IkonKey = "IkonEmpowered";
+    public static readonly FeatGroup WeaponIkonGroup = new FeatGroup("Weapon Ikon", 1);
+    public static readonly FeatGroup WornIkonGroup = new FeatGroup("Worn Ikon", 2);
+    public static readonly FeatGroup BodyIkonGroup = new FeatGroup("Body Ikon", 3);
     public static Dictionary<FeatName, Ikon> IkonLUT = new();
     public static Dictionary<FeatName, ItemName> ExtraRunes = new();
 
@@ -36,6 +39,14 @@ public class Ikon
         Immanence = immanence;
         Transcendence = transcendence;
         EmpoweredQEffectId = ModManager.RegisterEnumMember<QEffectId>($"Empowered{ikon.FeatName.ToString()}");
+
+        IkonFeat.FeatGroup = IkonFeat.Traits switch
+        {
+            var a when a.Contains(ExemplarTraits.IkonWeapon) => WeaponIkonGroup,
+            var a when a.Contains(ExemplarTraits.IkonWorn) => WornIkonGroup,
+            var a when a.Contains(ExemplarTraits.IkonBody) => BodyIkonGroup,
+            _ => null
+        };
 
         IkonLUT.Add(ikon.FeatName, this);
     }

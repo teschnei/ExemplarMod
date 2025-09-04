@@ -62,7 +62,7 @@ public class MotionlessCutter
                                     if (targets.ChosenCreature != null)
                                     {
                                         List<Creature> alreadyStruck = new();
-                                        var strike = self.CreateStrike(ikonItem, -1, new StrikeModifiers { ReplacementDamageKind = DamageKind.Slashing });
+                                        var strike = self.CreateStrike(ikonItem, self.Actions.AttackedThisManyTimesThisTurn, new StrikeModifiers { ReplacementDamageKind = DamageKind.Slashing }).WithActionCost(0);
                                         ((CreatureTarget)strike.Target).CreatureTargetingRequirements.Add(
                                             new LegacyCreatureTargetingRequirement((a, d) => (alreadyStruck.Contains(d)) ? Usability.NotUsableOnThisCreature("already struck") : Usability.Usable)
                                         );
