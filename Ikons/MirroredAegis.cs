@@ -49,7 +49,7 @@ public class MirroredAegis
             "You raise the {i}mirrored aegis{/i}, which summons ethereal shields that surround you and one ally of your choice within 15 feet in a tortoise shield formation. You and the ally gain a +1 status bonus to AC, Reflex saves, and any save against a force, spirit, vitality, or void effect for 1 minute.",
             [ExemplarTraits.Ikon, ExemplarTraits.IkonWorn],
             null
-        ).WithIllustration(IllustrationName.DragonClaws), q =>
+        ).WithIllustration(ExemplarIllustrations.MirroredAegis), q =>
         {
             q.AddGrantingOfTechnical(cr => cr.FriendOf(q.Owner), qe =>
             {
@@ -68,7 +68,7 @@ public class MirroredAegis
         {
             return new ActionPossibility(new CombatAction(
                 q.Owner,
-                IllustrationName.SteelShield,
+                ExemplarIllustrations.MirroredAegis,
                 "Raise the Walls",
                 [ExemplarTraits.Transcendence],
                 "You raise the {i}mirrored aegis{/i}, which summons ethereal shields that surround you and one ally of your choice within 15 feet in a tortoise shield formation. You and the ally gain a +1 status bonus to AC, Reflex saves, and any save against a force, spirit, vitality, or void effect for 1 minute.",
@@ -86,7 +86,7 @@ public class MirroredAegis
             {
                 void ApplyShield(Creature cr)
                 {
-                    cr.AddQEffect(new QEffect("Raise the Walls", "Ethereal shields from a mirrored aegis protect you, granting you a +1 status bonus to AC, Reflex saves, and any save against a force, spirit, vitality, or void effect.", ExpirationCondition.Never, q.Owner, IllustrationName.Shield)
+                    cr.AddQEffect(new QEffect("Raise the Walls", "Ethereal shields from a mirrored aegis protect you, granting you a +1 status bonus to AC, Reflex saves, and any save against a force, spirit, vitality, or void effect.", ExpirationCondition.Never, q.Owner, ExemplarIllustrations.MirroredAegis)
                     {
                         Id = ExemplarQEffects.RaiseTheWalls,
                         BonusToDefenses = (_, offensiveAction, defense) =>

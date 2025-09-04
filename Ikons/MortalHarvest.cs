@@ -55,7 +55,7 @@ public class MortalHarvest
             "This Strike uses the same multiple attack penalty as your previous Strike, but counts toward your multiple attack penalty as normal.",
             [ExemplarTraits.Ikon, ExemplarTraits.IkonWeapon],
             null
-        ).WithIllustration(IllustrationName.Scythe), q =>
+        ).WithIllustration(ExemplarIllustrations.MortalHarvest), q =>
         {
             q.YouDealDamageWithStrike = (qe, action, diceFormula, target) =>
             {
@@ -70,7 +70,7 @@ public class MortalHarvest
         {
             return new ActionPossibility(new CombatAction(
                 q.Owner,
-                IllustrationName.Scythe,
+                ExemplarIllustrations.MortalHarvest,
                 "Reap the Field",
                 [ExemplarTraits.Transcendence],
                 "Stride up to half your Speed and make another Strike with the {i}mortal harvest{/i} against a different creature. This Strike uses the same multiple attack penalty as your previous Strike, but counts toward your multiple attack penalty as normal.",

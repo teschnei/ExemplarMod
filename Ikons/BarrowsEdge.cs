@@ -52,7 +52,7 @@ public class BarrowsEdge
             $"{{b}}Transcendence — Drink of my Foes {RulesBlock.GetIconTextFromNumberOfActions(1)}{{/b}} (healing, transcendence, vitality)\n{{b}}Requirements{{/b}} Your last action was a successful Strike with the {{i}}barrow's edge{{/i}}.\nYour blade glows as it absorbs your foe's vitality. You regain Hit Points equal to half the damage dealt.",
             [ExemplarTraits.Ikon, ExemplarTraits.IkonWeapon],
             null
-        ).WithIllustration(IllustrationName.MagicWeapon), q =>
+        ).WithIllustration(ExemplarIllustrations.BarrowsEdge), q =>
         {
             q.AddExtraKindedDamageOnStrike = (action, target) =>
             {
@@ -78,7 +78,7 @@ public class BarrowsEdge
         {
             return new ActionPossibility(new CombatAction(
                 q.Owner,
-                IllustrationName.Scythe,
+                ExemplarIllustrations.BarrowsEdge,
                 "Drink of my Foes",
                 [Trait.Healing, ExemplarTraits.Transcendence, Trait.Positive],
                 "Your blade glows as it absorbs your foe's vitality. You regain Hit Points equal to half the damage dealt.",

@@ -53,7 +53,7 @@ public class UnfailingBow
             "though any penalties (such as your multiple attack penalty) apply normally to this shot and you don't automatically adjust the degree of success if the initial roll was a natural 1 or 20.",
             [ExemplarTraits.Ikon, ExemplarTraits.IkonWeapon],
             null
-        ).WithIllustration(IllustrationName.ArrowProjectile), q =>
+        ).WithIllustration(ExemplarIllustrations.UnfailingBow), q =>
         {
             q.AddExtraKindedDamageOnStrike = (action, target) =>
             {
@@ -91,7 +91,7 @@ public class UnfailingBow
             var unfailing = Ikon.GetIkonItem(q.Owner, ikonRune);
             return new ActionPossibility(new CombatAction(
                 q.Owner,
-                IllustrationName.ArrowProjectile,
+                ExemplarIllustrations.UnfailingBow,
                 "Arrow Splits Arrow",
                 [ExemplarTraits.Transcendence],
                 "You repeat your motions exactly, your attack landing in the same location as your previous shot. You make a Strike against the same target. The result of your d20 roll is the same as the result of the required shot, " +

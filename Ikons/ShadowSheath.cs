@@ -59,7 +59,7 @@ public class ShadowSheath
             "The opponent is off-guard to this attack. This strike counts towards your multiple attack penalty as normal. After the Strike resolves, you can Interact to draw another weapon from the {i}shadow sheath{/i}.",
             [ExemplarTraits.Ikon, Trait.Extradimensional, ExemplarTraits.IkonWeapon],
             null
-        ).WithIllustration(IllustrationName.ShadowProjectile), q =>
+        ).WithIllustration(ExemplarIllustrations.ShadowSheath), q =>
         {
             q.AddExtraKindedDamageOnStrike = (action, target) =>
             {
@@ -77,7 +77,7 @@ public class ShadowSheath
             var sheath = Ikon.GetIkonItem(q.Owner, ikonRune);
             return new ActionPossibility(new CombatAction(
                 q.Owner,
-                IllustrationName.ShadowProjectile,
+                ExemplarIllustrations.ShadowSheath,
                 "Liar's Hidden Blade",
                 [ExemplarTraits.Transcendence],
                 "The shadow weapon you threw previously fades, the distraction covering " +

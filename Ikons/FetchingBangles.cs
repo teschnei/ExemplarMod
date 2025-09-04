@@ -53,7 +53,7 @@ public class FetchingBangles
             "Choose an enemy within 20 feet of you. It must succeed at a Will save against your class DC or be pulled directly toward you into a square adjacent to you.",
             [ExemplarTraits.Ikon, ExemplarTraits.IkonWorn],
             null
-        ).WithIllustration(IllustrationName.DoublingRings), q =>
+        ).WithIllustration(ExemplarIllustrations.FetchingBangles), q =>
         {
             q.WhenProvoked = async (q, action) =>
             {
@@ -69,7 +69,7 @@ public class FetchingBangles
         {
             return new ActionPossibility(new CombatAction(
                 q.Owner,
-                IllustrationName.Whip,
+                ExemplarIllustrations.FetchingBangles,
                 "Embrace of Destiny",
                 [Trait.Mental, ExemplarTraits.Transcendence],
                 "Choose an enemy within 20 feet of you. It must succeed at a Will save against your class DC or be pulled directly toward you into a square adjacent to you.",

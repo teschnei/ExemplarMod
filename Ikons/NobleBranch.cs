@@ -57,7 +57,7 @@ public class NobleBranch
             "{b}Effect{/b} You channel a rending pulse of energy down your weapon in the moment of contact. The target of the Strike takes spirit damage equal to the {i}noble branch's{/i} weapon damage dice.",
             [ExemplarTraits.Ikon, ExemplarTraits.IkonWeapon],
             null
-        ).WithIllustration(IllustrationName.Quarterstaff), q =>
+        ).WithIllustration(ExemplarIllustrations.NobleBranch), q =>
         {
             q.AddExtraKindedDamageOnStrike = (action, target) =>
             {
@@ -73,7 +73,7 @@ public class NobleBranch
         {
             return new ActionPossibility(new CombatAction(
                 q.Owner,
-                IllustrationName.Quarterstaff,
+                ExemplarIllustrations.NobleBranch,
                 "Strike, Breathe, Rend",
                 [ExemplarTraits.Transcendence, ExemplarTraits.Ikon],
                 "You channel a rending pulse of energy down your weapon in the moment of contact. The target of the Strike takes spirit damage equal to the {i}noble branch's{/i} weapon damage dice.",

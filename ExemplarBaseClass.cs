@@ -6,6 +6,7 @@ using Dawnsbury.Core.CharacterBuilder.AbilityScores;
 using Dawnsbury.Core.CharacterBuilder.Feats;
 using Dawnsbury.Core.CharacterBuilder.Feats.Features;
 using Dawnsbury.Core.CharacterBuilder.Selections.Options;
+using Dawnsbury.Core.Creatures;
 using Dawnsbury.Core.Mechanics;
 using Dawnsbury.Core.Mechanics.Core;
 using Dawnsbury.Core.Mechanics.Enumerations;
@@ -83,7 +84,7 @@ public static class ExemplarBaseClass
                 EnsureCorrectRunes(sheet);
             };
         })
-        .WithPermanentQEffect("", q =>
+        .WithPermanentQEffect(null, q =>
         {
             q.Id = ExemplarQEffects.ShiftImmanence;
             q.ProvideMainAction = qf =>
@@ -102,6 +103,39 @@ public static class ExemplarBaseClass
                     ]
                 };
             };
+
+            //Handle Exemplar's critical specialization rules
+            q.StartOfCombat = async qf =>
+            {
+                foreach (var q in qf.Owner.QEffects)
+                {
+                    if (q.YouHaveCriticalSpecialization is { } function)
+                    {
+                        q.YouHaveCriticalSpecialization = (qf, item, action, target) =>
+                            IkonEmpowered(qf.Owner, item) ? false :
+                            function(qf, item, action, target);
+                    }
+                }
+            };
+            q.AfterYouAcquireEffect = async (qf, newQ) =>
+            {
+                if (newQ.YouHaveCriticalSpecialization is { } function)
+                {
+                    newQ.YouHaveCriticalSpecialization = (qf, item, action, target) =>
+                        IkonEmpowered(qf.Owner, item) ? false :
+                        function(qf, item, action, target);
+                }
+            };
+            bool IkonEmpowered(Creature exemplar, Item item)
+            {
+                var empowered = exemplar.QEffects.Where(q => q.Key == Ikon.IkonKey).FirstOrDefault();
+                if (empowered != null)
+                {
+                    var ikon = Ikon.IkonLUT.Values.Where(ikon => ikon.EmpoweredQEffectId == empowered.Id).FirstOrDefault();
+                    return ikon != null && item.Runes.Any(rune => rune.ItemName == ikon.Rune);
+                }
+                return false;
+            }
         })
         .WithOnCreature((sheet, cr) =>
         {

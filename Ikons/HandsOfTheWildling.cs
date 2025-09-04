@@ -55,7 +55,7 @@ public class HandsOfTheWildling
             "You can choose to swing with abandon, which imposes a -2 circumstance penalty to enemies' saving throws, but causes you to become off-guard until the start of your next turn.",
             [ExemplarTraits.Ikon, ExemplarTraits.IkonWeapon],
             null
-        ).WithIllustration(IllustrationName.DragonClaws), q =>
+        ).WithIllustration(ExemplarIllustrations.HandsOfTheWildling), q =>
         {
             q.AfterYouTakeAction = async (q, action) =>
             {
@@ -72,7 +72,7 @@ public class HandsOfTheWildling
             };
         }, q =>
         {
-            return new SubmenuPossibility(IllustrationName.DragonClaws, "Feral Swing")
+            return new SubmenuPossibility(ExemplarIllustrations.HandsOfTheWildling, "Feral Swing")
             {
                 Subsections = [
                     new PossibilitySection("")
@@ -88,7 +88,7 @@ public class HandsOfTheWildling
             {
                 return new ActionPossibility(new CombatAction(
                     q.Owner,
-                    IllustrationName.DragonClaws,
+                    ExemplarIllustrations.HandsOfTheWildling,
                     "Feral Swing" + (abandon ? " (with abandon)" : ""),
                     [ExemplarTraits.Transcendence],
                     "You lash out with both arms, rending all before you. Each creature in a 15-foot cone must succeed at a basic Reflex save against your class DC or take spirit damage equal to your normal Strike damage with your {i}hands of the wildling{/i}." +

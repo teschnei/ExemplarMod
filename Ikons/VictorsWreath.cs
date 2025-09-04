@@ -53,7 +53,7 @@ public class VictorsWreath
             "even if that effect would not normally allow a new saving throw.",
             [ExemplarTraits.Ikon, ExemplarTraits.IkonWorn],
             null
-        ).WithIllustration(IllustrationName.TiaraOfOpenSkies), q =>
+        ).WithIllustration(ExemplarIllustrations.VictorsWreath), q =>
         {
             q.AddGrantingOfTechnical(cr => cr.FriendOf(q.Owner), qe =>
             {
@@ -72,7 +72,7 @@ public class VictorsWreath
         {
             return new ActionPossibility(new CombatAction(
                 q.Owner,
-                IllustrationName.TiaraOfOpenSkies,
+                ExemplarIllustrations.VictorsWreath,
                 "One Moment till Glory",
                 [Trait.Concentrate, Trait.Emotion, Trait.Mental, ExemplarTraits.Transcendence],
                 "You rally your allies, carrying them from the brink of disaster to the verge of victory. Each ally in your aura can immediately attempt a new saving throw with a +2 status bonus against one ongoing negative effect or condition currently affecting them, " +

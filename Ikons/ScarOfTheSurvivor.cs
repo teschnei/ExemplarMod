@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using Dawnsbury.Core;
 using Dawnsbury.Core.CharacterBuilder.Feats;
 using Dawnsbury.Core.CombatActions;
 using Dawnsbury.Core.Mechanics;
@@ -28,7 +27,7 @@ public class ScarOfTheSurvivor
             "Your wounds knit shut with hardly a scratch. You regain 1d8 Hit Points. At 3rd level and every 2 levels thereafter, the healing increases by 1d8.",
             [ExemplarTraits.Ikon, ExemplarTraits.IkonBody],
             null
-        ).WithIllustration(IllustrationName.BloodVendetta), q =>
+        ).WithIllustration(ExemplarIllustrations.ScarOfTheSurvivor), q =>
         {
             var diehard = new QEffect()
             {
@@ -43,7 +42,7 @@ public class ScarOfTheSurvivor
             var healing = (q.Owner.Level + 1) / 2;
             return new ActionPossibility(new CombatAction(
                 q.Owner,
-                IllustrationName.Heal,
+                ExemplarIllustrations.ScarOfTheSurvivor,
                 "No Scar but This",
                 [Trait.Concentrate, Trait.Healing, ExemplarTraits.Transcendence, Trait.Positive],
                 $"Your wounds knit shut with hardly a scratch. You regain {healing}d8 Hit Points.",

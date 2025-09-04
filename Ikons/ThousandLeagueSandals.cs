@@ -52,14 +52,14 @@ public class ThousandLeagueSandals
             "Your feet carry you so quickly they leave a slipstream that speeds your allies on. You Stride. Each ally within 10 feet of you at the start of your movement can Stride as a reaction.",
             [ExemplarTraits.Ikon, ExemplarTraits.IkonWorn],
             null
-        ).WithIllustration(IllustrationName.FreedomOfMovement), q =>
+        ).WithIllustration(ExemplarIllustrations.ThousandLeagueSandals), q =>
         {
             q.BonusToAllSpeeds = qe => Ikon.GetIkonItemWorn(qe.Owner, ikonRune) != null ? new Bonus(2, BonusType.Circumstance, "Thousand League Sandals") : null;
         }, q =>
         {
             return new ActionPossibility(new CombatAction(
                 q.Owner,
-                IllustrationName.FreedomOfMovement,
+                ExemplarIllustrations.ThousandLeagueSandals,
                 "Marathon Dash",
                 [ExemplarTraits.Transcendence],
                 "Your feet carry you so quickly they leave a slipstream that speeds your allies on. You Stride. Each ally within 10 feet of you at the start of your movement can Stride as a reaction.",

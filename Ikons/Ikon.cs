@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Dawnsbury.Core;
 using Dawnsbury.Core.CharacterBuilder.Feats;
 using Dawnsbury.Core.CombatActions;
 using Dawnsbury.Core.Creatures;
@@ -66,7 +65,7 @@ public class Ikon
     public QEffect GetEmpoweredQEffect(Creature exemplar)
     {
         var q = new QEffect($"Empowered {IkonFeat.Name}", $"Your {IkonFeat.Name} is housing your divine spark, granting you its Immanence and Transcendence abilities.",
-                ExpirationCondition.Never, exemplar, IllustrationName.SpiritualWeapon)
+                ExpirationCondition.Never, exemplar, IkonFeat.Illustration)
         {
             Id = EmpoweredQEffectId,
             Key = IkonKey,
@@ -79,7 +78,7 @@ public class Ikon
 
     public CombatAction ShiftImmanence(Creature exemplar)
     {
-        return new CombatAction(exemplar, IllustrationName.SpiritualWeapon, $"Empower {IkonFeat.Name}",
+        return new CombatAction(exemplar, IkonFeat.Illustration!, $"Empower {IkonFeat.Name}",
             [ExemplarTraits.Exemplar, Trait.Divine, Trait.Basic],
             $"{IkonFeat.FullTextDescription}", Target.Self())
             .WithActionCost(exemplar.QEffects.Any(q => q.Key == IkonKey) ? 1 : 0)
@@ -111,7 +110,7 @@ public class Ikon
             damageKinds.Add(sanctification.Item2);
         }
         //TODO: also check special resistances with the trait list
-        return target.WeaknessAndResistance.WhatDamageKindIsBestAgainstMe([DamageKind.Force]);
+        return target.WeaknessAndResistance.WhatDamageKindIsBestAgainstMe(damageKinds);
     }
 
     public static IEnumerable<Feat> AddExpansionFeat(string technicalName, string flavorText, string rulesText, List<Trait> traits, Func<Ikon, bool> predicate, Action<Ikon, Feat> modifyFeat)
@@ -131,7 +130,6 @@ public class Ikon
         var poss = transcendence.Invoke(q);
         if (poss is ActionPossibility action)
         {
-            action.CombatAction.ActionId = ExemplarActions.SparkTranscendence;
             action.CombatAction.WithEffectOnChosenTargets(async (self, targets) =>
             {
                 q.ExpiresAt = ExpirationCondition.Immediately;
@@ -146,7 +144,6 @@ public class Ikon
                 {
                     if (subposs is ActionPossibility subpossAction)
                     {
-                        subpossAction.CombatAction.ActionId = ExemplarActions.SparkTranscendence;
                         subpossAction.CombatAction.WithEffectOnChosenTargets(async (self, targets) =>
                         {
                             q.ExpiresAt = ExpirationCondition.Immediately;

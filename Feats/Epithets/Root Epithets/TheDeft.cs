@@ -42,7 +42,7 @@ public class TheDeft
         {
             q.AfterYouTakeAction = async (q, action) =>
             {
-                if (action.ActionId == ExemplarActions.SparkTranscendence)
+                if (action.HasTrait(ExemplarTraits.Transcendence))
                 {
                     q.Owner.AddQEffect(new QEffect()
                     {

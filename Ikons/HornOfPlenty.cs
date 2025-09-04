@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Dawnsbury.Campaign.LongTerm;
-using Dawnsbury.Core;
 using Dawnsbury.Core.CharacterBuilder.Feats;
 using Dawnsbury.Core.CombatActions;
 using Dawnsbury.Core.Mechanics.Enumerations;
@@ -22,7 +21,7 @@ public class HornOfPlenty
     {
         ItemName hornOfPlenty = ModManager.RegisterNewItemIntoTheShop("HornOfPlenty", itemName =>
         {
-            return new Item(itemName, IllustrationName.BagOfHolding2, "Horn Of Plenty", 1, 0, Trait.DoNotAddToShop, ExemplarTraits.Ikon)
+            return new Item(itemName, ExemplarIllustrations.HornOfPlenty, "Horn Of Plenty", 1, 0, Trait.DoNotAddToShop, ExemplarTraits.Ikon)
             .WithStoresItem((container, subitem) =>
             {
                 if (!subitem.HasTrait(Trait.Potion) && !subitem.HasTrait(Trait.Elixir))
@@ -47,7 +46,7 @@ public class HornOfPlenty
             "they had consumed it themself.  If the consumable restores Hit Points, you can choose to divide the amount it restores between you and the ally freely (after rolling dice to determine the amount).",
             [ExemplarTraits.Ikon, ExemplarTraits.IkonWorn],
             null
-        ).WithIllustration(IllustrationName.BagOfHolding2)
+        ).WithIllustration(ExemplarIllustrations.HornOfPlenty)
         .WithOnCreature(self =>
         {
             var horn = self.CarriedItems.FirstOrDefault(i => i.BaseItemName == hornOfPlenty);
@@ -87,7 +86,7 @@ public class HornOfPlenty
                         }
                     })) as Possibility;
                 });
-                return new SubmenuPossibility(IllustrationName.BagOfHolding2, "Horn of Plenty")
+                return new SubmenuPossibility(ExemplarIllustrations.HornOfPlenty, "Horn of Plenty")
                 {
                     Subsections =
                     [
@@ -120,7 +119,7 @@ public class HornOfPlenty
                     //TODO: do something about the hp split? maybe just overhealing goes into self? is there a free-form entry box?
                 })) as Possibility;
             });
-            return new SubmenuPossibility(IllustrationName.BagOfHolding2, "Feed the Masses")
+            return new SubmenuPossibility(ExemplarIllustrations.HornOfPlenty, "Feed the Masses")
             {
                 Subsections =
                 [

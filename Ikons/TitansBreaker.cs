@@ -58,7 +58,7 @@ public class TitansBreaker
             "it's increased to 8 spirit damage and three extra dice.",
             [ExemplarTraits.Ikon, ExemplarTraits.IkonWeapon],
             null
-        ).WithIllustration(IllustrationName.Greatclub), q =>
+        ).WithIllustration(ExemplarIllustrations.TitansBreaker), q =>
         {
             //Flag for "is this Strike from Fracture Mountains?"
             q.Tag = false;
@@ -114,7 +114,7 @@ public class TitansBreaker
         {
             return new ActionPossibility(new CombatAction(
                 q.Owner,
-                IllustrationName.Greatclub,
+                ExemplarIllustrations.TitansBreaker,
                 "Fracture Mountains",
                 [ExemplarTraits.Transcendence],
                 "Your spirit is so dense it takes on tangible force. Make a melee Strike with the {i}titan's breaker{/i}. This counts as two attacks " +

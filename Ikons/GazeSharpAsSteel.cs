@@ -28,14 +28,14 @@ public class GazeSharpAsSteel
             "You take in every movement around you, affording you unparalleled accuracy. Your next successful Strike against an enemy before the end of your next turn deals an additional 1d6 precision damage (2d6 at 10th level, 3d6 at 18th).",
             [ExemplarTraits.Ikon, ExemplarTraits.IkonBody],
             null
-        ).WithIllustration(IllustrationName.Blinded), q =>
+        ).WithIllustration(ExemplarIllustrations.GazeSharpAsSteel), q =>
         {
             q.BonusToDefenses = (q, action, defense) => action?.HasTrait(Trait.Ranged) ?? false && defense == Defense.AC ? new Bonus(2, BonusType.Status, "Gaze Sharp as Steel") : null;
         }, q =>
         {
             return new ActionPossibility(new CombatAction(
                 q.Owner,
-                IllustrationName.Blinded,
+                ExemplarIllustrations.GazeSharpAsSteel,
                 "A Moment Unending",
                 [Trait.Concentrate, Trait.Prediction, ExemplarTraits.Transcendence],
                 "You take in every movement around you, affording you unparalleled accuracy. Your next successful Strike against an enemy before the end of your next turn deals an additional 1d6 precision damage (2d6 at 10th level, 3d6 at 18th).",

@@ -85,7 +85,7 @@ public class PeltOfTheBeast
             "+2 circumstance bonus to AC and saving throws against effects with that trait.",
             [ExemplarTraits.Ikon, ExemplarTraits.IkonWorn],
             null
-        ).WithIllustration(IllustrationName.MagicHide)
+        ).WithIllustration(ExemplarIllustrations.PeltOfTheBeast)
         .WithOnSheet(sheet =>
         {
             sheet.AddSelectionOption(new SingleFeatSelectionOption(
@@ -114,7 +114,7 @@ public class PeltOfTheBeast
         {
             var peltActions = peltFeatTypes.Select(feats =>
             {
-                return new ActionPossibility(new CombatAction(q.Owner, IllustrationName.MagicHide,
+                return new ActionPossibility(new CombatAction(q.Owner, ExemplarIllustrations.PeltOfTheBeast,
                     $"Survive the Wilds ({feats.Value.Item1.ToString()})", [Trait.Aura, Trait.Manipulate, ExemplarTraits.Transcendence],
                     "You wrap the pelt around yourself. You can choose to change the damage type the pelt is attuned to. The pelt shines gold, drawing the offending " +
                     "energies into itself. Until the start of your next turn, this shine creates an aura in a 15-foot emanation. You and all allies in the emanation gain a " +
@@ -130,7 +130,7 @@ public class PeltOfTheBeast
                     .WithActionCost(1)
                     .WithEffectOnChosenTargets(async (action, self, targets) =>
                     {
-                        self.AddQEffect(new QEffect("Survive the Wilds", $"You and all allies in the emanation gain a +2 circumstance bonus to AC and saving throws against effects with the {feats.Value.Item1.ToString()} trait.", ExpirationCondition.ExpiresAtStartOfYourTurn, self, IllustrationName.MagicHide)
+                        self.AddQEffect(new QEffect("Survive the Wilds", $"You and all allies in the emanation gain a +2 circumstance bonus to AC and saving throws against effects with the {feats.Value.Item1.ToString()} trait.", ExpirationCondition.ExpiresAtStartOfYourTurn, self, ExemplarIllustrations.PeltOfTheBeast)
                         {
                             SpawnsAura = q => q.Owner.AnimationData.AddAuraAnimation(IllustrationName.MagicCircle150, 3)
                         }.AddGrantingOfTechnical(cr => cr.FriendOf(q.Owner), qe =>
@@ -146,7 +146,7 @@ public class PeltOfTheBeast
                         }));
                     })) as Possibility;
             });
-            return new SubmenuPossibility(IllustrationName.MagicHide, "Survive the Wilds")
+            return new SubmenuPossibility(ExemplarIllustrations.PeltOfTheBeast, "Survive the Wilds")
             {
                 Subsections =
                 [

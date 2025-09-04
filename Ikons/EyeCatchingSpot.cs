@@ -27,7 +27,7 @@ public class EyeCatchingSpot
             "You focus your attention on a creature within 30 feet, overwhelming its senses. The creature must succeed at a Will save against your class DC or be fascinated by you until the start of your next turn. The condition ends if you use a hostile action against the target, but not if you use one against its allies.",
             [ExemplarTraits.Ikon, ExemplarTraits.IkonBody],
             null
-        ).WithIllustration(IllustrationName.Blinded), q =>
+        ).WithIllustration(ExemplarIllustrations.EyeCatchingSpot), q =>
         {
             q.AddGrantingOfTechnical(cr => cr.EnemyOf(q.Owner), qe =>
             {
@@ -37,7 +37,7 @@ public class EyeCatchingSpot
         {
             return new ActionPossibility(new CombatAction(
                 q.Owner,
-                IllustrationName.DarkHeart,
+                ExemplarIllustrations.EyeCatchingSpot,
                 "Captivating Charm",
                 [Trait.Concentrate, Trait.Emotion, Trait.Mental, Trait.Visual, ExemplarTraits.Transcendence],
                 "You focus your attention on a creature within 30 feet, overwhelming its senses. The creature must succeed at a Will save against your class DC or be fascinated by you until the start of your next turn. The condition ends if you use a hostile action against the target, but not if you use one against its allies.",

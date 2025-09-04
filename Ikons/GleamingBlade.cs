@@ -55,7 +55,7 @@ public class GleamingBlade
             $"{{b}}Transcendence — Flowing Spirit Strike {RulesBlock.GetIconTextFromNumberOfActions(2)}{{/b}} (spirit, transcendence)\nMake two Strikes with the {{i}}gleaming blade{{/i}}, each against the same target and using your current multiple attack penalty. If the {{i}}gleaming blade{{/i}} doesn't have the agile trait, the second Strike takes a –2 penalty. If both attacks hit, you combine their damage, which is all dealt as spirit damage. You add any precision damage only once. Combine the damage from both Strikes and apply resistances and weaknesses only once. This counts as two attacks when calculating your multiple attack penalty.",
             [ExemplarTraits.Ikon, ExemplarTraits.IkonWeapon],
             null
-        ).WithIllustration(IllustrationName.Longsword), q =>
+        ).WithIllustration(ExemplarIllustrations.GleamingBlade), q =>
         {
             q.AddExtraKindedDamageOnStrike = (action, target) =>
             {
@@ -71,7 +71,7 @@ public class GleamingBlade
         {
             return new ActionPossibility(new CombatAction(
                 q.Owner,
-                IllustrationName.Greatsword,
+                ExemplarIllustrations.GleamingBlade,
                 "Flowing Spirit Strike",
                 [ExemplarTraits.Transcendence],
                 "Make two Strikes with the {i}gleaming blade{/i}, each against the same target and using your current multiple attack penalty. If the {i}gleaming blade{/i} doesn't have the agile trait, the second Strike takes a –2 penalty. If both attacks hit, you combine their damage, which is all dealt as spirit damage. You add any precision damage only once. Combine the damage from both Strikes and apply resistances and weaknesses only once. This counts as two attacks when calculating your multiple attack penalty.",

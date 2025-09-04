@@ -31,7 +31,7 @@ public class TheBrave
         {
             q.AfterYouTakeAction = async (q, action) =>
             {
-                if (action.ActionId == ExemplarActions.SparkTranscendence)
+                if (action.HasTrait(ExemplarTraits.Transcendence))
                 {
                     var target = await q.Owner.Battle.AskToChooseACreature(q.Owner,
                             q.Owner.Battle.AllCreatures.Where(cr => cr.EnemyOf(q.Owner) && q.Owner.Occupies.HasLineOfEffectToIgnoreLesser(cr.Occupies) != CoverKind.Blocked &&

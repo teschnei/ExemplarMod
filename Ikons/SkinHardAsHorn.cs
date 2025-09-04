@@ -59,7 +59,7 @@ public class SkinHardAsHorn
             "the attacking enemy off-guard and gives it a -2 circumstance penalty to attacks with that weapon until the start of the enemy's next turn.",
             [ExemplarTraits.Ikon, ExemplarTraits.IkonBody],
             null
-        ).WithIllustration(IllustrationName.FullPlate)
+        ).WithIllustration(ExemplarIllustrations.SkinHardAsHorn)
         .WithOnSheet(sheet =>
         {
             sheet.AddSelectionOption(new SingleFeatSelectionOption(
@@ -86,7 +86,7 @@ public class SkinHardAsHorn
         },
         q =>
         {
-            return new ActionPossibility(new CombatAction(q.Owner, IllustrationName.FullPlate,
+            return new ActionPossibility(new CombatAction(q.Owner, ExemplarIllustrations.SkinHardAsHorn,
                 "Crash Against Me", [ExemplarTraits.Transcendence],
                 "Your skin becomes virtually unbreakable. Until the start of your next turn, you have resistance equal to your level to the chosen damage type. During this time, if a creature attacking you " +
                 "using a weapon dealing the same damage type as your resistance misses you or hits you but deals no damage due to your resistance, the weapon clangs wildly off your skin. This painful reverberation makes " +
@@ -96,7 +96,7 @@ public class SkinHardAsHorn
                 .WithEffectOnChosenTargets(async (action, self, targets) =>
                 {
                     self.AddQEffect(new QEffect("Crash Against Me", "Your skin is virtually unbreakable. You have resistance to your chosen damage type and will retaliate against foes who deal no damage to you with their weapon.",
-                        ExpirationCondition.ExpiresAtStartOfYourTurn, self, IllustrationName.FullPlate)
+                        ExpirationCondition.ExpiresAtStartOfYourTurn, self, ExemplarIllustrations.SkinHardAsHorn)
                     {
                         AfterYouTakeIncomingDamageEventEvenZero = async (q, damageEvent) =>
                         {

@@ -31,7 +31,7 @@ public class TheRadiant
         {
             q.AfterYouTakeAction = async (q, action) =>
             {
-                if (action.ActionId == ExemplarActions.SparkTranscendence)
+                if (action.HasTrait(ExemplarTraits.Transcendence))
                 {
                     var target = await q.Owner.Battle.AskToChooseACreature(q.Owner,
                         q.Owner.Battle.AllCreatures.Where(cr => cr.FriendOf(q.Owner) && cr.DistanceTo(q.Owner) <= 6 && !cr.IsImmuneTo(Trait.Mental) && !cr.IsImmuneTo(Trait.Emotion) && !cr.HasEffect(ExemplarQEffects.TheRadiantUsedOnTarget)),

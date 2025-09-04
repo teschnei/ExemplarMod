@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Linq;
-using Dawnsbury.Core;
 using Dawnsbury.Core.CharacterBuilder.Feats;
 using Dawnsbury.Core.CombatActions;
 using Dawnsbury.Core.Coroutines;
@@ -49,7 +48,7 @@ public class MotionlessCutter
                         var ikonItem = Ikon.GetIkonItem(q.Owner, (ItemName)ikon.Rune!);
                         return q.Owner.HasEffect(ikon.EmpoweredQEffectId) && ikonItem != null && (!ikonItem.HasTrait(Trait.Ranged) && ikonItem.DetermineDamageKinds().Contains(DamageKind.Slashing)) ?
                             Ikon.CreateTranscendence(q =>
-                                new ActionPossibility(new CombatAction(q.Owner, IllustrationName.Swords,
+                                new ActionPossibility(new CombatAction(q.Owner, ExemplarIllustrations.SeverFourDragonflyWings,
                                     "Sever Four Dragonfly Wings", [ExemplarTraits.Transcendence],
                                     "Make a Strike that deals slashing damage with your weapon ikon. If that Strike is successful, you can immediately make another Strike " +
                                     "against a different target within your reach. You can continue making Strikes in this manner, each against a different target, until you have " +

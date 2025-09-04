@@ -55,7 +55,7 @@ public class BandsOfImprisonment
             $"{{b}}Transcendence — Break Free {RulesBlock.GetIconTextFromNumberOfActions(2)}{{/b}} (transcendence)\nYou can attempt to Escape with a +2 status bonus on your check, then Stride up to twice your Speed in a straight line, and finally make a melee Strike. If you don't need to Escape or you can't move or choose not to, you still take the other actions listed.",
             [ExemplarTraits.Ikon, ExemplarTraits.IkonWorn],
             null
-        ).WithIllustration(IllustrationName.SpikedChain), q =>
+        ).WithIllustration(ExemplarIllustrations.BandsOfImprisonment), q =>
         {
             q.StateCheck = q => q.Owner.WeaknessAndResistance.AddResistance(DamageKind.Mental, q.Owner.Level / 2);
             q.BonusToDefenses = (qfSelf, action, defense) => defense == Defense.Will ? new Bonus(1, BonusType.Status, "Bands of Imprisonment") : null;
@@ -63,7 +63,7 @@ public class BandsOfImprisonment
         {
             return new ActionPossibility(new CombatAction(
                 q.Owner,
-                IllustrationName.FreedomOfMovement,
+                ExemplarIllustrations.BandsOfImprisonment,
                 "Break Free",
                 [ExemplarTraits.Transcendence],
                 "You can attempt to Escape with a +2 status bonus on your check, then Stride up to twice your Speed in a straight line, and finally make a melee Strike. If you don't need to Escape or you can't move or choose not to, you still take the other actions listed.",

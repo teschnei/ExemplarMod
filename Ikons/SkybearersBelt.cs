@@ -60,7 +60,7 @@ public class SkybearersBelt
             "You ignore the ally's Bulk while carrying them during your Stride. You can Climb, Fly, or Swim instead of Striding if you have the corresponding movement type.",
             [ExemplarTraits.Ikon, ExemplarTraits.IkonWorn],
             null
-        ).WithIllustration(IllustrationName.GrapplersBelt), q =>
+        ).WithIllustration(ExemplarIllustrations.SkybearersBelt), q =>
         {
             q.BonusToAttackRolls = (q, action, target) => Ikon.GetIkonItemWorn(q.Owner, ikonRune) != null &&
                 (action.ActionId == ActionId.Disarm || action.ActionId == ActionId.Grapple || action.ActionId == ActionId.Shove || action.ActionId == ActionId.Trip) ?
@@ -72,7 +72,7 @@ public class SkybearersBelt
         {
             return new ActionPossibility(new CombatAction(
                 q.Owner,
-                IllustrationName.GrapplersBelt,
+                ExemplarIllustrations.SkybearersBelt,
                 "Bear Allies' Burdens",
                 [ExemplarTraits.Transcendence],
                 "You move with a speed belying your strength, carrying your allies as easily as straw dolls. You Stride. At any point you are adjacent to a willing ally during the Stride, you can pick that ally up, and you can deposit them into a space adjacent to you at any other point during your movement. " +
