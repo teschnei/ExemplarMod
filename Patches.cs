@@ -1,4 +1,7 @@
+using System.Linq;
 using Dawnsbury.Core.CombatActions;
+using Dawnsbury.Core.Creatures;
+using Dawnsbury.Core.Tiles;
 using Dawnsbury.Mods.Classes.Exemplar.Ikons;
 using Dawnsbury.Mods.Classes.Exemplar.RegisteredComponents;
 using HarmonyLib;
@@ -14,6 +17,19 @@ public static class UnfailingBowPatch
         if (unfailing != null && unfailing.Tag != null)
         {
             __result = (int)unfailing.Tag;
+        }
+    }
+}
+
+[HarmonyPatch(typeof(Tile), nameof(Tile.CountsAsNonignoredDifficultTerrainFor))]
+public static class BornOfTheBonesOfTheEarthPatch
+{
+    static void Postfix(Tile __instance, Creature who, ref bool __result)
+    {
+        var born = __instance.TileQEffects.Where(q => q.TileQEffectId == ExemplarTileQEffects.BornOfTheBonesOfTheEarthTerrain).FirstOrDefault();
+        if (__result == true && born?.Zone?.ControllerQEffect?.Owner == who)
+        {
+            __result = false;
         }
     }
 }

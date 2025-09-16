@@ -79,9 +79,9 @@ public class Ikon
     public CombatAction ShiftImmanence(Creature exemplar)
     {
         return new CombatAction(exemplar, IkonFeat.Illustration!, $"Empower {IkonFeat.Name}",
-            [ExemplarTraits.Exemplar, Trait.Divine, Trait.Basic],
-            $"{IkonFeat.FullTextDescription}", Target.Self())
-            .WithActionCost(exemplar.QEffects.Any(q => q.Key == IkonKey) ? 1 : 0)
+            [ExemplarTraits.Exemplar, Trait.Divine, Trait.Basic, ExemplarTraits.ShiftImmanence],
+            $"{IkonFeat.RulesText}", Target.Self())
+            .WithActionCost(1)
             .WithEffectOnEachTarget(async (spell, caster, target, result) =>
             {
                 caster.RemoveAllQEffects(q => q.Key == IkonKey);

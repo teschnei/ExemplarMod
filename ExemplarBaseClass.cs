@@ -1,19 +1,25 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
+using System.Threading.Tasks;
 using Dawnsbury.Core;
 using Dawnsbury.Core.CharacterBuilder;
 using Dawnsbury.Core.CharacterBuilder.AbilityScores;
 using Dawnsbury.Core.CharacterBuilder.Feats;
 using Dawnsbury.Core.CharacterBuilder.Feats.Features;
 using Dawnsbury.Core.CharacterBuilder.Selections.Options;
+using Dawnsbury.Core.CombatActions;
 using Dawnsbury.Core.Creatures;
 using Dawnsbury.Core.Mechanics;
 using Dawnsbury.Core.Mechanics.Core;
 using Dawnsbury.Core.Mechanics.Enumerations;
 using Dawnsbury.Core.Mechanics.Rules;
+using Dawnsbury.Core.Mechanics.Targeting;
 using Dawnsbury.Core.Mechanics.Treasure;
 using Dawnsbury.Core.Possibilities;
 using Dawnsbury.Core.Roller;
+using Dawnsbury.Mods.Classes.Exemplar.Epithets;
 using Dawnsbury.Mods.Classes.Exemplar.Ikons;
 using Dawnsbury.Mods.Classes.Exemplar.RegisteredComponents;
 using static Dawnsbury.Mods.Classes.Exemplar.ExemplarClassLoader;
@@ -104,37 +110,47 @@ public static class ExemplarBaseClass
                 };
             };
 
-            //Handle Exemplar's critical specialization rules
             q.StartOfCombat = async qf =>
             {
-                foreach (var q in qf.Owner.QEffects)
+                await EmpowerIkon(qf.Owner, qf);
+            };
+
+            q.AfterYouTakeAction = async (qf, action) =>
+            {
+                if (action.HasTrait(ExemplarTraits.Transcendence))
                 {
-                    if (q.YouHaveCriticalSpecialization is { } function)
-                    {
-                        q.YouHaveCriticalSpecialization = (qf, item, action, target) =>
-                            IkonEmpowered(qf.Owner, item) ? false :
-                            function(qf, item, action, target);
-                    }
+                    await EmpowerIkon(qf.Owner, qf);
                 }
             };
-            q.AfterYouAcquireEffect = async (qf, newQ) =>
+
+            async Task EmpowerIkon(Creature exemplar, QEffect shiftImmanence)
             {
-                if (newQ.YouHaveCriticalSpecialization is { } function)
+                var shifts = Possibilities.Create(exemplar).Filter(ap => false);
+                shifts.Sections.Add(new PossibilitySection("Shift Immanence")
                 {
-                    newQ.YouHaveCriticalSpecialization = (qf, item, action, target) =>
-                        IkonEmpowered(qf.Owner, item) ? false :
-                        function(qf, item, action, target);
-                }
-            };
-            bool IkonEmpowered(Creature exemplar, Item item)
-            {
-                var empowered = exemplar.QEffects.Where(q => q.Key == Ikon.IkonKey).FirstOrDefault();
-                if (empowered != null)
+                    Possibilities = (exemplar.PersistentCharacterSheet?.Calculated?.AllFeats ?? Enumerable.Empty<Feat>())
+                        .Where(f => f.HasTrait(ExemplarTraits.Ikon) && f != shiftImmanence.Tag).Select(f =>
+                        {
+                            var ap = new ActionPossibility(Ikon.IkonLUT[f.FeatName].ShiftImmanence(exemplar).WithActionCost(0));
+                            ap.RecalculateUsability();
+                            return ap as Possibility;
+                        }).ToList()
+                });
+                shifts.Sections.Add(new PossibilitySection("Pass")
                 {
-                    var ikon = Ikon.IkonLUT.Values.Where(ikon => ikon.EmpoweredQEffectId == empowered.Id).FirstOrDefault();
-                    return ikon != null && item.Runes.Any(rune => rune.ItemName == ikon.Rune);
-                }
-                return false;
+                    Possibilities = [new ActionPossibility(new CombatAction(exemplar, IllustrationName.EndTurn, "Pass", [
+                        Trait.Basic,
+                        Trait.UsableEvenWhenUnconsciousOrParalyzed,
+                        Trait.DoesNotPreventDelay
+                    ], "Do nothing.", Target.Self()).WithActionCost(0))]
+                });
+                var active = exemplar.Battle.ActiveCreature;
+                exemplar.Battle.ActiveCreature = exemplar;
+                typeof(Creature).InvokeMember("Possibilities", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.SetProperty | BindingFlags.Instance, null, exemplar, [shifts]);
+                var options = await exemplar.Battle.GameLoop.CreateActions(exemplar, exemplar.Possibilities, null);
+                exemplar.Battle.GameLoopCallback.AfterActiveCreaturePossibilitiesRegenerated();
+                await exemplar.Battle.GameLoop.OfferOptions(exemplar, options, true);
+                exemplar.Battle.ActiveCreature = active;
             }
         })
         .WithOnCreature((sheet, cr) =>
@@ -170,6 +186,28 @@ public static class ExemplarBaseClass
                     : null;
             }
         };
+    }
+
+    private static async Task EpithetActions(Creature exemplar, CombatAction transcendence)
+    {
+        var epithetFeats = (exemplar.PersistentCharacterSheet?.Calculated.AllFeats ?? Enumerable.Empty<Feat>()).Where(feat => feat is Epithet).Cast<Epithet>().Select(epithet => epithet.TranscendAction);
+        var epithets = Possibilities.Create(exemplar).Filter(ap => false);
+        epithets.Sections.Add(new PossibilitySection("Epithet Actions")
+        {
+            Possibilities = epithetFeats.Select(generator => generator?.Possibility?.Invoke(exemplar, transcendence)).Where(possibility => possibility != null).ToList()!
+        });
+        epithets.Sections.Add(new PossibilitySection("Pass")
+        {
+            Possibilities = [new ActionPossibility(new CombatAction(exemplar, IllustrationName.EndTurn, "Pass", [
+                Trait.Basic,
+                Trait.UsableEvenWhenUnconsciousOrParalyzed,
+                Trait.DoesNotPreventDelay
+            ], "Do nothing.", Target.Self()).WithActionCost(0))]
+        });
+        typeof(Creature).InvokeMember("Possibilities", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.SetProperty | BindingFlags.Instance, null, exemplar, [epithets]);
+        var options = await exemplar.Battle.GameLoop.CreateActions(exemplar, exemplar.Possibilities, null);
+        exemplar.Battle.GameLoopCallback.AfterActiveCreaturePossibilitiesRegenerated();
+        await exemplar.Battle.GameLoop.OfferOptions(exemplar, options, true);
     }
 
     private static void EnsureCorrectRunes(CalculatedCharacterSheetValues sheet)

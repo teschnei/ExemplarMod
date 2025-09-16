@@ -70,6 +70,7 @@ public class BindingSerpentsCelestialArrow
                                                 QEffect immobilized = QEffect.Immobilized().WithExpirationNever();
                                                 immobilized.ProvideContextualAction = q => new ActionPossibility(Possibilities.CreateEscapeAgainstEffect(
                                                         q.Owner, q, "Coiling Serpents", self.ClassDC())).WithPossibilityGroup("Remove debuff");
+                                                targets.ChosenCreature.AddQEffect(immobilized);
                                             }
                                         }
                                     }

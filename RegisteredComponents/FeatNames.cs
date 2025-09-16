@@ -48,10 +48,12 @@ public static class ExemplarFeats
     public static readonly FeatName TheRadiant = ModManager.RegisterFeatName("TheRadiant", "The Radiant");
 
     //Dominion epithets
-    public static readonly FeatName DancerInTheSeasons = ModManager.RegisterFeatName("DancerInTheSeasons", "The Dancer In The Seasons");
-    public static readonly FeatName PeerlessUnderHeaven = ModManager.RegisterFeatName("PeerlessUnderHeaven", "The Peerless Under Heaven");
-    public static readonly FeatName RestlessAsTheTides = ModManager.RegisterFeatName("RestlessAsTheTides", "The Restless As The Tides");
-    public static readonly FeatName WhoseCryIsThunder = ModManager.RegisterFeatName("WhoseCryIsThunder", "The Whose Cry Is Thunder");
+    public static readonly FeatName BornOfTheBonesOfTheEarth = ModManager.RegisterFeatName("BornOfTheBonesOfTheEarth", "Born of the Bones of the Earth");
+    public static readonly FeatName DancerInTheSeasons = ModManager.RegisterFeatName("DancerInTheSeasons", "Dancer in the Seasons");
+    public static readonly FeatName OfVerseUnbroken = ModManager.RegisterFeatName("OfVerseUnbroken", "Of Verse Unbroken");
+    public static readonly FeatName PeerlessUnderHeaven = ModManager.RegisterFeatName("PeerlessUnderHeaven", "Peerless under Heaven");
+    public static readonly FeatName RestlessAsTheTides = ModManager.RegisterFeatName("RestlessAsTheTides", "Restless as the Tides");
+    public static readonly FeatName WhoseCryIsThunder = ModManager.RegisterFeatName("WhoseCryIsThunder", "Whose Cry is Thunder");
 
     //Level 1 Feats
     public static readonly FeatName EnergizedSpark = ModManager.RegisterFeatName("EnergizedSpark", "Energized Spark");

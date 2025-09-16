@@ -30,8 +30,6 @@ public class GleamingBlade
             "", item =>
             {
                 item.Traits.AddRange([ExemplarTraits.Ikon, Trait.Divine]);
-                item.Name = "gleaming blade";
-                item.ShortName = "gleaming blade";
             })
             .WithCanBeAppliedTo((Item rune, Item weapon) =>
             {

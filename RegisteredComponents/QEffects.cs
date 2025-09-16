@@ -1,5 +1,6 @@
 using Dawnsbury.Campaign.LongTerm;
 using Dawnsbury.Core.Mechanics;
+using Dawnsbury.Core.Tiles;
 using Dawnsbury.Modding;
 
 namespace Dawnsbury.Mods.Classes.Exemplar.RegisteredComponents;
@@ -28,10 +29,17 @@ public static class ExemplarQEffects
 
     //Epithets
     public static readonly QEffectId TheBraveUsedOnTarget = ModManager.RegisterEnumMember<QEffectId>("TheBraveUsedOnTarget");
-    public static readonly QEffectId TheCunning = ModManager.RegisterEnumMember<QEffectId>("TheCunning");
     public static readonly QEffectId TheDeft = ModManager.RegisterEnumMember<QEffectId>("TheDeft");
     public static readonly QEffectId TheMournfulUsedOnTarget = ModManager.RegisterEnumMember<QEffectId>("TheMournfulUsedOnTarget");
     public static readonly QEffectId TheRadiantUsedOnTarget = ModManager.RegisterEnumMember<QEffectId>("TheRadiantUsedOnTarget");
+    public static readonly QEffectId PeerlessUnderHeavenUsedOnTarget = ModManager.RegisterEnumMember<QEffectId>("PeerlessUnderHeavenUsedOnTarget");
+    public static readonly QEffectId OfVerseUnbrokenUsedOnTarget = ModManager.RegisterEnumMember<QEffectId>("OfVerseUnbrokenUsedOnTarget");
+}
+
+public static class ExemplarTileQEffects
+{
+    public static readonly TileQEffectId BornOfTheBonesOfTheEarthTerrain = ModManager.RegisterEnumMember<TileQEffectId>("BornOfTheBonesOfTheEarthTerrain");
+
 }
 
 public static class ExemplarLongTermEffects

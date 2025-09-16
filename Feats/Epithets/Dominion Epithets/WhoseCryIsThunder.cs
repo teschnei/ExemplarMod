@@ -1,121 +1,106 @@
-using System.Linq;
 using System.Collections.Generic;
-using System.Threading.Tasks;
+using System.Linq;
 using Dawnsbury.Core;
 using Dawnsbury.Core.CharacterBuilder.Feats;
-using Dawnsbury.Core.CharacterBuilder.Selections.Options;
-using Dawnsbury.Core.Creatures;
+using Dawnsbury.Core.CharacterBuilder.FeatsDb.Common;
+using Dawnsbury.Core.CombatActions;
+using Dawnsbury.Core.Mechanics;
+using Dawnsbury.Core.Mechanics.Core;
 using Dawnsbury.Core.Mechanics.Enumerations;
 using Dawnsbury.Core.Mechanics.Targeting;
 using Dawnsbury.Core.Possibilities;
-using Dawnsbury.Core.CombatActions;
-using Dawnsbury.Display.Illustrations;
-using Dawnsbury.Modding;
-using Dawnsbury.Mods.Classes.Exemplar;
-using Dawnsbury.Core.Mechanics.Core;
-using Dawnsbury.Core.Mechanics;
-using Dawnsbury.Core.CharacterBuilder.FeatsDb.Common;
-using Dawnsbury.Core.Mechanics.Damage;
 using Dawnsbury.Core.Roller;
 using Dawnsbury.Mods.Classes.Exemplar.RegisteredComponents;
+using static Dawnsbury.Mods.Classes.Exemplar.ExemplarClassLoader;
 
-namespace Dawnsbury.Mods.Classes.Exemplar
+namespace Dawnsbury.Mods.Classes.Exemplar.Epithets.Dominion;
+
+public class WhoseCryIsThunder
 {
-    public class Exemplar_EpithetWhoseCryIsThunder
+    [FeatGenerator(7)]
+    public static IEnumerable<Feat> GetFeat()
     {
-        [DawnsburyDaysModMainMethod]
-        public static void Load()
-        {
-            var thunder = new TrueFeat(
-                ExemplarFeats.WhoseCryIsThunder,
-                7,
-                "Whose Cry is Thunder",
-                "The sky overhead is yours to command as lightning strikes your soul. You gain the Energized Spark feat for your choice of electricity or sonic. " +
+        List<FeatName> sparkOptions = [ExemplarFeats.EnergizedSparkElectricity, ExemplarFeats.EnergizedSparkSonic];
+        yield return new Epithet(
+            ExemplarFeats.WhoseCryIsThunder,
+                "The sky overhead is yours to command as lightning strikes your soul.",
+                "You gain the Energized Spark feat for your choice of electricity or sonic. " +
                 "When you critically succeed on a Strike, a thunderclap booms! The target must make a Fortitude saving throw against your class DC. " +
-                "On a failure, they are knocked prone and deafened for 1 minute. This is a sonic effect.\n\n" +
-                "When you Spark Transcendence, you can choose to become electrically charged until the start of your next turn. " +
-                "Any creature that touches you or damages you with an unarmed attack or non-reach melee weapon while you're charged takes 1d6 electricity damage as lightning courses back to them.",
-                new[] { ExemplarTraits.DominionEpithet },
-                null
-            )
-            .WithOnSheet(sheet =>
-            {
-                /*
-                    // Grant the base Spark feat and restrict to electricity or sonic
-                    sheet.GrantFeat(ExemplarFeatNames.FeatEnergizedSpark);
-                    var allowed = new HashSet<FeatName>
-                    {
-                        ExemplarFeatNames.AttunementFeats[3], // Electricity
-                        ExemplarFeatNames.AttunementFeats[7]  // Sonic
-                    };
-                    sheet.AddSelectionOption(
-                        new SingleFeatSelectionOption(
-                            key: "ThunderSparkType",
-                            name: "Choose your Thunder Spark damage type",
-                            level: 7,
-                            eligible: ft => ft.HasTrait(ExemplarTraits.TEnergizedSpark) && allowed.Contains(ft.FeatName)
-                        )
-                    );
-                    */
-            })
-            .WithPermanentQEffect(null, qf =>
-            {
-                qf.AfterYouTakeAction = async (selfQf, action) =>
+                "On a failure, they are knocked prone and deafened. This is a sonic effect.\n\n" +
+                "When you Spark Transcendence, you become electrically charged until the start of your next turn. " +
+                "Enemies that damage you with an unarmed attack or non-reach melee weapon while you're charged take 1d6 electricity damage as lightning courses back to them.",
+            [ExemplarTraits.DominionEpithet],
+            sparkOptions.Select(spark => new Feat(spark, "", "", [], null)
+                .WithEquivalent(sheet => sheet.HasFeat(spark))
+                .WithOnSheet(sheet =>
                 {
-                    // Thunderclap on critical Strike
-                    if (action.HasTrait(Trait.Strike) && action.CheckResult == CheckResult.CriticalSuccess)
+                    sheet.GrantFeat(ExemplarFeats.EnergizedSpark, spark);
+                })).ToList()
+        )
+        .WithTranscendPossibility("When you Spark Transcendence, you become electrically charged until the start of your next turn. " +
+                "Enemies that damage you with an unarmed attack or non-reach melee weapon while you're charged take 1d6 electricity damage as lightning courses back to them.", (exemplar, action) =>
+                new ActionPossibility(new CombatAction(exemplar, IllustrationName.ResistEnergy, "Whose Cry is Thunder", [],
+                        "You become electrically charged until the start of your next turn. " +
+                        "Enemies that damage you with an unarmed attack or non-reach melee weapon while you're charged take 1d6 electricity damage as lightning courses back to them.",
+                        Target.Self())
+                    .WithActionCost(0)
+                    .WithEffectOnChosenTargets(async (action, self, targets) =>
                     {
-                        var target = action.ChosenTargets?.ChosenCreature;
-                        if (target != null)
-                        {
-                            var clapAction = new CombatAction(
-                                selfQf.Owner,
-                                IllustrationName.Thunderburst,
-                                "Thunderclap",
-                                new[] { Trait.Sonic, Trait.Electricity },
-                                "A thunderclap booms! The target must make a Fortitude saving throw against your class DC. " +
-                                "On a failure, they are knocked prone and deafened for 1 minute. This is a sonic effect.",
-                                Target.Distance(0)
-                            ).WithActionCost(0)
-                             .WithSavingThrow(new SavingThrow(Defense.Fortitude, selfQf.Owner.ClassOrSpellDC()))
-                             .WithEffectOnEachTarget(async (act, caster, target, result) =>
-                             {
-                                 // Only apply prone and deafened if the save failed
-                                 if (result == CheckResult.Failure || result == CheckResult.CriticalFailure)
-                                 {
-                                     target.AddQEffect(QEffect.Prone());
-                                     target.AddQEffect(QEffect.Deafened().WithExpirationAtStartOfSourcesTurn(caster, 10));
-                                 }
-                             });
-                        }
-                    }
-
-                    // Electrified charge on Transcendence
-                    if (action.HasTrait(ExemplarTraits.Transcendence))
-                    {
-                        selfQf.Owner.AddQEffect(new QEffect(
+                        self.AddQEffect(new QEffect(
                             "Electrified",
-                            "You are electrically charged until the start of your next turn. Any creature that touches you or damages you with an unarmed or non-reach melee attack takes 1d6 electricity damage.",
+                            "You are electrically charged until the start of your next turn. Enemies that damage you with an unarmed or non-reach melee attack take 1d6 electricity damage.",
                             ExpirationCondition.ExpiresAtStartOfYourTurn,
-                            selfQf.Owner
-                        )
+                            self,
+                            IllustrationName.ElectricArc)
                         {
                             AfterYouTakeDamage = async (effect, amount, kind, action, critical) =>
                             {
                                 // Apply electricity damage to the attacker
-                                var attacker = effect.Owner;
-                                if (attacker != null)
+                                var attacker = action?.Owner;
+                                if (attacker != null && attacker.DistanceTo(effect.Owner) <= 1)
                                 {
                                     var damageFormula = DiceFormula.FromText("1d6", "Electricity Damage");
-                                    await CommonSpellEffects.DealDirectDamage(null, damageFormula, attacker, CheckResult.Success, DamageKind.Electricity);
+                                    await CommonSpellEffects.DealDirectDamage(CombatAction.CreateSimple(effect.Owner, "Whose Cry is Thunder"), damageFormula, attacker, CheckResult.Failure, DamageKind.Electricity);
                                 }
                             }
                         });
+                    })
+                )
+        )
+        .WithPermanentQEffect(null, q =>
+        {
+            q.AfterYouTakeAction = async (selfQf, action) =>
+            {
+                if (action.HasTrait(Trait.Strike) && action.CheckResult == CheckResult.CriticalSuccess && action.ChosenTargets.ChosenCreature != null)
+                {
+                    if (CommonSpellEffects.RollSavingThrow(action.ChosenTargets.ChosenCreature, CombatAction.CreateSimple(selfQf.Owner, "Whose Cry is Thunder", [Trait.Sonic]), Defense.Fortitude, selfQf.Owner.ClassDC()) <= CheckResult.Failure)
+                    {
+                        action.ChosenTargets.ChosenCreature.AddQEffect(QEffect.Prone());
+                        action.ChosenTargets.ChosenCreature.AddQEffect(QEffect.Deafened());
                     }
-                };
-            });
-
-            ModManager.AddFeat(thunder);
-        }
+                }
+                else if (action.HasTrait(ExemplarTraits.Transcendence))
+                {
+                    selfQf.Owner.AddQEffect(new QEffect(
+                        "Electrified",
+                        "You are electrically charged until the start of your next turn. Enemies that damage you with an unarmed or non-reach melee attack take 1d6 electricity damage.",
+                        ExpirationCondition.ExpiresAtStartOfYourTurn,
+                        selfQf.Owner,
+                        IllustrationName.ElectricArc)
+                    {
+                        AfterYouTakeDamage = async (effect, amount, kind, action, critical) =>
+                        {
+                            // Apply electricity damage to the attacker
+                            var attacker = action?.Owner;
+                            if (attacker != null && attacker.DistanceTo(effect.Owner) <= 1)
+                            {
+                                var damageFormula = DiceFormula.FromText("1d6", "Electricity Damage");
+                                await CommonSpellEffects.DealDirectDamage(CombatAction.CreateSimple(effect.Owner, "Whose Cry is Thunder"), damageFormula, attacker, CheckResult.Failure, DamageKind.Electricity);
+                            }
+                        }
+                    });
+                }
+            };
+        });
     }
 }

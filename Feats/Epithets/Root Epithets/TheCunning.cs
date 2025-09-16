@@ -1,9 +1,9 @@
 using System.Collections.Generic;
+using Dawnsbury.Core;
 using Dawnsbury.Core.CharacterBuilder.Feats;
-using Dawnsbury.Core.CombatActions;
-using Dawnsbury.Core.Mechanics;
+using Dawnsbury.Core.CharacterBuilder.FeatsDb.Common;
 using Dawnsbury.Core.Mechanics.Enumerations;
-using Dawnsbury.Modding;
+using Dawnsbury.Core.Possibilities;
 using Dawnsbury.Mods.Classes.Exemplar.RegisteredComponents;
 using static Dawnsbury.Mods.Classes.Exemplar.ExemplarClassLoader;
 
@@ -14,16 +14,7 @@ public class TheCunning
     [FeatGenerator(3)]
     public static IEnumerable<Feat> GetFeat()
     {
-        ModManager.RegisterActionOnEachActionPossibility(action =>
-        {
-            if (action.Owner.HasEffect(ExemplarQEffects.TheCunning) &&
-                (action.ActionId == ActionId.CreateADiversion || action.ActionId == ActionId.Feint))
-            {
-                action.ActionCost = 0;
-            }
-        });
-
-        yield return new Feat(
+        yield return new Epithet(
             ExemplarFeats.TheCunning,
             "Why race a hare across a meadow, or a salmon up a waterfall? Why face a titan in a test of strength? Wouldn't it be better to best your foes with a bit of creativity? " +
             "After all, the stories that echo throughout history are always those where wits and trickery, rather than raw talent or power, win the day.",
@@ -31,26 +22,22 @@ public class TheCunning
             [ExemplarTraits.RootEpithet],
             null
         )
+        .WithTranscendPossibility("After you Spark Transcendence, you can Create a Diversion or Feint as a free action.", (exemplar, action) =>
+            new SubmenuPossibility(IllustrationName.Feint, "The Cunning")
+            {
+                Subsections =
+                [
+                    new PossibilitySection("The Cunning")
+                    {
+                        Possibilities = [new ActionPossibility(CommonCombatActions.CreateADiversion(exemplar).WithActionCost(0)),
+                                         new ActionPossibility(CombatManeuverPossibilities.CreateFeintAction(exemplar).WithActionCost(0))]
+                    }
+                ]
+            }
+        )
         .WithOnSheet(sheet =>
         {
             sheet.TrainInThisOrSubstitute(Skill.Deception);
-        })
-        .WithPermanentQEffect("After you Spark Transcendence, you can Create a Diversion or Feint as a free action.", q =>
-        {
-            q.AfterYouTakeAction = async (q, action) =>
-            {
-                if (action.HasTrait(ExemplarTraits.Transcendence))
-                {
-                    q.Owner.AddQEffect(new QEffect()
-                    {
-                        Id = ExemplarQEffects.TheCunning,
-                        AfterYouTakeAction = async (q, action) =>
-                        {
-                            q.ExpiresAt = ExpirationCondition.Immediately;
-                        }
-                    });
-                }
-            };
         });
     }
 }

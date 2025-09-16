@@ -6,6 +6,7 @@ namespace Dawnsbury.Mods.Classes.Exemplar.RegisteredComponents;
 public static class ExemplarTraits
 {
     public static readonly Trait Exemplar = ModManager.RegisterTrait("Exemplar", new TraitProperties("Exemplar", true) { IsClassTrait = true });
+    public static readonly Trait ShiftImmanence = ModManager.RegisterTrait("ShiftImmanence", new TraitProperties("Shift Immanence", false));
     public static readonly Trait EnergizedSpark = ModManager.RegisterTrait("EnergizedSpark", new TraitProperties("Energized Spark", false));
     public static readonly Trait Sanctified = ModManager.RegisterTrait("Sanctified", new TraitProperties("Sanctified", false));
     //Base Ikons

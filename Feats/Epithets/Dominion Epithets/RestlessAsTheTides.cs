@@ -1,123 +1,152 @@
-using System.Linq;
 using System.Collections.Generic;
-using System.Threading.Tasks;
+using System.Linq;
 using Dawnsbury.Core;
+using Dawnsbury.Core.Animations.Movement;
 using Dawnsbury.Core.CharacterBuilder.Feats;
-using Dawnsbury.Core.CharacterBuilder.Selections.Options;
-using Dawnsbury.Core.Creatures;
-using Dawnsbury.Core.Mechanics.Enumerations;
-using Dawnsbury.Core.Mechanics;
-using Dawnsbury.Core.Mechanics.Targeting;
-using Dawnsbury.Core.Possibilities;
-using Dawnsbury.Core.CombatActions;
-using Dawnsbury.Display.Illustrations;
-using Dawnsbury.Modding;
-using Dawnsbury.Mods.Classes.Exemplar;
 using Dawnsbury.Core.CharacterBuilder.FeatsDb.Common;
-using Dawnsbury.Core.Roller;
+using Dawnsbury.Core.CombatActions;
+using Dawnsbury.Core.Creatures;
+using Dawnsbury.Core.Intelligence;
 using Dawnsbury.Core.Mechanics.Core;
+using Dawnsbury.Core.Mechanics.Enumerations;
+using Dawnsbury.Core.Mechanics.Targeting;
+using Dawnsbury.Core.Mechanics.Targeting.Targets;
+using Dawnsbury.Core.Mechanics.Targeting.TargetingRequirements;
+using Dawnsbury.Core.Possibilities;
+using Dawnsbury.Core.Roller;
+using Dawnsbury.Core.Tiles;
 using Dawnsbury.Mods.Classes.Exemplar.RegisteredComponents;
+using static Dawnsbury.Mods.Classes.Exemplar.ExemplarClassLoader;
 
-namespace Dawnsbury.Mods.Classes.Exemplar
+namespace Dawnsbury.Mods.Classes.Exemplar.Epithets.Dominion;
+
+public class RestlessAsTheTides
 {
-    public class Exemplar_EpithetRestlessAsTheTides
+    private class RestlessAsTheTidesTarget : GeneratorTarget
     {
-        [DawnsburyDaysModMainMethod]
-        public static void Load()
+        private List<Creature> Targets;
+
+        public RestlessAsTheTidesTarget(List<Creature> targets)
         {
-            var tides = new TrueFeat(
-                ExemplarFeats.RestlessAsTheTides,
-                7,
-                "Restless as the Tides [WIP]",
-                "Your dominion is over the ocean, the great source and ultimate taker of lives. " +
+            Targets = targets;
+        }
+        public override GeneratedTargetInSequence? GenerateNextTarget()
+        {
+            if (base.OwnerAction.ChosenTargets.ChosenCreature == null)
+            {
+                return new GeneratedTargetInSequence(new CreatureTarget(RangeKind.Ranged, [
+                    new EnemyCreatureTargetingRequirement(),
+                    new LegacyCreatureTargetingRequirement((self, target) => Targets.Contains(target) ? Usability.Usable : Usability.NotUsableOnThisCreature("not Spark Transcendence target"))
+                ], (_, _, _) => float.MinValue));
+            }
+            else if (base.OwnerAction.ChosenTargets.ChosenTile == null)
+            {
+                Creature target = base.OwnerAction.ChosenTargets.ChosenCreature;
+                return new GeneratedTargetInSequence(Target.Tile((self, tile) => tile.CanIStopMyMovementHere(target) && tile.DistanceTo(target) == 1))
+                {
+                    DisableConfirmNoMoreTargets = true
+                };
+            }
+            else
+            {
+                return null;
+            }
+        }
+    }
+
+    [FeatGenerator(7)]
+    public static IEnumerable<Feat> GetFeat()
+    {
+        List<FeatName> sparkOptions = [ExemplarFeats.EnergizedSparkWater, ExemplarFeats.EnergizedSparkCold];
+        yield return new Epithet(
+            ExemplarFeats.RestlessAsTheTides,
+                "Your dominion is over the ocean, the great source and ultimate taker of lives.",
                 "You gain the Energized Spark feat for your choice of water or cold. " +
                 "When you critically succeed on a Strike, water blasts the target and those nearby. " +
-                "This deals bludgeoning splash damage equal to the number of weapon damage dice to the target and all creatures within 10 feet of it. This effect has the water trait.\n\n" +
+                "This deals bludgeoning splash damage equal to the number of weapon damage dice to the target and all enemies within 10 feet of it. This effect has the water trait.\n\n" +
                 "When you Spark Transcendence, you can Step, your body carried along by a surging tide. " +
                 "If your transcendence affected an enemy, you can instead move that enemy 5 feet in a direction of your choice unless it succeeds at a Fortitude save against your class DC. " +
                 "If you move an enemy who started out adjacent to you, you can Step into the space it vacated.",
-                new[] { ExemplarTraits.DominionEpithet },
-                null
-            )
-            .WithOnSheet(sheet =>
-            {
-                /*
-                    // Grant the base Spark feat and filter to water or cold
-                    sheet.GrantFeat(ExemplarFeatNames.FeatEnergizedSpark);
-                    var allowed = new HashSet<FeatName>
-                    {
-                        ExemplarFeatNames.AttunementFeats[1], // Cold
-                        ExemplarFeatNames.AttunementFeats[8]  // Water
-                    };
-                    sheet.AddSelectionOption(
-                        new SingleFeatSelectionOption(
-                            key: "RestlessTidesSparkType",
-                            name: "Choose your Tides Spark damage type",
-                            level: 7,
-                            eligible: ft => ft.HasTrait(ExemplarTraits.TEnergizedSpark) && allowed.Contains(ft.FeatName)
-                        )
-                    );
-                    */
-            })
-            .WithPermanentQEffect(null, qf =>
-            {
-                qf.AfterYouTakeAction = async (selfQf, action) =>
+            [ExemplarTraits.DominionEpithet],
+            sparkOptions.Select(spark => new Feat(spark, "", "", [], null)
+                .WithEquivalent(sheet => sheet.HasFeat(spark))
+                .WithOnSheet(sheet =>
                 {
-                    // Splash effect on critical Strike
-                    if (action.HasTrait(Trait.Strike) && action.CheckResult == CheckResult.CriticalSuccess)
+                    sheet.GrantFeat(ExemplarFeats.EnergizedSpark, spark);
+                })).ToList()
+        )
+        .WithTranscendPossibility("When you Spark Transcendence, you can Step, your body carried along by a surging tide. " +
+                "If your transcendence affected an enemy, you can instead move that enemy 5 feet in a direction of your choice unless it succeeds at a Fortitude save against your class DC. " +
+                "If you move an enemy who started out adjacent to you, you can Step into the space it vacated.", (exemplar, action) =>
+                {
+                    var targets = action.ChosenTargets.GetTargetCreatures();
+                    if (!targets.Contains(exemplar))
                     {
-                        var target = action.ChosenTargets?.ChosenCreature;
-                        if (target != null && action.Item?.WeaponProperties != null)
-                        {
-                            int diceCount = action.Item.WeaponProperties.DamageDieCount;
-                            int dieSize = action.Item.WeaponProperties.DamageDieSize;
-                            var splashFormula = DiceFormula.FromText($"{diceCount}d{dieSize}", "Tidal Splash");
-                            // Deal splash damage to primary target
-                            await CommonSpellEffects.DealDirectSplashDamage(action, splashFormula, target, DamageKind.Bludgeoning);
-                            // Splash to creatures within 10 feet
-                            foreach (var creature in selfQf.Owner.Battle.AllCreatures
-                                .Where(c => c.DistanceTo(target) <= 10 && c != target))
+                        return new ActionPossibility(new CombatAction(exemplar, IllustrationName.ElementalBlastWater, "Restless as the Tides", [],
+                                "You can move an enemy 5 feet in a direction of your choice unless it succeeds at a Fortitude save against your class DC. " +
+                                "If you move an enemy who started out adjacent to you, you can Step into the space it vacated.",
+                                new RestlessAsTheTidesTarget(targets.ToList()))
+                            .WithActionCost(0)
+                            .WithSavingThrow(new SavingThrow(Defense.Fortitude, _ => exemplar.ClassDC()))
+                            .WithEffectOnChosenTargets(async (action, self, targets) =>
                             {
-                                await CommonSpellEffects.DealDirectSplashDamage(action, splashFormula, creature, DamageKind.Bludgeoning);
-                            }
-                        }
-                    }
-
-                    // Provide Step or enemy movement on Transcendence
-                    if (action.HasTrait(ExemplarTraits.Transcendence))
-                    {
-                        qf.ProvideMainAction = qf2 =>
-                        {
-                            // Determine if the last action targeted an enemy
-                            bool targetedEnemy = action.ChosenTargets?.ChosenCreature != null
-                                && action.ChosenTargets.ChosenCreature.OwningFaction != qf2.Owner.OwningFaction;
-
-                            if (targetedEnemy)
-                            {
-                                // TODO: implement alternative behavior for moving the targeted enemy
-                                // For now, fall back to a simple Step
-                            }
-                            var actionPossibility = new ActionPossibility(
-                                new CombatAction(
-                                    qf2.Owner,
-                                    IllustrationName.WaterWalk,
-                                    "Restless as the Tides: Surge",
-                                    new[] { ExemplarTraits.Epithet, ExemplarTraits.Transcendence },
-                                    "Step as a surging tide carries you. If your Transcendence affected an enemy, you may instead attempt to move that enemy 5 feet (basic Fortitude save) and, if that enemy was adjacent, step into its vacated space.",
-                                    Target.Self()
-                                ).WithActionCost(0).WithEffectOnSelf(async (act, caster) =>
+                                var originalTile = targets.ChosenCreature!.Occupies;
+                                if (targets.CheckResults[targets.ChosenCreature] <= CheckResult.Failure)
                                 {
-                                    await selfQf.Owner.StrideAsync("Choose where you want to Step.", allowStep: true, maximumFiveFeet: true);
-                                })
-
-                                );
-                            return actionPossibility;
-                        };
+                                    await targets.ChosenCreature.MoveTo(targets.ChosenTile!, CombatAction.CreateSimple(self, "Restless as the Tides"), new MovementStyle()
+                                    {
+                                        ForcedMovement = true,
+                                        MaximumSquares = 1
+                                    });
+                                    if (originalTile.DistanceTo(self) == 1 && await self.AskForConfirmation(IllustrationName.WarpStep, "Step into the targets previous location?", "Yes", "No"))
+                                    {
+                                        await self.MoveTo(originalTile, null, new MovementStyle()
+                                        {
+                                            MaximumSquares = 1,
+                                            PermitsStep = true
+                                        });
+                                    }
+                                }
+                            })
+                        );
                     }
-                };
-            });
+                    else
+                    {
+                        //Copied from the decompiled Step possibility in CreatePossibilities
+                        //TODO: maybe possible to get it from Possibilities?
+                        return new ActionPossibility(new CombatAction(exemplar, IllustrationName.None, "Step", new Trait[2]
+                        {
+                            Trait.Move,
+                            Trait.Basic
+                        }, "Move 5 feet. Unlike most types of movement, Stepping doesn't trigger reactions, such as Attacks of Opportunity, that can be triggered by move actions or upon leaving or entering a square. You can't Step into difficult terrain.", Target.Tile((Creature cr, Tile t) => t.LooksFreeTo(cr), (Creature cr, Tile t) => -2.1474836E+09f).WithPathfindingGuidelines((Creature cr) => new PathfindingDescription
+                        {
+                            Squares = 1
+                        })).WithActionId(ActionId.Step).WithActionCost(0).WithEffectOnChosenTargets(async delegate (CombatAction action, Creature caster, ChosenTargets targets)
+                        {
+                            await CommonStealthActions.Step(caster, action, targets.ChosenTile!);
+                        }));
+                    }
+                }
+        )
+        .WithPermanentQEffect(null, q =>
+        {
+            q.AfterYouTakeAction = async (selfQf, action) =>
+            {
+                var simpleAction = CombatAction.CreateSimple(selfQf.Owner,
+                                "Restless as the Tides",
+                                [Trait.Water]);
 
-            ModManager.AddFeat(tides);
-        }
+                if (action.HasTrait(Trait.Strike) && action.CheckResult == CheckResult.CriticalSuccess && action.ChosenTargets.ChosenCreature != null)
+                {
+                    foreach (var creature in selfQf.Owner.Battle.AllCreatures.Where(cr => cr.DistanceTo(action.ChosenTargets.ChosenCreature) <= 2 && cr.EnemyOf(selfQf.Owner)))
+                    {
+                        await CommonSpellEffects.DealDirectSplashDamage(simpleAction,
+                            DiceFormula.FromText($"{action.Item?.WeaponProperties?.DamageDieCount ?? 0}"),
+                            creature,
+                            DamageKind.Bludgeoning);
+                    }
+                }
+            };
+        });
     }
 }
