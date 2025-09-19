@@ -120,6 +120,7 @@ public static class ExemplarBaseClass
                 if (action.HasTrait(ExemplarTraits.Transcendence))
                 {
                     await EmpowerIkon(qf.Owner, qf);
+                    await EpithetActions(qf.Owner, action);
                 }
             };
 
@@ -196,18 +197,21 @@ public static class ExemplarBaseClass
         {
             Possibilities = epithetFeats.Select(generator => generator?.Possibility?.Invoke(exemplar, transcendence)).Where(possibility => possibility != null).ToList()!
         });
-        epithets.Sections.Add(new PossibilitySection("Pass")
+        if (epithets.ActionCount > 0)
         {
-            Possibilities = [new ActionPossibility(new CombatAction(exemplar, IllustrationName.EndTurn, "Pass", [
-                Trait.Basic,
-                Trait.UsableEvenWhenUnconsciousOrParalyzed,
-                Trait.DoesNotPreventDelay
-            ], "Do nothing.", Target.Self()).WithActionCost(0))]
-        });
-        typeof(Creature).InvokeMember("Possibilities", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.SetProperty | BindingFlags.Instance, null, exemplar, [epithets]);
-        var options = await exemplar.Battle.GameLoop.CreateActions(exemplar, exemplar.Possibilities, null);
-        exemplar.Battle.GameLoopCallback.AfterActiveCreaturePossibilitiesRegenerated();
-        await exemplar.Battle.GameLoop.OfferOptions(exemplar, options, true);
+            epithets.Sections.Add(new PossibilitySection("Pass")
+            {
+                Possibilities = [new ActionPossibility(new CombatAction(exemplar, IllustrationName.EndTurn, "Pass", [
+                    Trait.Basic,
+                    Trait.UsableEvenWhenUnconsciousOrParalyzed,
+                    Trait.DoesNotPreventDelay
+                ], "Do nothing.", Target.Self()).WithActionCost(0))]
+            });
+            typeof(Creature).InvokeMember("Possibilities", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.SetProperty | BindingFlags.Instance, null, exemplar, [epithets]);
+            var options = await exemplar.Battle.GameLoop.CreateActions(exemplar, exemplar.Possibilities, null);
+            exemplar.Battle.GameLoopCallback.AfterActiveCreaturePossibilitiesRegenerated();
+            await exemplar.Battle.GameLoop.OfferOptions(exemplar, options, true);
+        }
     }
 
     private static void EnsureCorrectRunes(CalculatedCharacterSheetValues sheet)

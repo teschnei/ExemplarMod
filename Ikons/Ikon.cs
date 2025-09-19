@@ -69,7 +69,7 @@ public class Ikon
         {
             Id = EmpoweredQEffectId,
             Key = IkonKey,
-            ProvideMainAction = q => CreateTranscendence(Transcendence, q, IkonFeat),
+            ProvideMainAction = q => CreateTranscendence(Transcendence, q, this),
             WhenExpires = q => q.Owner.RemoveAllQEffects(q => q.Id == ExemplarQEffects.IkonExpansion)
         };
         Immanence(q);
@@ -86,6 +86,7 @@ public class Ikon
             {
                 caster.RemoveAllQEffects(q => q.Key == IkonKey);
                 caster.AddQEffect(GetEmpoweredQEffect(exemplar));
+                caster.FindQEffect(ExemplarQEffects.ShiftImmanence)!.Tag = null;
             }
         );
     }
@@ -125,7 +126,7 @@ public class Ikon
         });
     }
 
-    public static Possibility? CreateTranscendence(Func<QEffect, Possibility?> transcendence, QEffect q, Feat ikonFeat)
+    public static Possibility? CreateTranscendence(Func<QEffect, Possibility?> transcendence, QEffect q, Ikon ikon)
     {
         var poss = transcendence.Invoke(q);
         if (poss is ActionPossibility action)
@@ -133,7 +134,7 @@ public class Ikon
             action.CombatAction.WithEffectOnChosenTargets(async (self, targets) =>
             {
                 q.ExpiresAt = ExpirationCondition.Immediately;
-                q.Owner.FindQEffect(ExemplarQEffects.ShiftImmanence)!.Tag = ikonFeat;
+                q.Owner.FindQEffect(ExemplarQEffects.ShiftImmanence)!.Tag = ikon.IkonFeat;
             });
         }
         else if (poss is SubmenuPossibility submenu)
@@ -147,7 +148,7 @@ public class Ikon
                         subpossAction.CombatAction.WithEffectOnChosenTargets(async (self, targets) =>
                         {
                             q.ExpiresAt = ExpirationCondition.Immediately;
-                            q.Owner.FindQEffect(ExemplarQEffects.ShiftImmanence)!.Tag = ikonFeat;
+                            q.Owner.FindQEffect(ExemplarQEffects.ShiftImmanence)!.Tag = ikon.IkonFeat;
                         });
                     }
                 }

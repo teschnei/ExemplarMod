@@ -56,7 +56,7 @@ public class SteelOnSteel
                                                             steelOnSteelAction(q, Target.Cone(3))]
                                         }
                                     ]
-                                }, q, feat)
+                                }, q, ikon)
                             : null;
                     };
 

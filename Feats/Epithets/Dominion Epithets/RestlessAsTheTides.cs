@@ -37,12 +37,12 @@ public class RestlessAsTheTides
                 return new GeneratedTargetInSequence(new CreatureTarget(RangeKind.Ranged, [
                     new EnemyCreatureTargetingRequirement(),
                     new LegacyCreatureTargetingRequirement((self, target) => Targets.Contains(target) ? Usability.Usable : Usability.NotUsableOnThisCreature("not Spark Transcendence target"))
-                ], (_, _, _) => float.MinValue));
+                ], (_, _, _) => float.MinValue), " (target to move)", "Don't move any targets");
             }
             else if (base.OwnerAction.ChosenTargets.ChosenTile == null)
             {
                 Creature target = base.OwnerAction.ChosenTargets.ChosenCreature;
-                return new GeneratedTargetInSequence(Target.Tile((self, tile) => tile.CanIStopMyMovementHere(target) && tile.DistanceTo(target) == 1))
+                return new GeneratedTargetInSequence(Target.Tile((self, tile) => tile.CanIStopMyMovementHere(target) && tile.DistanceTo(target) == 1), " (tile to move the target to)")
                 {
                     DisableConfirmNoMoreTargets = true
                 };
@@ -83,28 +83,29 @@ public class RestlessAsTheTides
                     if (!targets.Contains(exemplar))
                     {
                         return new ActionPossibility(new CombatAction(exemplar, IllustrationName.ElementalBlastWater, "Restless as the Tides", [],
-                                "You can move an enemy 5 feet in a direction of your choice unless it succeeds at a Fortitude save against your class DC. " +
+                                "You move an enemy 5 feet in a direction of your choice unless it succeeds at a Fortitude save against your class DC. " +
                                 "If you move an enemy who started out adjacent to you, you can Step into the space it vacated.",
                                 new RestlessAsTheTidesTarget(targets.ToList()))
                             .WithActionCost(0)
                             .WithSavingThrow(new SavingThrow(Defense.Fortitude, _ => exemplar.ClassDC()))
                             .WithEffectOnChosenTargets(async (action, self, targets) =>
                             {
-                                var originalTile = targets.ChosenCreature!.Occupies;
+                                if (targets.ChosenCreature == null || targets.ChosenTile == null)
+                                {
+                                    action.RevertRequested = true;
+                                    return;
+                                }
+                                var originalTile = targets.ChosenCreature.Occupies;
                                 if (targets.CheckResults[targets.ChosenCreature] <= CheckResult.Failure)
                                 {
-                                    await targets.ChosenCreature.MoveTo(targets.ChosenTile!, CombatAction.CreateSimple(self, "Restless as the Tides"), new MovementStyle()
+                                    await targets.ChosenCreature.MoveTo(targets.ChosenTile, CombatAction.CreateSimple(self, "Restless as the Tides"), new MovementStyle()
                                     {
                                         ForcedMovement = true,
                                         MaximumSquares = 1
                                     });
                                     if (originalTile.DistanceTo(self) == 1 && await self.AskForConfirmation(IllustrationName.WarpStep, "Step into the targets previous location?", "Yes", "No"))
                                     {
-                                        await self.MoveTo(originalTile, null, new MovementStyle()
-                                        {
-                                            MaximumSquares = 1,
-                                            PermitsStep = true
-                                        });
+                                        await CommonStealthActions.Step(self, CombatAction.CreateSimple(self, "Step"), originalTile);
                                     }
                                 }
                             })
@@ -114,7 +115,7 @@ public class RestlessAsTheTides
                     {
                         //Copied from the decompiled Step possibility in CreatePossibilities
                         //TODO: maybe possible to get it from Possibilities?
-                        return new ActionPossibility(new CombatAction(exemplar, IllustrationName.None, "Step", new Trait[2]
+                        return new ActionPossibility(new CombatAction(exemplar, IllustrationName.ElementalBlastWater, "Restless as the Tides (Step)", new Trait[2]
                         {
                             Trait.Move,
                             Trait.Basic
