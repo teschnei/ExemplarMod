@@ -27,6 +27,11 @@ public static class ExemplarQEffects
     //Level 6 Feats
     public static readonly QEffectId FlowOfWarUsed = ModManager.RegisterEnumMember<QEffectId>("FlowOfWarUsed");
 
+    //Level 8 Feats
+    public static readonly QEffectId BattleHymnToTheLostUsed = ModManager.RegisterEnumMember<QEffectId>("BattleHymnToTheLostUsed");
+    public static readonly QEffectId RaiseIslandUsed = ModManager.RegisterEnumMember<QEffectId>("RaiseIslandUsed");
+    public static readonly QEffectId RejoiceInSolsticeStormUsed = ModManager.RegisterEnumMember<QEffectId>("RejoiceInSolsticeStormUsed");
+
     //Epithets
     public static readonly QEffectId TheBraveUsedOnTarget = ModManager.RegisterEnumMember<QEffectId>("TheBraveUsedOnTarget");
     public static readonly QEffectId TheDeft = ModManager.RegisterEnumMember<QEffectId>("TheDeft");

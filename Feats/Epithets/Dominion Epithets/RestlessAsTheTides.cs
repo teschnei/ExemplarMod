@@ -96,10 +96,11 @@ public class RestlessAsTheTides
                                     return;
                                 }
                                 var originalTile = targets.ChosenCreature.Occupies;
-                                if (targets.CheckResults[targets.ChosenCreature] <= CheckResult.Failure)
+                                if (targets.CheckResults.TryGetValue(targets.ChosenCreature, out var checkResult) && checkResult <= CheckResult.Failure)
                                 {
                                     await targets.ChosenCreature.MoveTo(targets.ChosenTile, CombatAction.CreateSimple(self, "Restless as the Tides"), new MovementStyle()
                                     {
+                                        Shifting = true,
                                         ForcedMovement = true,
                                         MaximumSquares = 1
                                     });

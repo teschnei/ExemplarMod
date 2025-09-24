@@ -101,10 +101,12 @@ public class Starshot
             {
                 var starshot = Ikon.GetIkonItem(self, ikonRune);
                 var strike = StrikeRules.CreateStrike(self, starshot!, RangeKind.Ranged, 0);
-                foreach (var target in targets.AllCreaturesInArea)
+                foreach (var target in targets.GetAllTargetCreatures())
                 {
-                    var checkResult = targets.CheckResults[target];
-                    await CommonSpellEffects.DealDirectDamage(action, strike.TrueDamageFormula!, target, checkResult, Ikon.GetBestDamageKindForSpark(self, target));
+                    if (targets.CheckResults.TryGetValue(target, out var checkResult))
+                    {
+                        await CommonSpellEffects.DealDirectDamage(action, strike.TrueDamageFormula!, target, checkResult, Ikon.GetBestDamageKindForSpark(self, target));
+                    }
                 }
                 if (starshot!.HasTrait(Trait.Reload1) || starshot.HasTrait(Trait.Reload2))
                 {
