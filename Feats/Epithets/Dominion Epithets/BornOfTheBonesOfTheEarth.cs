@@ -7,7 +7,6 @@ using Dawnsbury.Core.Mechanics;
 using Dawnsbury.Core.Mechanics.Core;
 using Dawnsbury.Core.Mechanics.Enumerations;
 using Dawnsbury.Core.Mechanics.Targeting;
-using Dawnsbury.Core.Mechanics.Zoning;
 using Dawnsbury.Core.Possibilities;
 using Dawnsbury.Core.Tiles;
 using Dawnsbury.Mods.Classes.Exemplar.RegisteredComponents;
@@ -40,16 +39,19 @@ public class BornOfTheBonesOfTheEarth
             (exemplar, action) =>
             new ActionPossibility(new CombatAction(exemplar, IllustrationName.ElementalBlastEarth, "Born of the Bones of the Earth", [],
                     "You shatter the surface you are standing on in a 10-foot emanation, making it difficult terrain. You are not affected by this difficult terrain.",
-                    Target.Self())
+                    Target.Emanation(2))
                 .WithActionCost(0)
                 .WithEffectOnChosenTargets(async (action, self, targets) =>
                 {
-                    Zone zone = Zone.Spawn(self, ZoneAttachment.StableBurst(self.Battle.Map.AllTiles.Where(tile => tile.DistanceTo(self.Occupies) <= 2 && tile.IsSolidGround).ToList()));
-                    zone.TileEffectCreator = tile => new TileQEffect(tile)
+                    foreach (Tile tile in targets.ChosenTiles.Where((Tile tl) => !tl.AlwaysBlocksMovement))
                     {
-                        TileQEffectId = ExemplarTileQEffects.BornOfTheBonesOfTheEarthTerrain,
-                        TransformsTileIntoDifficultTerrain = true
-                    };
+                        tile.AddQEffect(new TileQEffect(tile)
+                        {
+                            Illustration = IllustrationName.Rock,
+                            TileQEffectId = ExemplarTileQEffects.BornOfTheBonesOfTheEarthTerrain,
+                            TransformsTileIntoDifficultTerrain = true
+                        });
+                    }
                 })
             )
         )
