@@ -49,9 +49,9 @@ public class HandsOfTheWildling
             ExemplarFeats.HandsOfTheWildling,
             "Tattooed fists, savage claws, or even powerful gauntlets—you swing each with the fury of an animal from the woods.",
             "{b}Usage{/b} a melee free-hand weapon or a melee unarmed Strike\n\n" +
-            "{b}Immanence{/b} Strikes with your {i}hands of the wildling{/i} deal an additional 1 spirit splash damage per weapon damage die. You are immune to this splash damage.\n\n" +
-            $"{{b}}Transcendence — Feral Swing {RulesBlock.GetIconTextFromNumberOfActions(2)}{{/b}} (spirit, transcendence)\n" +
-            "You lash out with both arms, rending all before you. Each creature in a 15-foot cone must succeed at a basic Reflex save against your class DC or take spirit damage equal to your normal Strike damage with your {i}hands of the wildling{/i}. " +
+            "{b}Immanence{/b} Strikes with your {i}hands of the wildling{/i} deal an additional 1 force splash damage per weapon damage die. You are immune to this splash damage.\n\n" +
+            $"{{b}}Transcendence — Feral Swing {RulesBlock.GetIconTextFromNumberOfActions(2)}{{/b}} (force, transcendence)\n" +
+            "You lash out with both arms, rending all before you. Each creature in a 15-foot cone must succeed at a basic Reflex save against your class DC or take force damage equal to your normal Strike damage with your {i}hands of the wildling{/i}. " +
             "You can choose to swing with abandon, which imposes a -2 circumstance penalty to enemies' saving throws, but causes you to become off-guard until the start of your next turn.",
             [ExemplarTraits.Ikon, ExemplarTraits.IkonWeapon],
             null
@@ -91,7 +91,7 @@ public class HandsOfTheWildling
                     ExemplarIllustrations.HandsOfTheWildling,
                     "Feral Swing" + (abandon ? " (with abandon)" : ""),
                     [ExemplarTraits.Transcendence],
-                    "You lash out with both arms, rending all before you. Each creature in a 15-foot cone must succeed at a basic Reflex save against your class DC or take spirit damage equal to your normal Strike damage with your {i}hands of the wildling{/i}." +
+                    "You lash out with both arms, rending all before you. Each creature in a 15-foot cone must succeed at a basic Reflex save against your class DC or take force damage equal to your normal Strike damage with your {i}hands of the wildling{/i}." +
                     (abandon ? " Swinging with abandon imposes a -2 circumstance bonus to enemies' saving throws, but causes you to become off-guard until the start of your next turn." : ""),
                     Target.Cone(3).WithAdditionalRequirementOnCaster(caster =>
                     {

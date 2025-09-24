@@ -52,8 +52,8 @@ public class ShadowSheath
             ExemplarFeats.ShadowSheath,
             "With an infinite array of darts, throwing knives, or similar weapons, you never need to worry about being unarmed.",
             "{b}Usage{/b} a one-handed thrown weapon of light Bulk or less\n\n" +
-            "{b}Immanence{/b} You can Interact to draw a weapon from the {i}shadow sheath{/i} as a free action. Your Strikes with a weapon produced from the {i}shadow sheath{/i} deal 2 additional spirit damage per weapon damage die, which increases to 3 per die if the target is off-guard.\n\n" +
-            $"{{b}}Transcendence — Liar's Hidden Blade {RulesBlock.GetIconTextFromNumberOfActions(1)}{{/b}} (spirit, transcendence)\n" +
+            "{b}Immanence{/b} You can Interact to draw a weapon from the {i}shadow sheath{/i} as a free action. Your Strikes with a weapon produced from the {i}shadow sheath{/i} deal 2 additional force damage per weapon damage die, which increases to 3 per die if the target is off-guard.\n\n" +
+            $"{{b}}Transcendence — Liar's Hidden Blade {RulesBlock.GetIconTextFromNumberOfActions(1)}{{/b}} (force, transcendence)\n" +
             "{b}Requirements{/b} Your previous action was an unsuccessful Strike with the weapon from the {i}shadow sheath{/i}; {b}Effect{/b} The shadow weapon you threw fades, the distraction covering " +
             "your true intention all along—a second strike hidden in the blind spot of the first! Interact to draw another weapon from the {i}shadow sheath{/i}, then Strike with it at the same multiple attack penalty as the unsuccessful attack. " +
             "The opponent is off-guard to this attack. This strike counts towards your multiple attack penalty as normal. After the Strike resolves, you can Interact to draw another weapon from the {i}shadow sheath{/i}.",

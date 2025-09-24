@@ -116,7 +116,11 @@ public class SkybearersBelt
                                     var result = await q.Owner.Battle.SendRequest(new AdvancedRequest(q.Owner, $"Select where to drop off {ally.Name}", pathWithAdjacentTiles.Select(tile => Option.ChooseTile($"Drop off {ally.Name} here.", tile, async () =>
                                     {
                                         moves.Add((ally, tile));
-                                    }, 0) as Option).ToList()));
+                                    }, 0) as Option).ToList())
+                                    {
+                                        TopBarText = $"Select where to drop off {ally.Name}",
+                                        TopBarIcon = action.Illustration
+                                    });
                                     await result.ChosenOption.Action();
                                 }
                             }

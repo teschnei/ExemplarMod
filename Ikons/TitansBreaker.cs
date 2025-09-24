@@ -49,13 +49,13 @@ public class TitansBreaker
             ExemplarFeats.TitansBreaker,
             "You wield a weapon whose blows shatter mountains with ease.",
             "{b}Usage{/b} any melee weapon in the club, hammer, or axe group, or any melee unarmed Strikes that deals bludgeoning damage\n\n" +
-            "{b}Immanence{/b} The {i}titan's breaker{/i} deals 2 additional spirit damage per weapon damage die to creatures it Strikes. " +
-            "Constructs and objects are not immune to this spirit damage, and this spirit damage bypasses hardness equal to your level.\n\n" +
-            $"{{b}}Transcendence — Fracture Mountains {RulesBlock.GetIconTextFromNumberOfActions(2)}{{/b}} (spirit, transcendence)\n" +
-            "Your spirit is so dense it takes on tangible force. Make a melee Strike with the {i}titan's breaker{/i}. This counts as two attacks " +
-            "when calculating your multiple attack penalty. If this Strike hits, your additional spirit damage from the ikon's immanence increases to 4 plus " +
-            "an extra die of weapon damage. If you're at least 10th level, it's increased to 6 spirit damage and two extra dice, and if you're at least 18th level " +
-            "it's increased to 8 spirit damage and three extra dice.",
+            "{b}Immanence{/b} The {i}titan's breaker{/i} deals 2 additional force damage per weapon damage die to creatures it Strikes. " +
+            /*"Constructs and objects are not immune to this force damage, and this*/ "This force damage bypasses hardness equal to your level.\n\n" +
+            $"{{b}}Transcendence — Fracture Mountains {RulesBlock.GetIconTextFromNumberOfActions(2)}{{/b}} (force, transcendence)\n" +
+            "Your force is so dense it takes on tangible force. Make a melee Strike with the {i}titan's breaker{/i}. This counts as two attacks " +
+            "when calculating your multiple attack penalty. If this Strike hits, your additional force damage from the ikon's immanence increases to 4 plus " +
+            "an extra die of weapon damage. If you're at least 10th level, it's increased to 6 force damage and two extra dice, and if you're at least 18th level " +
+            "it's increased to 8 force damage and three extra dice.",
             [ExemplarTraits.Ikon, ExemplarTraits.IkonWeapon],
             null
         ).WithIllustration(ExemplarIllustrations.TitansBreaker), q =>
@@ -117,10 +117,10 @@ public class TitansBreaker
                 ExemplarIllustrations.TitansBreaker,
                 "Fracture Mountains",
                 [ExemplarTraits.Transcendence],
-                "Your spirit is so dense it takes on tangible force. Make a melee Strike with the {i}titan's breaker{/i}. This counts as two attacks " +
-                "when calculating your multiple attack penalty. If this Strike hits, your additional spirit damage from the ikon's immanence increases to 4 plus " +
-                "an extra die of weapon damage. If you're at least 10th level, it's increased to 6 spirit damage and two extra dice, and if you're at least 18th level " +
-                "it's increased to 8 spirit damage and three extra dice.",
+                "Your force is so dense it takes on tangible force. Make a melee Strike with the {i}titan's breaker{/i}. This counts as two attacks " +
+                "when calculating your multiple attack penalty. If this Strike hits, your additional force damage from the ikon's immanence increases to 4 plus " +
+                "an extra die of weapon damage. If you're at least 10th level, it's increased to 6 force damage and two extra dice, and if you're at least 18th level " +
+                "it's increased to 8 force damage and three extra dice.",
                 Target.Reach(Ikon.GetIkonItem(q.Owner, ikonRune)!).WithAdditionalConditionOnTargetCreature(new IkonWieldedTargetingRequirement(ikonRune, "titan's breaker"))
             )
             .WithActionCost(2)

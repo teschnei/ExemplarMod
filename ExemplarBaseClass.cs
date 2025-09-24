@@ -56,7 +56,7 @@ public static class ExemplarBaseClass
             features.AddFeature(3, "Root Epithet", "Your epithet is born. You learn a Root Epithet feat of your choice.")
                 .AddFeature(5, "Weapon Expertise", "Your proficiency ranks for unarmed attacks, simple weapons, and martial weapons increase to expert.")
                 .AddFeature(7, "Dominion Epithet", "Your epithet grows. You learn a Dominion Epithet feat of your choice.")
-                .AddFeature(7, "Spirit Striking", "You deal 2 additional spirit damage with weapons and unarmed attacks in which you are an expert. This damage increases to 3 if you're a master, and 4 if you're legendary.")
+                .AddFeature(7, "Spirit Striking", "You deal 2 additional force damage with weapons and unarmed attacks in which you are an expert. This damage increases to 3 if you're a master, and 4 if you're legendary.")
                 .AddFeature(7, "Unassailable Soul", "Your proficiency rank for Will saves increases to master. When you roll a success at a Will save, you get a critical success instead.")
                 .AddFeature(9, WellKnownClassFeature.ExpertInReflex)
                 .AddFeature(9, WellKnownClassFeature.ExpertInClassDC)
@@ -95,14 +95,14 @@ public static class ExemplarBaseClass
         {
             if (cr.Level >= 7)
             {
-                cr.AddQEffect(new QEffect("Spirit Striking", "+2 spirit damage on expert weapons and unarmed attacks.")
+                cr.AddQEffect(new QEffect("Spirit Striking", "+2 force damage on expert weapons and unarmed attacks.")
                 {
                     AddExtraStrikeDamage = (action, defender) =>
                     {
                         var item = action.Item;
                         if (item != null && item.HasTrait(Trait.Simple) && (int)cr.GetProficiency(item) >= (int)Proficiency.Expert)
                         {
-                            return (DiceFormula.FromText("2", "Spirit Striking"), DamageKind.Untyped);
+                            return (DiceFormula.FromText("2", "Spirit Striking"), DamageKind.Force);
                         }
                         return null;
                     }

@@ -48,7 +48,7 @@ public class MortalHarvest
             ExemplarFeats.MortalHarvest,
             "This weapon, once used for felling trees or crops, now harvests lives instead.",
             "{b}Usage{/b} a sickle or any weapon from the axe, flail, or polearm group\n\n" +
-            "{b}Immanence{/b} The {i}mortal harvest{/i} deals 1 persistent spirit damage per weapon damage die to creatures it Strikes.\n\n" +
+            "{b}Immanence{/b} The {i}mortal harvest{/i} deals 1 persistent force damage per weapon damage die to creatures it Strikes.\n\n" +
             $"{{b}}Transcendence — Reap the Field {RulesBlock.GetIconTextFromNumberOfActions(1)}{{/b}} (transcendence)\n{{b}}Requirements{{/b}} Your previous action was a successful Strike with the mortal harvest.\n " +
             "{b}Effect{/b} Time seems to lag as you blur across the battlefield, deciding the fate of many in a moment. " +
             "Stride up to half your Speed and make another melee Strike with the {i}mortal harvest{/i} against a different creature. " +

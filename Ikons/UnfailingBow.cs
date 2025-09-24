@@ -47,7 +47,7 @@ public class UnfailingBow
             ExemplarFeats.UnfailingBow,
             "The shots fired by this weapon seem guided by divine accuracy, finding the swiftest targets.",
             "{b}Usage{/b} a ranged weapon\n\n" +
-            "{b}Immanence{/b} The {i}unfailing bow{/i} deals an additional 1 spirit damage per weapon damage die to creatures it Strikes, or 1d4 additional spirit damage per weapon die on a critical hit.\n\n" +
+            "{b}Immanence{/b} The {i}unfailing bow{/i} deals an additional 1 force damage per weapon damage die to creatures it Strikes, or 1d4 additional force damage per weapon die on a critical hit.\n\n" +
             $"{{b}}Transcendence — Arrow Splits Arrow {RulesBlock.GetIconTextFromNumberOfActions(2)}{{/b}} (transcendence)\n{{b}}Requirements{{/b}} Your previous action was to Strike with the {{i}}unfailing bow{{/i}}.\n" +
             "{b}Effect{/b} You repeat your motions exactly, your attack landing in the same location as your previous shot. You make a Strike against the same target. The result of your d20 roll is the same as the result of the required shot, " +
             "though any penalties (such as your multiple attack penalty) apply normally to this shot and you don't automatically adjust the degree of success if the initial roll was a natural 1 or 20.",
