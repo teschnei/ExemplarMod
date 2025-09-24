@@ -90,70 +90,7 @@ public static class ExemplarBaseClass
                 EnsureCorrectRunes(sheet);
             };
         })
-        .WithPermanentQEffect(null, q =>
-        {
-            q.Id = ExemplarQEffects.ShiftImmanence;
-            q.ProvideMainAction = qf =>
-            {
-                var ikons = (qf.Owner.PersistentCharacterSheet?.Calculated?.AllFeats ?? Enumerable.Empty<Feat>())
-                    .Where(f => f.HasTrait(ExemplarTraits.Ikon) && f != qf.Tag).Select(f => new ActionPossibility(Ikon.IkonLUT[f.FeatName].ShiftImmanence(qf.Owner)) as Possibility);
-
-                return new SubmenuPossibility(IllustrationName.SpiritualWeapon, "Shift Immanence")
-                {
-                    Subsections =
-                    [
-                        new PossibilitySection("Select Ikon to Empower")
-                        {
-                            Possibilities = ikons.ToList()
-                        }
-                    ]
-                };
-            };
-
-            q.StartOfCombat = async qf =>
-            {
-                await EmpowerIkon(qf.Owner, qf);
-            };
-
-            q.AfterYouTakeAction = async (qf, action) =>
-            {
-                if (action.HasTrait(ExemplarTraits.Transcendence))
-                {
-                    await EmpowerIkon(qf.Owner, qf);
-                    await EpithetActions(qf.Owner, action);
-                }
-            };
-
-            async Task EmpowerIkon(Creature exemplar, QEffect shiftImmanence)
-            {
-                var shifts = Possibilities.Create(exemplar).Filter(ap => false);
-                shifts.Sections.Add(new PossibilitySection("Shift Immanence")
-                {
-                    Possibilities = (exemplar.PersistentCharacterSheet?.Calculated?.AllFeats ?? Enumerable.Empty<Feat>())
-                        .Where(f => f.HasTrait(ExemplarTraits.Ikon) && f != shiftImmanence.Tag).Select(f =>
-                        {
-                            var ap = new ActionPossibility(Ikon.IkonLUT[f.FeatName].ShiftImmanence(exemplar).WithActionCost(0));
-                            ap.RecalculateUsability();
-                            return ap as Possibility;
-                        }).ToList()
-                });
-                shifts.Sections.Add(new PossibilitySection("Pass")
-                {
-                    Possibilities = [new ActionPossibility(new CombatAction(exemplar, IllustrationName.EndTurn, "Pass", [
-                        Trait.Basic,
-                        Trait.UsableEvenWhenUnconsciousOrParalyzed,
-                        Trait.DoesNotPreventDelay
-                    ], "Do nothing.", Target.Self()).WithActionCost(0))]
-                });
-                var active = exemplar.Battle.ActiveCreature;
-                exemplar.Battle.ActiveCreature = exemplar;
-                typeof(Creature).InvokeMember("Possibilities", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.SetProperty | BindingFlags.Instance, null, exemplar, [shifts]);
-                var options = await exemplar.Battle.GameLoop.CreateActions(exemplar, exemplar.Possibilities, null);
-                exemplar.Battle.GameLoopCallback.AfterActiveCreaturePossibilitiesRegenerated();
-                await exemplar.Battle.GameLoop.OfferOptions(exemplar, options, true);
-                exemplar.Battle.ActiveCreature = active;
-            }
-        })
+        .WithPermanentQEffect(null, q => ShiftImmanenceQEffect(q))
         .WithOnCreature((sheet, cr) =>
         {
             if (cr.Level >= 7)
@@ -189,6 +126,78 @@ public static class ExemplarBaseClass
         };
     }
 
+    public static void ShiftImmanenceQEffect(QEffect q)
+    {
+        q.Id = ExemplarQEffects.ShiftImmanence;
+        q.ProvideMainAction = qf =>
+        {
+            var ikons = (qf.Owner.PersistentCharacterSheet?.Calculated?.AllFeats ?? Enumerable.Empty<Feat>())
+                .Where(f => f.HasTrait(ExemplarTraits.Ikon) && !qf.Owner.HasEffect(Ikon.IkonLUT[f.FeatName].EmpoweredQEffectId))
+                .Select(f => new ActionPossibility(Ikon.IkonLUT[f.FeatName].ShiftImmanence(qf.Owner)) as Possibility);
+            if (ikons.Count() > 0)
+            {
+                return new SubmenuPossibility(IllustrationName.SpiritualWeapon, "Shift Immanence")
+                {
+                    Subsections =
+                    [
+                        new PossibilitySection("Select Ikon to Empower")
+                        {
+                            Possibilities = ikons.ToList()
+                        }
+                    ]
+                };
+            }
+            return null;
+        };
+
+        q.StartOfCombat = async qf =>
+        {
+            await EmpowerIkon(qf.Owner, qf);
+        };
+
+        q.AfterYouTakeAction = async (qf, action) =>
+        {
+            if (action.HasTrait(ExemplarTraits.Transcendence))
+            {
+                await EmpowerIkon(qf.Owner, qf);
+                await EpithetActions(qf.Owner, action);
+            }
+        };
+
+        async Task EmpowerIkon(Creature exemplar, QEffect shiftImmanence)
+        {
+            var shifts = Possibilities.Create(exemplar).Filter(ap => false);
+            shifts.Sections.Add(new PossibilitySection("Shift Immanence")
+            {
+                Possibilities = (exemplar.PersistentCharacterSheet?.Calculated?.AllFeats ?? Enumerable.Empty<Feat>())
+                    .Where(f => f.HasTrait(ExemplarTraits.Ikon) && f != shiftImmanence.Tag).Select(f =>
+                    {
+                        var ap = new ActionPossibility(Ikon.IkonLUT[f.FeatName].ShiftImmanence(exemplar).WithActionCost(0));
+                        ap.RecalculateUsability();
+                        return ap as Possibility;
+                    }).ToList()
+            });
+            if (shifts.ActionCount > 0)
+            {
+                shifts.Sections.Add(new PossibilitySection("Pass")
+                {
+                    Possibilities = [new ActionPossibility(new CombatAction(exemplar, IllustrationName.EndTurn, "Pass", [
+                        Trait.Basic,
+                        Trait.UsableEvenWhenUnconsciousOrParalyzed,
+                        Trait.DoesNotPreventDelay
+                    ], "Do nothing.", Target.Self()).WithActionCost(0))]
+                });
+                var active = exemplar.Battle.ActiveCreature;
+                exemplar.Battle.ActiveCreature = exemplar;
+                typeof(Creature).InvokeMember("Possibilities", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.SetProperty | BindingFlags.Instance, null, exemplar, [shifts]);
+                var options = await exemplar.Battle.GameLoop.CreateActions(exemplar, exemplar.Possibilities, null);
+                exemplar.Battle.GameLoopCallback.AfterActiveCreaturePossibilitiesRegenerated();
+                await exemplar.Battle.GameLoop.OfferOptions(exemplar, options, true);
+                exemplar.Battle.ActiveCreature = active;
+            }
+        }
+    }
+
     private static async Task EpithetActions(Creature exemplar, CombatAction transcendence)
     {
         var epithetFeats = (exemplar.PersistentCharacterSheet?.Calculated.AllFeats ?? Enumerable.Empty<Feat>()).Where(feat => feat is Epithet).Cast<Epithet>().Select(epithet => epithet.TranscendAction);
@@ -214,7 +223,7 @@ public static class ExemplarBaseClass
         }
     }
 
-    private static void EnsureCorrectRunes(CalculatedCharacterSheetValues sheet)
+    public static void EnsureCorrectRunes(CalculatedCharacterSheetValues sheet)
     {
         var allFeats = Ikon.IkonLUT.Values.Where(kvp => kvp.Rune != null);
         List<Inventory> inventories = [sheet.Sheet.CampaignInventory, .. sheet.Sheet.InventoriesByLevel.Values];
