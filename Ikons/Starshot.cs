@@ -27,8 +27,8 @@ public class Starshot
         ItemName ikonRune = ModManager.RegisterNewItemIntoTheShop("Starshot", itemName =>
         {
             return new Item(itemName, IllustrationName.FearsomeRunestone, "Starshot", 1, 0, Trait.DoNotAddToShop, ExemplarTraits.IkonRanged)
-            .WithRuneProperties(new RuneProperties("Ikon", IkonRuneKind.Ikon, "You might be the only one capable of stringing this bow or pulling this trigger; either way, the ikon's shots are packed with explosive power, striking like falling stars.",
-            "", item =>
+            .WithRuneProperties(new RuneProperties("ikon", IkonRuneKind.Ikon, "You might be the only one capable of stringing this bow or pulling this trigger; either way, the ikon's shots are packed with explosive power, striking like falling stars.",
+            "This item grants the {i}immanence{/i} and {i}transcendence{/i} abilities of the Starshot when empowered.", item =>
             {
                 item.Traits.AddRange([ExemplarTraits.Ikon, Trait.Divine]);
             })

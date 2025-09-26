@@ -36,7 +36,7 @@ public static class ExemplarTraits
     public static readonly Trait IkonTwinStars = ModManager.RegisterTrait("Ikon16", new TraitProperties("Ikon", true, "Drag onto any one-handed melee weapon ikon."));
     //Feats that add effects to Ikons
     public static readonly Trait IkonExpansion = ModManager.RegisterTrait("IkonExpansion", new TraitProperties("Ikon", true));
-    public static readonly Trait Transcendence = ModManager.RegisterTrait("Transcendence", new TraitProperties("Transcendence", false));
+    public static readonly Trait Transcendence = ModManager.RegisterTrait("Transcendence", new TraitProperties("Transcendence", true));
     public static readonly Trait HurlAtTheHorizon = ModManager.RegisterTrait("HurlAtTheHorizon", new TraitProperties("Hurl At The Horizon", false));
     public static readonly Trait Epithet = ModManager.RegisterTrait("Epithet", new TraitProperties("Epithet", false));
     public static readonly Trait RootEpithet = ModManager.RegisterTrait("RootEpithet", new TraitProperties("Root Epithet", false));

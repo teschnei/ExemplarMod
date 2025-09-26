@@ -2,12 +2,17 @@ using System.Collections.Generic;
 using System.Linq;
 using Dawnsbury.Core;
 using Dawnsbury.Core.CharacterBuilder.Feats;
-using Dawnsbury.Core.CharacterBuilder.FeatsDb.Common;
 using Dawnsbury.Core.CombatActions;
+using Dawnsbury.Core.Coroutines;
+using Dawnsbury.Core.Coroutines.Options;
+using Dawnsbury.Core.Coroutines.Requests;
+using Dawnsbury.Core.Creatures;
 using Dawnsbury.Core.Mechanics;
 using Dawnsbury.Core.Mechanics.Core;
 using Dawnsbury.Core.Mechanics.Enumerations;
 using Dawnsbury.Core.Mechanics.Targeting;
+using Dawnsbury.Core.Mechanics.Targeting.TargetingRequirements;
+using Dawnsbury.Core.Mechanics.Targeting.Targets;
 using Dawnsbury.Core.Mechanics.Treasure;
 using Dawnsbury.Core.Possibilities;
 using Dawnsbury.Display;
@@ -25,8 +30,8 @@ public class MortalHarvest
         ItemName ikonRune = ModManager.RegisterNewItemIntoTheShop("MortalHarvest", itemName =>
         {
             return new Item(itemName, IllustrationName.FearsomeRunestone, "Mortal Harvest", 1, 0, Trait.DoNotAddToShop, ExemplarTraits.IkonSickleAxeFlailPolearm)
-            .WithRuneProperties(new RuneProperties("Ikon", IkonRuneKind.Ikon, "This weapon, once used for felling trees or crops, now harvests lives instead.",
-            "", item =>
+            .WithRuneProperties(new RuneProperties("ikon", IkonRuneKind.Ikon, "This weapon, once used for felling trees or crops, now harvests lives instead.",
+            "This item grants the {i}immanence{/i} and {i}transcendence{/i} abilities of the Mortal Harvest when empowered.", item =>
             {
                 item.Traits.AddRange([ExemplarTraits.Ikon, Trait.Divine]);
             })
@@ -94,23 +99,33 @@ public class MortalHarvest
             .WithActionCost(1)
             .WithEffectOnSelf(async (act, self) =>
             {
-                var prev = self.Actions.ActionHistoryThisEncounter.LastOrDefault();
-                var pen = 5;
-                if (prev?.HasTrait(Trait.Agile) ?? false)
-                {
-                    pen = 4;
-                }
-
                 // Stride up to half Speed
-                await self.StrideAsync("Choose where to stride (half Speed).", allowPass: false, maximumHalfSpeed: true);
+                await self.StrideAsync("Choose where to stride (half Speed).", allowPass: true, allowCancel: true, maximumHalfSpeed: true);
 
-                //Cleanup: currently this is to offset the MAP penalty.
-                q.BonusToAttackRolls = (eff, act, defender) =>
-                    q.Owner == self ? new Bonus(pen, BonusType.Untyped, "") : null;
-
-                //TODO: only allow striking with the Mortal Harvest itself
-                await CommonCombatActions.StrikeAdjacentCreature(self, null);
-                q.BonusToAttackRolls = null;
+                var harvest = Ikon.GetIkonItem(q.Owner, ikonRune);
+                List<Option> list = new List<Option>();
+                CombatAction combatAction = self.CreateStrike(harvest!, self.Actions.AttackedThisManyTimesThisTurn - 1);
+                combatAction.WithActionCost(0);
+                ((CreatureTarget)combatAction.Target).CreatureTargetingRequirements.Add(
+                    new LegacyCreatureTargetingRequirement((Creature a, Creature d) =>
+                        (d == self.Actions.ActionHistoryThisEncounter.LastOrDefault()!.ChosenTargets.ChosenCreature) ? Usability.NotUsableOnThisCreature("excluded") : Usability.Usable
+                    )
+                );
+                GameLoop.AddDirectUsageOnCreatureOptions(combatAction, list);
+                list.Add(new PassViaButtonOption("Don't Strike."));
+                if (list.Count > 0)
+                {
+                    if (list.Count == 1)
+                    {
+                        await list[0].Action();
+                    }
+                    RequestResult result = await self.Battle.SendRequest(new AdvancedRequest(self, "Choose a creature to Strike.", list)
+                    {
+                        TopBarText = "Choose a creature to Strike.",
+                        TopBarIcon = act.Illustration
+                    });
+                    await result.ChosenOption.Action();
+                }
             }));
         })
         .WithRune(ikonRune)

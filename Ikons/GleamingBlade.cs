@@ -26,8 +26,8 @@ public class GleamingBlade
         ItemName ikonRune = ModManager.RegisterNewItemIntoTheShop("GleamingBlade", itemName =>
         {
             return new Item(itemName, IllustrationName.FearsomeRunestone, "Gleaming Blade", 1, 0, Trait.DoNotAddToShop, ExemplarTraits.IkonSwordKnife)
-            .WithRuneProperties(new RuneProperties("Ikon", IkonRuneKind.Ikon, "This blade glitters with such sharpness it seems to cut the very air in front of it.",
-            "", item =>
+            .WithRuneProperties(new RuneProperties("ikon", IkonRuneKind.Ikon, "This blade glitters with such sharpness it seems to cut the very air in front of it.",
+            "This item grants the {i}immanence{/i} and {i}transcendence{/i} abilities of the Gleaming Blade when empowered.", item =>
             {
                 item.Traits.AddRange([ExemplarTraits.Ikon, Trait.Divine]);
             })

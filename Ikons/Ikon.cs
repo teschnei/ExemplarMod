@@ -118,7 +118,7 @@ public class Ikon
     {
         return IkonLUT.Values.Where(predicate).Select(ikon =>
         {
-            var feat = new Feat(ModManager.RegisterFeatName(ikon.IkonFeat.FeatName.ToStringOrTechnical() + technicalName, ikon.IkonFeat.Name), flavorText, rulesText, traits, null)
+            var feat = new Feat(ModManager.RegisterFeatName(ikon.IkonFeat.FeatName.ToStringOrTechnical() + technicalName, ikon.IkonFeat.Name), flavorText, rulesText, [.. traits, ExemplarTraits.IkonExpansion], null)
                 .WithPrerequisite(sheet => sheet.HasFeat(ikon.IkonFeat), $"You must have the {ikon.IkonFeat.Name} ikon.")
                 .WithIllustration(ikon.IkonFeat.Illustration);
             modifyFeat(ikon, feat);
@@ -155,6 +155,30 @@ public class Ikon
             }
         }
         return poss?.WithPossibilityGroup("Transcendence");
+    }
+
+    public static string GetImmanenceText(string rulesText)
+    {
+        string imm = "{b}Immanence{/b} ";
+        var startIndex = rulesText.IndexOf(imm) + imm.Count();
+        if (startIndex >= imm.Count())
+        {
+            var endIndex = rulesText.IndexOf("\n\n", startIndex);
+            return endIndex < 0 ? rulesText.Substring(startIndex) : rulesText.Substring(startIndex, endIndex - startIndex);
+        }
+        return "";
+    }
+
+    public static string GetTranscendenceText(string rulesText)
+    {
+        string imm = "Transcendence — ";
+        var startIndex = rulesText.IndexOf(imm) + imm.Count();
+        if (startIndex >= imm.Count())
+        {
+            var endIndex = rulesText.IndexOf("\n\n", startIndex);
+            return "{b}" + (endIndex < 0 ? rulesText.Substring(startIndex) : rulesText.Substring(startIndex, endIndex - startIndex));
+        }
+        return "";
     }
 }
 

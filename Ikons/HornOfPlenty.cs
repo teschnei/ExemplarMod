@@ -43,7 +43,7 @@ public class HornOfPlenty
             $"{{b}}Transcendence — Feed the Masses {RulesBlock.GetIconTextFromNumberOfActions(1)}{{/b}} (transcendence)\n" +
             "The {i}horn of plenty{/i} allows you to transfer the effects of potions and elixirs to your allies. " +
             "You Interact to draw a consumable from the horn and then Interact to drink it. Rather than nourishing yourself, the item's effects are transferred to a willing ally within 60 feet, as if " +
-            "they had consumed it themself.  If the consumable restores Hit Points, you can choose to divide the amount it restores between you and the ally freely (after rolling dice to determine the amount).",
+            "they had consumed it themself. ", // If the consumable restores Hit Points, you can choose to divide the amount it restores between you and the ally freely (after rolling dice to determine the amount).",
             [ExemplarTraits.Ikon, ExemplarTraits.IkonWorn],
             null
         ).WithIllustration(ExemplarIllustrations.HornOfPlenty)
@@ -72,7 +72,7 @@ public class HornOfPlenty
                 var hornActions = qe.Owner.CarriedItems.FirstOrDefault(i => i.BaseItemName == hornOfPlenty)?.StoredItems.Select(item =>
                 {
                     return new ActionPossibility(new CombatAction(qe.Owner, item.Illustration, item.Name, [Trait.Manipulate, Trait.Basic],
-                    $"You Interact to draw the {item.Name} and drink it.", Target.Self())
+                    $"You Interact to draw the {item.Name} and drink it.\n\n{item.GetItemDescriptionWithoutUsability()}", Target.Self())
                     .WithEffectOnChosenTargets(async (action, self, targets) =>
                     {
                         //TODO: swap hands, etc... so tedious
@@ -90,7 +90,7 @@ public class HornOfPlenty
                 {
                     Subsections =
                     [
-                        new PossibilitySection("HornOfPlenty")
+                        new PossibilitySection("Horn Of Plenty")
                         {
                             Possibilities = hornActions?.ToList() ?? []
                         }
@@ -103,7 +103,7 @@ public class HornOfPlenty
             var hornActions = q.Owner.CarriedItems.FirstOrDefault(i => i.BaseItemName == hornOfPlenty)?.StoredItems.Select(item =>
             {
                 return new ActionPossibility(new CombatAction(q.Owner, item.Illustration, item.Name, [Trait.Manipulate, ExemplarTraits.Transcendence],
-                $"(something)", Target.RangedFriend(8))
+                $"You Interact to draw the {item.Name} and drink it. Rather than nourishing yourself, the item's effects are transferred to a willing ally within 60 feet, as if they had consumed it themself.\n\n{item.GetItemDescriptionWithoutUsability()}", Target.RangedFriend(8))
                 .WithActionCost(1)
                 .WithEffectOnChosenTargets(async (action, self, targets) =>
                 {
@@ -123,7 +123,7 @@ public class HornOfPlenty
             {
                 Subsections =
                 [
-                    new PossibilitySection("HornOfPlenty")
+                    new PossibilitySection("Horn Of Plenty")
                     {
                         Possibilities = hornActions?.ToList() ?? []
                     }

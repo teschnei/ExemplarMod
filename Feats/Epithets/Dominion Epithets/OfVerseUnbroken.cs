@@ -1,11 +1,9 @@
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using Dawnsbury.Core;
 using Dawnsbury.Core.CharacterBuilder.Feats;
 using Dawnsbury.Core.CharacterBuilder.FeatsDb.Common;
 using Dawnsbury.Core.CombatActions;
-using Dawnsbury.Core.Creatures;
 using Dawnsbury.Core.Mechanics;
 using Dawnsbury.Core.Mechanics.Core;
 using Dawnsbury.Core.Mechanics.Enumerations;
@@ -66,7 +64,7 @@ public class OfVerseUnbroken
                                     Trait.DoesNotPreventDelay
                                 ], "Do nothing.", Target.Self()).WithActionCost(0).WithEffectOnChosenTargets(async (_, _, _) => used = false))]
                             });
-                            typeof(Creature).InvokeMember("Possibilities", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.SetProperty | BindingFlags.Instance, null, cr, [actions]);
+                            cr.Possibilities = actions;
                             var options = await cr.Battle.GameLoop.CreateActions(cr, cr.Possibilities, null);
                             cr.Battle.GameLoopCallback.AfterActiveCreaturePossibilitiesRegenerated();
                             await cr.Battle.GameLoop.OfferOptions(cr, options, true);

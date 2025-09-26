@@ -23,8 +23,8 @@ public class FetchingBangles
         ItemName ikonRune = ModManager.RegisterNewItemIntoTheShop("FetchingBangles", itemName =>
         {
             return new Item(itemName, IllustrationName.FearsomeRunestone, "Fetching Bangles", 1, 0, Trait.DoNotAddToShop, ExemplarTraits.IkonBracers)
-            .WithRuneProperties(new RuneProperties("Ikon", IkonRuneKind.Ikon, "These lovely armbands sparkle and gleam, reflecting your own incredible magnetism.",
-            "", item =>
+            .WithRuneProperties(new RuneProperties("ikon", IkonRuneKind.Ikon, "These lovely armbands sparkle and gleam, reflecting your own incredible magnetism.",
+            "This item grants the {i}immanence{/i} and {i}transcendence{/i} abilities of the Fetching Bangles when empowered.", item =>
             {
                 item.Traits.AddRange([ExemplarTraits.Ikon, Trait.Divine]);
             })
@@ -55,16 +55,19 @@ public class FetchingBangles
             null
         ).WithIllustration(ExemplarIllustrations.FetchingBangles), q =>
         {
-            q.WhenProvoked = async (q, action) =>
+            q.AddGrantingOfTechnical(cr => cr.EnemyOf(q.Owner) && cr.DistanceTo(q.Owner) <= 2, tq =>
             {
-                if (action.Owner.EnemyOf(q.Owner) && action.HasTrait(Trait.Move) && action.ChosenTargets.ChosenTile?.DistanceTo(q.Owner) > action.Owner.DistanceTo(q.Owner) && action.Owner.DistanceTo(q.Owner) <= 2)
+                tq.YouBeginAction = async (qe, action) =>
                 {
-                    if (CommonSpellEffects.RollSavingThrow(action.Owner, CombatAction.CreateSimple(q.Owner, "Fetching Bangles"), Defense.Will, q.Owner.ClassDC()) < CheckResult.Success)
+                    if (action.HasTrait(Trait.Move) && action.ChosenTargets.ChosenTile?.DistanceTo(q.Owner) > qe.Owner.DistanceTo(q.Owner))
                     {
-                        action.Disrupted = true;
+                        if (CommonSpellEffects.RollSavingThrow(action.Owner, CombatAction.CreateSimple(q.Owner, "Fetching Bangles"), Defense.Will, q.Owner.ClassDC()) < CheckResult.Success)
+                        {
+                            action.Disrupted = true;
+                        }
                     }
-                }
-            };
+                };
+            });
         }, q =>
         {
             return new ActionPossibility(new CombatAction(

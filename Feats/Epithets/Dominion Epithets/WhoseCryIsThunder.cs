@@ -39,7 +39,7 @@ public class WhoseCryIsThunder
         )
         .WithTranscendPossibility("When you Spark Transcendence, you become electrically charged until the start of your next turn. " +
                 "Enemies that damage you with an unarmed attack or non-reach melee weapon while you're charged take 1d6 electricity damage as lightning courses back to them.", (exemplar, action) =>
-                new ActionPossibility(new CombatAction(exemplar, IllustrationName.ResistEnergy, "Whose Cry is Thunder", [],
+                new ActionPossibility(new CombatAction(exemplar, IllustrationName.ElectricArc, "Whose Cry is Thunder", [],
                         "You become electrically charged until the start of your next turn. " +
                         "Enemies that damage you with an unarmed attack or non-reach melee weapon while you're charged take 1d6 electricity damage as lightning courses back to them.",
                         Target.Self())
@@ -78,27 +78,6 @@ public class WhoseCryIsThunder
                         action.ChosenTargets.ChosenCreature.AddQEffect(QEffect.Prone());
                         action.ChosenTargets.ChosenCreature.AddQEffect(QEffect.Deafened());
                     }
-                }
-                else if (action.HasTrait(ExemplarTraits.Transcendence))
-                {
-                    selfQf.Owner.AddQEffect(new QEffect(
-                        "Electrified",
-                        "You are electrically charged until the start of your next turn. Enemies that damage you with an unarmed or non-reach melee attack take 1d6 electricity damage.",
-                        ExpirationCondition.ExpiresAtStartOfYourTurn,
-                        selfQf.Owner,
-                        IllustrationName.ElectricArc)
-                    {
-                        AfterYouTakeDamage = async (effect, amount, kind, action, critical) =>
-                        {
-                            // Apply electricity damage to the attacker
-                            var attacker = action?.Owner;
-                            if (attacker != null && attacker.DistanceTo(effect.Owner) <= 1)
-                            {
-                                var damageFormula = DiceFormula.FromText("1d6", "Electricity Damage");
-                                await CommonSpellEffects.DealDirectDamage(CombatAction.CreateSimple(effect.Owner, "Whose Cry is Thunder"), damageFormula, attacker, CheckResult.Failure, DamageKind.Electricity);
-                            }
-                        }
-                    });
                 }
             };
         });

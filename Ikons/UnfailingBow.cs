@@ -25,8 +25,8 @@ public class UnfailingBow
         ItemName ikonRune = ModManager.RegisterNewItemIntoTheShop("UnfailingBow", itemName =>
         {
             return new Item(itemName, IllustrationName.FearsomeRunestone, "Unfailing Bow", 1, 0, Trait.DoNotAddToShop, ExemplarTraits.IkonRanged)
-            .WithRuneProperties(new RuneProperties("Ikon", IkonRuneKind.Ikon, "The shots fired by this weapon seem guided by divine accuracy, finding the swiftest targets.",
-            "", item =>
+            .WithRuneProperties(new RuneProperties("ikon", IkonRuneKind.Ikon, "The shots fired by this weapon seem guided by divine accuracy, finding the swiftest targets.",
+            "This item grants the {i}immanence{/i} and {i}transcendence{/i} abilities of the Unfailing Bow when empowered.", item =>
             {
                 item.Traits.AddRange([ExemplarTraits.Ikon, Trait.Divine]);
             })

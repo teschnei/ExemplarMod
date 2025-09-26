@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
 using Dawnsbury.Core;
 using Dawnsbury.Core.CharacterBuilder;
@@ -102,7 +101,7 @@ public static class ExemplarBaseClass
                         var item = action.Item;
                         if (item != null && item.HasTrait(Trait.Simple) && (int)cr.GetProficiency(item) >= (int)Proficiency.Expert)
                         {
-                            return (DiceFormula.FromText("2", "Spirit Striking"), DamageKind.Force);
+                            return (DiceFormula.FromText("2", "Spirit Striking"), Ikon.GetBestDamageKindForSpark(action.Owner, defender));
                         }
                         return null;
                     }
@@ -189,7 +188,7 @@ public static class ExemplarBaseClass
                 });
                 var active = exemplar.Battle.ActiveCreature;
                 exemplar.Battle.ActiveCreature = exemplar;
-                typeof(Creature).InvokeMember("Possibilities", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.SetProperty | BindingFlags.Instance, null, exemplar, [shifts]);
+                exemplar.Possibilities = shifts;
                 var options = await exemplar.Battle.GameLoop.CreateActions(exemplar, exemplar.Possibilities, null);
                 exemplar.Battle.GameLoopCallback.AfterActiveCreaturePossibilitiesRegenerated();
                 await exemplar.Battle.GameLoop.OfferOptions(exemplar, options, true);
@@ -216,7 +215,7 @@ public static class ExemplarBaseClass
                     Trait.DoesNotPreventDelay
                 ], "Do nothing.", Target.Self()).WithActionCost(0))]
             });
-            typeof(Creature).InvokeMember("Possibilities", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.SetProperty | BindingFlags.Instance, null, exemplar, [epithets]);
+            exemplar.Possibilities = epithets;
             var options = await exemplar.Battle.GameLoop.CreateActions(exemplar, exemplar.Possibilities, null);
             exemplar.Battle.GameLoopCallback.AfterActiveCreaturePossibilitiesRegenerated();
             await exemplar.Battle.GameLoop.OfferOptions(exemplar, options, true);
@@ -226,8 +225,9 @@ public static class ExemplarBaseClass
     public static void EnsureCorrectRunes(CalculatedCharacterSheetValues sheet)
     {
         var allFeats = Ikon.IkonLUT.Values.Where(kvp => kvp.Rune != null);
-        List<Inventory> inventories = [sheet.Sheet.CampaignInventory, .. sheet.Sheet.InventoriesByLevel.Values];
-        foreach (var inventory in inventories)
+        var inventories = new Dictionary<int, Inventory>(sheet.Sheet.InventoriesByLevel);
+        inventories.Add(0, sheet.Sheet.CampaignInventory);
+        foreach (var (inventoryLevel, inventory) in inventories)
         {
             var toAdd = new List<Item>();
             var toRemove = new List<Item>();
@@ -238,8 +238,9 @@ public static class ExemplarBaseClass
                 List<Item> items = [.. allItems.Where(item => item != null && item.ItemName == ikonRune),
                                     .. allItems.Where(item => item != null && item.Runes.Any(rune => rune.ItemName == ikonRune))
                                                .Select(item => item?.Runes.Where(rune => rune.ItemName == ikonRune).FirstOrDefault())];
-                var amount = sheet.AllFeats.Contains(ikon.IkonFeat) ? 1 : 0;
-                if (items.Count() < amount)
+                var featGrant = sheet.AllFeatGrants.Where(fg => fg.GrantedFeat == ikon.IkonFeat).FirstOrDefault();
+                var amount = featGrant != null ? 1 : 0;
+                if (items.Count() < amount && (featGrant?.AtLevel == inventoryLevel || inventoryLevel == 0 || featGrant?.AtLevel < inventoryLevel && !inventory.IsEmpty))
                 {
                     if (ikon.FreeWornItem != null)
                     {

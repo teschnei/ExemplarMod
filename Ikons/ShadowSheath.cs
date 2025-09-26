@@ -28,8 +28,8 @@ public class ShadowSheath
         ItemName ikonRune = ModManager.RegisterNewItemIntoTheShop("ShadowSheath", itemName =>
         {
             return new Item(itemName, IllustrationName.FearsomeRunestone, "Shadow Sheath", 1, 0, Trait.DoNotAddToShop, ExemplarTraits.IkonThrown)
-            .WithRuneProperties(new RuneProperties("Ikon", IkonRuneKind.Ikon, "With an infinite array of darts, throwing knives, or similar weapons, you never need to worry about being unarmed.",
-            "", item =>
+            .WithRuneProperties(new RuneProperties("ikon", IkonRuneKind.Ikon, "With an infinite array of darts, throwing knives, or similar weapons, you never need to worry about being unarmed.",
+            "This item grants the {i}immanence{/i} and {i}transcendence{/i} abilities of the Shadow Sheath when empowered.", item =>
             {
                 item.Traits.AddRange([ExemplarTraits.Ikon, Trait.Divine]);
             })

@@ -23,8 +23,8 @@ public class ThousandLeagueSandals
         ItemName ikonRune = ModManager.RegisterNewItemIntoTheShop("ThousandLeagueSandals", itemName =>
         {
             return new Item(itemName, IllustrationName.FearsomeRunestone, "Thousand League Sandals", 1, 0, Trait.DoNotAddToShop, ExemplarTraits.IkonShoes)
-            .WithRuneProperties(new RuneProperties("Ikon", IkonRuneKind.Ikon, "Threadbare but trustworthy, your sandals have carried you this far, and they'll carry you much farther still.",
-            "", item =>
+            .WithRuneProperties(new RuneProperties("ikon", IkonRuneKind.Ikon, "Threadbare but trustworthy, your sandals have carried you this far, and they'll carry you much farther still.",
+            "This item grants the {i}immanence{/i} and {i}transcendence{/i} abilities of the Thousand League Sandals when empowered.", item =>
             {
                 item.Traits.AddRange([ExemplarTraits.Ikon, Trait.Divine]);
             })

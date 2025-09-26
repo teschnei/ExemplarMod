@@ -25,8 +25,8 @@ public class BarrowsEdge
         ItemName ikonRune = ModManager.RegisterNewItemIntoTheShop("BarrowsEdge", itemName =>
         {
             return new Item(itemName, IllustrationName.FearsomeRunestone, "Barrow's Edge", 1, 0, Trait.DoNotAddToShop, ExemplarTraits.IkonSlashingPiercing)
-            .WithRuneProperties(new RuneProperties("Ikon", IkonRuneKind.Ikon, "This blade subtly rattles in its scabbard, as if it wants to be unsheathed so it can consume violence.",
-            "", item =>
+            .WithRuneProperties(new RuneProperties("ikon", IkonRuneKind.Ikon, "This blade subtly rattles in its scabbard, as if it wants to be unsheathed so it can consume violence.",
+            "This item grants the {i}immanence{/i} and {i}transcendence{/i} abilities of the Barrow's Edge when empowered.", item =>
             {
                 item.Traits.AddRange([ExemplarTraits.Ikon, Trait.Divine]);
             })

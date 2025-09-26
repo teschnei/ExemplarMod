@@ -5,7 +5,9 @@ using System.Reflection;
 using Dawnsbury.Core.CharacterBuilder.Feats;
 using Dawnsbury.Core.Mechanics;
 using Dawnsbury.Core.Mechanics.Core;
+using Dawnsbury.Display.Controls.Statblocks;
 using Dawnsbury.Modding;
+using Dawnsbury.Mods.Classes.Exemplar.Ikons;
 using Dawnsbury.Mods.Classes.Exemplar.RegisteredComponents;
 using HarmonyLib;
 
@@ -65,6 +67,47 @@ public static class ExemplarClassLoader
                 }
             });
         });
+
+        var index = CreatureStatblock.CreatureStatblockSectionGenerators.FindIndex(i => i.Name == "Impulses");
+
+        CreatureStatblock.CreatureStatblockSectionGenerators.Insert(index,
+            new("Epithets", cr => String.Join("\n",
+                String.Join("\n",
+                    from f in cr.PersistentCharacterSheet?.Calculated.AllFeats ?? []
+                    where f.HasTrait(ExemplarTraits.RootEpithet)
+                    select $"{{b}}{f.DisplayName(cr.PersistentCharacterSheet!)}{{/b}}\n" + f.RulesText
+                ),
+                String.Join("\n",
+                    from f in cr.PersistentCharacterSheet?.Calculated.AllFeats ?? []
+                    where f.HasTrait(ExemplarTraits.DominionEpithet)
+                    select $"{{b}}{f.DisplayName(cr.PersistentCharacterSheet!)}{{/b}}\n" + f.RulesText
+                )
+            ))
+        );
+
+        CreatureStatblock.CreatureStatblockSectionGenerators.Insert(index,
+            new("Ikons", cr =>
+                String.Join("\n",
+                    from f in cr.PersistentCharacterSheet?.Calculated.AllFeats ?? []
+                    where f.HasTrait(ExemplarTraits.Ikon)
+                    select $"{{b}}{f.DisplayName(cr.PersistentCharacterSheet!)}{{/b}}\n" +
+                        "{b}Immanence{/b}\n" +
+                        Ikon.GetImmanenceText(f.RulesText) + "\n" +
+                        String.Join("\n",
+                            (from f2 in cr.PersistentCharacterSheet?.Calculated.AllFeats ?? []
+                             where f2.HasTrait(ExemplarTraits.IkonExpansion) && f2.FeatName.ToStringOrTechnical().StartsWith(f.FeatName.ToStringOrTechnical())
+                             select Ikon.GetImmanenceText(f2.RulesText)).Where(s => !String.IsNullOrEmpty(s))
+                        ) + "\n" +
+                        "{b}Transcendence{/b}\n" +
+                        Ikon.GetTranscendenceText(f.RulesText) + "\n" +
+                        String.Join("\n",
+                            (from f2 in cr.PersistentCharacterSheet?.Calculated.AllFeats ?? []
+                             where f2.HasTrait(ExemplarTraits.IkonExpansion) && f2.FeatName.ToStringOrTechnical().StartsWith(f.FeatName.ToStringOrTechnical())
+                             select Ikon.GetTranscendenceText(f2.RulesText)).Where(s => !String.IsNullOrEmpty(s))
+                        ) + "\n"
+                )
+            )
+        );
 
         var harmony = new Harmony("junabell.dawnsburydays.exemplar");
         harmony.PatchAll();

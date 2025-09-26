@@ -29,8 +29,8 @@ public class NobleBranch
         ItemName ikonRune = ModManager.RegisterNewItemIntoTheShop("NobleBranch", itemName =>
         {
             return new Item(itemName, IllustrationName.FearsomeRunestone, "Noble Branch", 1, 0, Trait.DoNotAddToShop, ExemplarTraits.IkonStaff)
-            .WithRuneProperties(new RuneProperties("Ikon", IkonRuneKind.Ikon, "This humble stick-like weapon has an elegant simplicity to it, affording you reliable strikes over flashy maneuvers.",
-            "", item =>
+            .WithRuneProperties(new RuneProperties("ikon", IkonRuneKind.Ikon, "This humble stick-like weapon has an elegant simplicity to it, affording you reliable strikes over flashy maneuvers.",
+            "This item grants the {i}immanence{/i} and {i}transcendence{/i} abilities of the Noble Branch when empowered.", item =>
             {
                 item.Traits.AddRange([ExemplarTraits.Ikon, Trait.Divine]);
             })

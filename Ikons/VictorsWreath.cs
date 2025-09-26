@@ -23,8 +23,8 @@ public class VictorsWreath
         ItemName ikonRune = ModManager.RegisterNewItemIntoTheShop("VictorsWreath", itemName =>
         {
             return new Item(itemName, IllustrationName.FearsomeRunestone, "Victor's Wreath", 1, 0, Trait.DoNotAddToShop, ExemplarTraits.Ikon)
-            .WithRuneProperties(new RuneProperties("Ikon", IkonRuneKind.Ikon, "This symbol of victory—whether a laurel worn around the head or a medal that hangs from your neck—reminds you and your allies that victory is the only acceptable outcome.",
-            "", item =>
+            .WithRuneProperties(new RuneProperties("ikon", IkonRuneKind.Ikon, "This symbol of victory—whether a laurel worn around the head or a medal that hangs from your neck—reminds you and your allies that victory is the only acceptable outcome.",
+            "This item grants the {i}immanence{/i} and {i}transcendence{/i} abilities of the Victor's Wreath when empowered.", item =>
             {
                 item.Traits.AddRange([ExemplarTraits.Ikon, Trait.Divine]);
             })

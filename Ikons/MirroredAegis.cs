@@ -25,8 +25,8 @@ public class MirroredAegis
         ItemName ikonRune = ModManager.RegisterNewItemIntoTheShop("MirroredAegis", itemName =>
         {
             return new Item(itemName, IllustrationName.FearsomeRunestone, "Mirrored Aegis", 1, 0, Trait.DoNotAddToShop, ExemplarTraits.IkonShield)
-            .WithRuneProperties(new RuneProperties("Ikon", IkonRuneKind.Ikon, "This shield is polished so brightly it can reflect even spiritual and ethereal attacks.",
-            "", item =>
+            .WithRuneProperties(new RuneProperties("ikon", IkonRuneKind.Ikon, "This shield is polished so brightly it can reflect even spiritual and ethereal attacks.",
+            "This item grants the {i}immanence{/i} and {i}transcendence{/i} abilities of the Mirrored Aegis when empowered.", item =>
             {
                 item.Traits.AddRange([ExemplarTraits.Ikon, Trait.Divine]);
             })
