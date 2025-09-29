@@ -27,16 +27,15 @@ public class HornOfPlenty
                 if (!subitem.HasTrait(Trait.Potion) && !subitem.HasTrait(Trait.Elixir))
                     return "You can only store potions and elixirs in the horn of plenty.";
                 //make sure it is not too bulky
-                // var currentBulk = container.StoredItems.Sum(i => i.w);
-                // if (currentBulk + subitem.Bulk > 1)
-                //     return "Horn of Plenty can hold up to 1 Bulk only.";
+                if (container.StoredItems.Count >= 10)
+                    return "You can only store up to 10 potions and elixirs in the horn of plenty.";
                 return null; // OK to store
             });
         });
         yield return new Ikon(new Feat(
             ExemplarFeats.HornOfPlenty,
             "Whether a bag, gourd, wallet, cornucopia, or similar food receptacle, this ikon recalls the harvest and hearth.",
-            "The receptacle can store up to 1 Bulk of potions and elixirs, but no other items. It can't be opened except by the ikon's immanence and transcendence abilities.\n" +
+            "The receptacle can store up to 10 potions and elixirs, but no other items. It can't be opened except by the ikon's immanence and transcendence abilities.\n" +
             "Each day during your daily preparations, the ikon produces one temporary elixir of life.\n\n" +
             "{b}Immanence{/b} The {i}horn of plenty{/i} shimmers, allowing access to the stored consumables inside. You can Interact to draw a consumable and drink it in a single action while " +
             "your divine spark rests within the horn. Other creatures can't access the contents unless you allow them to.\n\n" +

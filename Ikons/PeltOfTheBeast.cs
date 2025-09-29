@@ -150,7 +150,7 @@ public class PeltOfTheBeast
             {
                 Subsections =
                 [
-                    new PossibilitySection("SurvivetheWilds")
+                    new PossibilitySection("Survive the Wilds")
                     {
                         Possibilities = peltActions?.ToList() ?? []
                     }

@@ -75,7 +75,7 @@ public class HandsOfTheWildling
             return new SubmenuPossibility(ExemplarIllustrations.HandsOfTheWildling, "Feral Swing")
             {
                 Subsections = [
-                    new PossibilitySection("")
+                    new PossibilitySection("Feral Swing")
                     {
                         Possibilities = [
                             CreateFeralSwing(false),

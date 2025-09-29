@@ -276,6 +276,17 @@ public static class ExemplarBaseClass
             }
             foreach (var item in toAdd)
             {
+                if (inventory.IsEmpty && inventoryLevel > 1)
+                {
+                    var inventoryToCopy = inventories
+                        .Where(kvp => kvp.Key >= 1 && kvp.Key < inventoryLevel && !kvp.Value.IsEmpty)
+                        .Select(kvp => kvp.Value)
+                        .LastOrDefault();
+                    if (inventoryToCopy != null)
+                    {
+                        inventory.BecomeFrom(inventoryToCopy);
+                    }
+                }
                 AddItem(inventory, item);
             }
             foreach (var item in toRemove)
