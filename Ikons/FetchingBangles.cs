@@ -74,7 +74,7 @@ public class FetchingBangles
                 q.Owner,
                 ExemplarIllustrations.FetchingBangles,
                 "Embrace of Destiny",
-                [Trait.Mental, ExemplarTraits.Transcendence],
+                [Trait.Mental, ExemplarTraits.Spirit, ExemplarTraits.Transcendence],
                 "Choose an enemy within 20 feet of you. It must succeed at a Will save against your class DC or be pulled directly toward you into a square adjacent to you.",
                 Target.Ranged(4)
             ).WithActionCost(1)

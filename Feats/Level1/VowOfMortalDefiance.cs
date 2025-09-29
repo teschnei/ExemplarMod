@@ -26,7 +26,7 @@ public class VowOfMortalDefiance
             ExemplarFeats.VowOfMortalDefiance,
             1,
             "Having seen the wreckage left by gods and their servitors as they play in their great war of good and evil, you've come to the only reasonable conclusion: they all must be cut from their silken thrones.",
-            "You swear a vow to defeat one creature within 60 feet that has the Good or Evil trait. The first time each round that you deal damage to that creature, you deal an additional 1d6 force damage. " +
+            "You swear a vow to defeat one creature within 60 feet that has the Good or Evil trait. The first time each round that you deal damage to that creature, you deal an additional 1d6 spirit damage. " +
             "You can't use Vow of Mortal Defiance again until you or the target is defeated, flees, or the encounter ends.",
             [Trait.Auditory, Trait.Concentrate, ExemplarTraits.Exemplar, Trait.Linguistic, Trait.Mental],
             null

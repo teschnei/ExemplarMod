@@ -97,7 +97,7 @@ public class Ikon
     public static DamageKind GetBestDamageKindForSpark(Creature exemplar, Creature target)
     {
         List<Trait> damageTraits = new List<Trait>();
-        List<DamageKind> damageKinds = [DamageKind.Force];
+        List<DamageKind> damageKinds = [ExemplarDamageKinds.Spirit];
         var energizedSpark = exemplar.FindQEffect(ExemplarQEffects.EnergizedSpark);
         if (energizedSpark != null && energizedSpark.Tag is List<(Trait, DamageKind)> energizedSparkList)
         {

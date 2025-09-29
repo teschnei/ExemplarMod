@@ -91,7 +91,7 @@ public class MirroredAegis
                         Id = ExemplarQEffects.RaiseTheWalls,
                         BonusToDefenses = (_, offensiveAction, defense) =>
                             (defense == Defense.AC || defense == Defense.Reflex ||
-                            (offensiveAction != null && (offensiveAction.HasTrait(Trait.Force) || offensiveAction.HasTrait(Trait.Positive) || offensiveAction.HasTrait(Trait.Negative))))
+                            (offensiveAction != null && (offensiveAction.HasTrait(Trait.Force) || offensiveAction.HasTrait(ExemplarTraits.Spirit) || offensiveAction.HasTrait(Trait.Positive) || offensiveAction.HasTrait(Trait.Negative))))
                                 ? new Bonus(1, BonusType.Status, "Raise the Walls")
                                 : null,
                     });

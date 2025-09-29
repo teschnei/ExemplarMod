@@ -28,10 +28,10 @@ public class SteelOnSteel
     {
         var flavorText = "The ring of divinely empowered steel assails your enemies.";
         var rulesText = "{b}Usage{/b} imbued into a melee weapon ikon or shield ikon\n\n The imbued ikon gains the following ability.\n\n" +
-            $"{{b}}Transcendence — Ringing Challenge {RulesBlock.GetIconTextFromNumberOfActions(2)}{{/b}} (force, sonic, transcendence)\n" +
-            "You clang your ikon against a weapon, shield, or the ground, emitting a shockwave that deals 1d4 force damage and 1d4 sonic damage to all creatures in a 30-foot " +
+            $"{{b}}Transcendence — Ringing Challenge {RulesBlock.GetIconTextFromNumberOfActions(2)}{{/b}} (sonic, spirit, transcendence)\n" +
+            "You clang your ikon against a weapon, shield, or the ground, emitting a shockwave that deals 1d4 spirit damage and 1d4 sonic damage to all creatures in a 30-foot " +
             "cone or 15-foot emanation (basic Fortitude save). A creature that critically fails its saving throw is deafened for 1 minute.\n" +
-            "At 6th level and every 2 levels thereafter, the damage increases by 1d4 force damage and 1d4 sonic damage.";
+            "At 6th level and every 2 levels thereafter, the damage increases by 1d4 spirit damage and 1d4 sonic damage.";
         yield return new TrueFeat(
             ExemplarFeats.SteelOnSteel,
             4,
@@ -65,11 +65,11 @@ public class SteelOnSteel
         );
         Possibility? steelOnSteelAction(QEffect q, Target target)
         {
-            return new ActionPossibility(new CombatAction(q.Owner, IllustrationName.SteelShield, $"Ringing Challenge ({(target is EmanationTarget ? "emanation" : "cone")})", [Trait.Sonic, Trait.Force, ExemplarTraits.Transcendence],
-                $"You clang your ikon against a weapon, shield, or the ground, emitting a shockwave that deals {S.HeightenedVariable((q.Owner.Level - 2) / 2, 1)}d4 force damage " +
+            return new ActionPossibility(new CombatAction(q.Owner, IllustrationName.SteelShield, $"Ringing Challenge ({(target is EmanationTarget ? "emanation" : "cone")})", [Trait.Sonic, ExemplarTraits.Spirit, ExemplarTraits.Transcendence],
+                $"You clang your ikon against a weapon, shield, or the ground, emitting a shockwave that deals {S.HeightenedVariable((q.Owner.Level - 2) / 2, 1)}d4 spirit damage " +
                 $"and {S.HeightenedVariable((q.Owner.Level - 2) / 2, 1)}d4 sonic damage to all creatures in a " +
                 $"{(target is EmanationTarget ? "30-foot emanation" : "15-foot cone")} (basic Fortitude save). A creature that critically fails its saving throw is deafened for 1 minute.", target)
-                .WithHeighteningNumerical(q.Owner.Level, 4, true, 2, "1d4 force damage and 1d4 sonic damage.")
+                .WithHeighteningNumerical(q.Owner.Level, 4, true, 2, "1d4 spirit damage and 1d4 sonic damage.")
                 .WithActionCost(2)
                 .WithSavingThrow(new SavingThrow(Defense.Fortitude, q.Owner.ClassDC()))
                 .WithEffectOnEachTarget(async (action, self, target, result) =>

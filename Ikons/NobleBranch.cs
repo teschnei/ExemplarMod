@@ -52,9 +52,9 @@ public class NobleBranch
             ExemplarFeats.NobleBranch,
             "This humble stick-like weapon has an elegant simplicity to it, affording you reliable strikes over flashy maneuvers.",
             "{b}Usage{/b} a staff, bo staff, fighting stick, khakkara, or any weapon in the spear or polearm weapon group\n\n" +
-            "{b}Immanence{/b} The {i}noble branch{/i} deals 2 additional force damage per weapon damage die to creatures it Strikes.\n\n" +
-            $"{{b}}Transcendence — Strike, Breathe, Rend {RulesBlock.GetIconTextFromNumberOfActions(1)}{{/b}} (force, transcendence)\n{{b}}Requirements{{/b}} Your last action this turn was a successful Strike with the {{i}}noble branch{{/i}}.\n" +
-            "{b}Effect{/b} You channel a rending pulse of energy down your weapon in the moment of contact. The target of the Strike takes force damage equal to the {i}noble branch's{/i} weapon damage dice.",
+            "{b}Immanence{/b} The {i}noble branch{/i} deals 2 additional spirit damage per weapon damage die to creatures it Strikes.\n\n" +
+            $"{{b}}Transcendence — Strike, Breathe, Rend {RulesBlock.GetIconTextFromNumberOfActions(1)}{{/b}} (spirit, transcendence)\n{{b}}Requirements{{/b}} Your last action this turn was a successful Strike with the {{i}}noble branch{{/i}}.\n" +
+            "{b}Effect{/b} You channel a rending pulse of energy down your weapon in the moment of contact. The target of the Strike takes spirit damage equal to the {i}noble branch's{/i} weapon damage dice.",
             [ExemplarTraits.Ikon, ExemplarTraits.IkonWeapon],
             null
         ).WithIllustration(ExemplarIllustrations.NobleBranch), q =>
@@ -75,8 +75,8 @@ public class NobleBranch
                 q.Owner,
                 ExemplarIllustrations.NobleBranch,
                 "Strike, Breathe, Rend",
-                [ExemplarTraits.Transcendence, ExemplarTraits.Ikon],
-                "You channel a rending pulse of energy down your weapon in the moment of contact. The target of the Strike takes force damage equal to the {i}noble branch's{/i} weapon damage dice.",
+                [ExemplarTraits.Spirit, ExemplarTraits.Transcendence],
+                "You channel a rending pulse of energy down your weapon in the moment of contact. The target of the Strike takes spirit damage equal to the {i}noble branch's{/i} weapon damage dice.",
                 Target.Self().WithAdditionalRestriction(self =>
                 {
                     var branch = Ikon.GetIkonItem(q.Owner, ikonRune);

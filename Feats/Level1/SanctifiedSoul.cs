@@ -21,7 +21,7 @@ public class SanctifiedSoul
             ExemplarFeats.SanctifiedSoul,
             1,
             "You've drawn a line in the sand in the cosmic struggle between good and evil and chosen a side.",
-            "You gain either the good trait or the evil trait. All your exemplar abilities that deal force damage gain the sanctified trait, " +
+            "You gain either the good trait or the evil trait. All your exemplar abilities that deal spirit damage gain the sanctified trait, " +
             "allowing you to apply your chosen trait to better affect your enemies.",
             [ExemplarTraits.Exemplar],
             sanctifiedOptions.Select(options => new Feat(options.Key, "", "", [options.Value.Item1], null)
