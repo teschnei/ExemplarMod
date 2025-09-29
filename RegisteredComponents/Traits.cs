@@ -44,21 +44,10 @@ public static class ExemplarTraits
 
     //Misc traits that don't exist in DD
     public static readonly Trait Twin = ModManager.RegisterTrait("Twin", new TraitProperties("Twin", true, "When you attack with a twin weapon, you add a circumstance bonus to the damage roll equal to the weapon’s number of damage dice if you have previously attacked with a different weapon of the same type this turn."));
-    static Trait GetTrait(string technicalName)
-    {
-        ModManager.TryParse<Trait>(technicalName, out var trait);
-        return trait;
-    }
-    public static readonly Trait Spirit = GetTrait("ST_Spirit");
+    public static readonly Trait Spirit = ModManager.TryParse<Trait>("Spirit", out var spirit) ? spirit : Trait.Force;
 }
 
 public static class ExemplarDamageKinds
 {
-    static DamageKind GetDamageKind(string technicalName)
-    {
-        ModManager.TryParse<DamageKind>(technicalName, out var trait);
-        return trait;
-    }
-
-    public static readonly DamageKind Spirit = GetDamageKind("Spirit");
+    public static readonly DamageKind Spirit = ModManager.TryParse<DamageKind>("Spirit", out var spirit) ? spirit : DamageKind.Force;
 }
