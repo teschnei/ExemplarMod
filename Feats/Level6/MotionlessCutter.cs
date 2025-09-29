@@ -50,6 +50,8 @@ public class MotionlessCutter
                                     "do not increase your penalty until you have made all your attacks.",
                                     Target.MultipleCreatureTargets([Target.Reach(ikonItem), Target.Reach(ikonItem), Target.Reach(ikonItem), Target.Reach(ikonItem)]).WithMinimumTargets(1).WithMustBeDistinct())
                                 .WithActionCost(3)
+                                .WithActiveRollSpecification(new ActiveRollSpecification(Checks.Attack(ikonItem, -1), Checks.DefenseDC(Defense.AC)))
+                                .WithNoSaveFor((action, cr) => true)
                                 .WithEffectOnChosenTargets(async (action, self, targets) =>
                                 {
                                     var strike = self.CreateStrike(ikonItem, self.Actions.AttackedThisManyTimesThisTurn, new StrikeModifiers { ReplacementDamageKind = DamageKind.Slashing }).WithActionCost(0);

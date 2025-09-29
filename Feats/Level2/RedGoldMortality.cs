@@ -40,9 +40,11 @@ public class RedGoldMortality
                     {
                         if (action.Item?.Runes.Any(rune => rune.ItemName == ikon.Rune) ?? false)
                         {
+                            target.RemoveAllQEffects(q => q.Id == ExemplarQEffects.RedGoldMortality);
                             target.AddQEffect(new QEffect("Red-Gold Mortality", "The next time you recover Hit Points, your divine wound may absorb some of recovery.",
                                         ExpirationCondition.Never, action.Owner, IllustrationName.BloodVendetta)
                             {
+                                Id = ExemplarQEffects.RedGoldMortality,
                                 AdjustDiceFormulaForSelfHealing = (q, _, diceFormula) =>
                                 {
                                     q.ExpiresAt = ExpirationCondition.Immediately;

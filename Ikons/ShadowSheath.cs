@@ -105,7 +105,8 @@ public class ShadowSheath
                 })
             )
             .WithActionCost(1)
-            .WithSavingThrow(new SavingThrow(Defense.Reflex, q.Owner.ClassDC()))
+            .WithActiveRollSpecification(new ActiveRollSpecification(Checks.Attack(sheath!, q.Owner.Actions.AttackedThisManyTimesThisTurn - 1), TaggedChecks.DefenseDC(Defense.AC)))
+            .WithNoSaveFor((action, cr) => true)
             .WithEffectOnChosenTargets(async (action, self, targets) =>
             {
                 var lastAction = self.Actions.ActionHistoryThisTurn.LastOrDefault()!;

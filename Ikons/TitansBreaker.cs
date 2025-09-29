@@ -4,6 +4,7 @@ using Dawnsbury.Core;
 using Dawnsbury.Core.CharacterBuilder.Feats;
 using Dawnsbury.Core.CombatActions;
 using Dawnsbury.Core.Mechanics;
+using Dawnsbury.Core.Mechanics.Core;
 using Dawnsbury.Core.Mechanics.Damage;
 using Dawnsbury.Core.Mechanics.Enumerations;
 using Dawnsbury.Core.Mechanics.Rules;
@@ -112,6 +113,7 @@ public class TitansBreaker
         },
         q =>
         {
+            var breaker = Ikon.GetIkonItem(q.Owner, ikonRune)!;
             return new ActionPossibility(new CombatAction(
                 q.Owner,
                 ExemplarIllustrations.TitansBreaker,
@@ -124,12 +126,13 @@ public class TitansBreaker
                 Target.Reach(Ikon.GetIkonItem(q.Owner, ikonRune)!).WithAdditionalConditionOnTargetCreature(new IkonWieldedTargetingRequirement(ikonRune, "titan's breaker"))
             )
             .WithActionCost(2)
+            .WithActiveRollSpecification(new ActiveRollSpecification(Checks.Attack(breaker, -1), TaggedChecks.DefenseDC(Defense.AC)))
+            .WithNoSaveFor((action, cr) => true)
             .WithEffectOnChosenTargets(async (action, self, targets) =>
             {
                 //Activate the Immanence's bigger damage mode
                 q.Tag = true;
-                var breaker = Ikon.GetIkonItem(self, ikonRune);
-                await self.MakeStrike(targets.ChosenCreature!, breaker!);
+                await self.MakeStrike(targets.ChosenCreature!, breaker);
                 self.Actions.AttackedThisManyTimesThisTurn++;
                 q.Tag = false;
             }));

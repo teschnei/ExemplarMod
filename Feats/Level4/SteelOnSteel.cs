@@ -50,7 +50,7 @@ public class SteelOnSteel
                                 new SubmenuPossibility(IllustrationName.SteelShield, "Ringing Challenge")
                                 {
                                     Subsections = [
-                                        new PossibilitySection("SteelonSteel")
+                                        new PossibilitySection("Steel on Steel")
                                         {
                                             Possibilities = [steelOnSteelAction(q, Target.Emanation(6)),
                                                             steelOnSteelAction(q, Target.Cone(3))]
@@ -65,7 +65,7 @@ public class SteelOnSteel
         );
         Possibility? steelOnSteelAction(QEffect q, Target target)
         {
-            return new ActionPossibility(new CombatAction(q.Owner, IllustrationName.SteelShield, "Ringing Challenge", [Trait.Sonic, Trait.Force, ExemplarTraits.Transcendence],
+            return new ActionPossibility(new CombatAction(q.Owner, IllustrationName.SteelShield, $"Ringing Challenge ({(target is EmanationTarget ? "emanation" : "cone")})", [Trait.Sonic, Trait.Force, ExemplarTraits.Transcendence],
                 $"You clang your ikon against a weapon, shield, or the ground, emitting a shockwave that deals {S.HeightenedVariable((q.Owner.Level - 2) / 2, 1)}d4 force damage " +
                 $"and {S.HeightenedVariable((q.Owner.Level - 2) / 2, 1)}d4 sonic damage to all creatures in a " +
                 $"{(target is EmanationTarget ? "30-foot emanation" : "15-foot cone")} (basic Fortitude save). A creature that critically fails its saving throw is deafened for 1 minute.", target)

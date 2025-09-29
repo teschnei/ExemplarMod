@@ -3,6 +3,7 @@ using System.Linq;
 using Dawnsbury.Core;
 using Dawnsbury.Core.CharacterBuilder.Feats;
 using Dawnsbury.Core.CombatActions;
+using Dawnsbury.Core.Mechanics;
 using Dawnsbury.Core.Mechanics.Core;
 using Dawnsbury.Core.Mechanics.Damage;
 using Dawnsbury.Core.Mechanics.Enumerations;
@@ -70,7 +71,7 @@ public class UnfailingBow
             };
             q.AfterYouMakeAttackRoll = (q, breakdownResult) =>
             {
-                if (q.Id == Ikon.IkonLUT[ExemplarFeats.UnfailingBow].EmpoweredQEffectId)
+                if (q.Owner.HasEffect(ExemplarQEffects.ArrowSplitsArrow))
                 {
                     if (breakdownResult.D20Roll == 20)
                     {
@@ -106,7 +107,7 @@ public class UnfailingBow
                     if (((unfailing.HasTrait(Trait.Reload1) || unfailing.HasTrait(Trait.Reload2)) && unfailing.EphemeralItemProperties.NeedsReload) ||
                         (unfailing.HasTrait(Trait.Repeating) && unfailing.EphemeralItemProperties.AmmunitionLeftInMagazine <= 0))
                     {
-                        return Usability.NotUsable("Your {i}unfailing bow must be loaded{/i}.");
+                        return Usability.NotUsable("Your {i}unfailing bow{/i} must be loaded.");
                     }
                     var lastAction = self.Actions.ActionHistoryThisTurn.LastOrDefault();
                     if (lastAction == null || !lastAction.HasTrait(Trait.Strike) ||
@@ -123,12 +124,17 @@ public class UnfailingBow
                 })
             )
             .WithActionCost(2)
-            .WithSavingThrow(new SavingThrow(Defense.Reflex, q.Owner.ClassDC()))
+            .WithActiveRollSpecification(new ActiveRollSpecification(Checks.Attack(unfailing!, -1), TaggedChecks.DefenseDC(Defense.AC)))
+            .WithNoSaveFor((action, cr) => true)
             .WithEffectOnChosenTargets(async (action, self, targets) =>
             {
                 var unfailing = Ikon.GetIkonItem(self, ikonRune);
                 var lastAction = self.Actions.ActionHistoryThisTurn.LastOrDefault();
                 //See Patches.cs for the guaranteed roll number
+                self.AddQEffect(new QEffect()
+                {
+                    Id = ExemplarQEffects.ArrowSplitsArrow
+                }.WithExpirationEphemeral());
                 await self.MakeStrike(lastAction!.ChosenTargets.ChosenCreature!, unfailing!);
             }));
         })

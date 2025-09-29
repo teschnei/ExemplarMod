@@ -50,6 +50,8 @@ public class ThroughTheNeedlesEye
                                     "an Interact action to clear the blood from its vision.",
                                     Target.Reach(ikonItem))
                                 .WithActionCost(2)
+                                .WithActiveRollSpecification(new ActiveRollSpecification(Checks.Attack(ikonItem, -1), TaggedChecks.DefenseDC(Defense.AC)))
+                                .WithNoSaveFor((action, cr) => true)
                                 .WithEffectOnChosenTargets(async (action, self, targets) =>
                                 {
                                     if (targets.ChosenCreature != null)

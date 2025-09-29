@@ -6,6 +6,7 @@ using Dawnsbury.Core.CharacterBuilder.FeatsDb.Common;
 using Dawnsbury.Core.CombatActions;
 using Dawnsbury.Core.Creatures;
 using Dawnsbury.Core.Mechanics;
+using Dawnsbury.Core.Mechanics.Core;
 using Dawnsbury.Core.Mechanics.Enumerations;
 using Dawnsbury.Core.Mechanics.Targeting;
 using Dawnsbury.Core.Mechanics.Targeting.Targets;
@@ -91,6 +92,8 @@ public class BattleHymnToTheLost
                     //TODO: thrown?
                     item.DetermineStrikeTarget(item.HasTrait(Trait.Ranged) ? RangeKind.Ranged : RangeKind.Melee))
                 .WithActionCost(2)
+                .WithActiveRollSpecification(new ActiveRollSpecification(Checks.Attack(item, -1), TaggedChecks.DefenseDC(Defense.AC)))
+                .WithNoSaveFor((action, cr) => true)
                 .WithEffectOnChosenTargets(async (action, self, targets) =>
                 {
                     string damage = $"{(self.Level) / 4}d10";

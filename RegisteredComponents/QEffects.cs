@@ -14,6 +14,7 @@ public static class ExemplarQEffects
     public static readonly QEffectId PeltOfTheBeastAttunement = ModManager.RegisterEnumMember<QEffectId>("PeltOfTheBeastAttunement");
     public static readonly QEffectId SkinHardAsHornAttunement = ModManager.RegisterEnumMember<QEffectId>("SkinHardAsHornAttunement");
     public static readonly QEffectId RaiseTheWalls = ModManager.RegisterEnumMember<QEffectId>("RaiseTheWalls");
+    public static readonly QEffectId ArrowSplitsArrow = ModManager.RegisterEnumMember<QEffectId>("ArrowSplitsArrow");
 
     //Level 1 Feats
     public static readonly QEffectId EnergizedSpark = ModManager.RegisterEnumMember<QEffectId>("EnergizedSpark");
@@ -23,6 +24,7 @@ public static class ExemplarQEffects
 
     //Level 2 Feats
     public static readonly QEffectId LightningSwap = ModManager.RegisterEnumMember<QEffectId>("LightningSwap");
+    public static readonly QEffectId RedGoldMortality = ModManager.RegisterEnumMember<QEffectId>("RedGoldMortality");
 
     //Level 6 Feats
     public static readonly QEffectId FlowOfWarUsed = ModManager.RegisterEnumMember<QEffectId>("FlowOfWarUsed");

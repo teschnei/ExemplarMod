@@ -104,6 +104,7 @@ public class HandsOfTheWildling
                     })
                 )
                 .WithActionCost(2)
+                .WithSavingThrow(new SavingThrow(Defense.Reflex, q.Owner.ClassDC()))
                 .WithEffectOnChosenTargets(async (action, self, targets) =>
                 {
                     var hands = Ikon.GetIkonItem(self, ikonRune);
@@ -119,12 +120,14 @@ public class HandsOfTheWildling
                             target.AddQEffect(penalty);
                         }
 
-                        var checkResult = CommonSpellEffects.RollSavingThrow(target, action, Defense.Reflex, self.ClassDC());
-                        await CommonSpellEffects.DealDirectDamage(action, strike.TrueDamageFormula!, target, checkResult, Ikon.GetBestDamageKindForSpark(self, target));
-
-                        if (abandon)
+                        if (targets.CheckResults.TryGetValue(target, out var checkResult))
                         {
-                            target.RemoveAllQEffects(q => q == penalty);
+                            await CommonSpellEffects.DealDirectDamage(action, strike.TrueDamageFormula!, target, checkResult, Ikon.GetBestDamageKindForSpark(self, target));
+
+                            if (abandon)
+                            {
+                                target.RemoveAllQEffects(q => q == penalty);
+                            }
                         }
                     }
                 }));
