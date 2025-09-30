@@ -72,6 +72,7 @@ public class Ikon
             ProvideMainAction = q => CreateTranscendence(Transcendence, q, this),
             WhenExpires = q => q.Owner.RemoveAllQEffects(q => q.Id == ExemplarQEffects.IkonExpansion)
         };
+        q.Owner = exemplar;
         Immanence(q);
         return q;
     }
