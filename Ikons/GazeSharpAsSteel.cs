@@ -9,6 +9,7 @@ using Dawnsbury.Core.Mechanics.Targeting;
 using Dawnsbury.Core.Possibilities;
 using Dawnsbury.Core.Roller;
 using Dawnsbury.Display;
+using Dawnsbury.Display.Text;
 using Dawnsbury.Mods.Classes.Exemplar.RegisteredComponents;
 using static Dawnsbury.Mods.Classes.Exemplar.ExemplarClassLoader;
 
@@ -33,17 +34,19 @@ public class GazeSharpAsSteel
             q.BonusToDefenses = (q, action, defense) => action?.HasTrait(Trait.Ranged) ?? false && defense == Defense.AC ? new Bonus(2, BonusType.Status, "Gaze Sharp as Steel") : null;
         }, q =>
         {
+            int dice = (q.Owner.Level >= 18 ? 3 : q.Owner.Level >= 10 ? 2 : 1);
+            string extraDamage = $"{dice}d6";
             return new ActionPossibility(new CombatAction(
                 q.Owner,
                 ExemplarIllustrations.GazeSharpAsSteel,
                 "A Moment Unending",
                 [Trait.Concentrate, Trait.Prediction, ExemplarTraits.Transcendence],
-                "You take in every movement around you, affording you unparalleled accuracy. Your next successful Strike against an enemy before the end of your next turn deals an additional 1d6 precision damage (2d6 at 10th level, 3d6 at 18th).",
+                $"You take in every movement around you, affording you unparalleled accuracy. Your next successful Strike against an enemy before the end of your next turn deals an additional {S.HeightenedVariable(dice, 1)}d6 precision damage.",
                 Target.Self()
             ).WithActionCost(1)
+            .WithShortDescription($"Your next successful Strike against an enemy before the end of your next turn deals an additional {S.HeightenedVariable(dice, 1)}d6 precision damage.")
             .WithEffectOnSelf(async (action, self) =>
             {
-                string extraDamage = $"{(self.Level >= 18 ? 3 : self.Level >= 10 ? 2 : 1)}d6";
                 self.AddQEffect(new QEffect("A Moment Unending", $"Your next successful Strike against an enemy deals an additional {extraDamage} precision damage.", ExpirationCondition.ExpiresAtEndOfYourTurn, self, IllustrationName.Blinded)
                 {
                     YouDealDamageWithStrike = (q, action, diceFormula, target) =>

@@ -89,7 +89,9 @@ public class UnfailingBow
         },
         q =>
         {
-            var unfailing = Ikon.GetIkonItem(q.Owner, ikonRune);
+            var heldIkon = Ikon.GetIkonItem(q.Owner, ikonRune);
+            var lastAction = q.Owner.Actions.ActionHistoryThisTurn.LastOrDefault();
+            var lastIkon = lastAction?.Item?.Runes.Any(r => r.ItemName == ikonRune) ?? false ? lastAction.Item : null;
             var action = new CombatAction(
                 q.Owner,
                 ExemplarIllustrations.UnfailingBow,
@@ -97,24 +99,19 @@ public class UnfailingBow
                 [ExemplarTraits.Transcendence],
                 "You repeat your motions exactly, your attack landing in the same location as your previous shot. You make a Strike against the same target. The result of your d20 roll is the same as the result of the required shot, " +
                 "though any penalties (such as your multiple attack penalty) apply normally to this shot and you don't automatically adjust the degree of success if the initial roll was a natural 1 or 20.",
-                Target.Ranged(unfailing?.WeaponProperties?.MaximumRange ?? 100).WithAdditionalConditionOnTargetCreature((self, target) =>
+                heldIkon == null ? Target.Uncastable("You must be wielding the {i}unfailing bow{/i}.") : heldIkon.DetermineStrikeTarget(RangeKind.Ranged).WithAdditionalConditionOnTargetCreature((self, target) =>
                 {
-                    var unfailing = Ikon.GetIkonItem(q.Owner, ikonRune);
-                    if (unfailing == null)
-                    {
-                        return Usability.NotUsable("You must be wielding the {i}unfailing bow{/i}.");
-                    }
-                    if (((unfailing.HasTrait(Trait.Reload1) || unfailing.HasTrait(Trait.Reload2)) && unfailing.EphemeralItemProperties.NeedsReload) ||
-                        (unfailing.HasTrait(Trait.Repeating) && unfailing.EphemeralItemProperties.AmmunitionLeftInMagazine <= 0))
-                    {
-                        return Usability.NotUsable("Your {i}unfailing bow{/i} must be loaded.");
-                    }
                     var lastAction = self.Actions.ActionHistoryThisTurn.LastOrDefault();
                     if (lastAction == null || !lastAction.HasTrait(Trait.Strike) ||
                         lastAction.CheckResult < CheckResult.Success ||
-                        (lastAction.Item != unfailing))
+                        (lastIkon == null))
                     {
                         return Usability.NotUsable("Your last action must be a successful Strike with the {i}unfailing bow{/i}.");
+                    }
+                    if (((lastIkon.HasTrait(Trait.Reload1) || lastIkon.HasTrait(Trait.Reload2)) && lastIkon.EphemeralItemProperties.NeedsReload) ||
+                        (lastIkon.HasTrait(Trait.Repeating) && lastIkon.EphemeralItemProperties.AmmunitionLeftInMagazine <= 0))
+                    {
+                        return Usability.NotUsable("Your {i}unfailing bow{/i} must be loaded.");
                     }
                     if (lastAction.ChosenTargets.ChosenCreature != target)
                     {
@@ -126,18 +123,16 @@ public class UnfailingBow
             .WithActionCost(2)
             .WithEffectOnChosenTargets(async (action, self, targets) =>
             {
-                var unfailing = Ikon.GetIkonItem(self, ikonRune);
-                var lastAction = self.Actions.ActionHistoryThisTurn.LastOrDefault();
                 //See Patches.cs for the guaranteed roll number
                 self.AddQEffect(new QEffect()
                 {
                     Id = ExemplarQEffects.ArrowSplitsArrow
                 }.WithExpirationEphemeral());
-                await self.MakeStrike(lastAction!.ChosenTargets.ChosenCreature!, unfailing!);
+                await self.MakeStrike(lastAction!.ChosenTargets.ChosenCreature!, lastIkon!);
             });
-            if (unfailing != null)
+            if (lastIkon != null)
             {
-                action.WithActiveRollSpecification(new ActiveRollSpecification(Checks.Attack(unfailing!, -1), TaggedChecks.DefenseDC(Defense.AC)))
+                action.WithActiveRollSpecification(new ActiveRollSpecification(Checks.Attack(lastIkon!, -1), TaggedChecks.DefenseDC(Defense.AC)))
                     .WithNoSaveFor((action, cr) => true);
             }
             return new ActionPossibility(action);

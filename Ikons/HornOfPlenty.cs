@@ -46,24 +46,27 @@ public class HornOfPlenty
             [ExemplarTraits.Ikon, ExemplarTraits.IkonWorn],
             null
         ).WithIllustration(ExemplarIllustrations.HornOfPlenty)
-        .WithOnCreature(self =>
+        .WithPermanentQEffect(null, q =>
         {
-            var horn = self.CarriedItems.FirstOrDefault(i => i.BaseItemName == hornOfPlenty);
-            if (horn != null && !horn.StoredItems.Any(item => item.Tag == horn))
+            q.StartOfCombat = async q =>
             {
-                var elixir = Items.CreateNew(ItemName.MinorElixirOfLife);
-                elixir.Price = 0;
-                elixir.Tag = horn;
-                horn.StoredItems.Add(elixir);
-            }
-            if (!self.LongTermEffects?.Effects.Any(lte => lte.Id == ExemplarLongTermEffects.HornOfPlentyDailyElixir) ?? true)
-            {
-                self.LongTermEffects?.Add(new LongTermEffect()
+                if (!q.Owner.HasEffect(ExemplarQEffects.HornOfPlentyDailyElixir))
                 {
-                    Id = ExemplarLongTermEffects.HornOfPlentyDailyElixir,
-                    Duration = LongTermEffectDuration.UntilLongRest
-                });
-            }
+                    var horn = q.Owner.CarriedItems.FirstOrDefault(i => i.BaseItemName == hornOfPlenty);
+                    if (horn != null && !horn.StoredItems.Any(item => item.Tag == horn))
+                    {
+                        var elixir = Items.CreateNew(ItemName.MinorElixirOfLife);
+                        elixir.Price = 0;
+                        elixir.Tag = horn;
+                        horn.StoredItems.Add(elixir);
+                    }
+                    var effect = WellKnownLongTermEffects.CreateLongTermEffect(ExemplarLongTermEffects.HornOfPlentyDailyElixir, null, null);
+                    if (effect != null && q.Owner.LongTermEffects != null)
+                    {
+                        q.Owner.LongTermEffects.Add(effect);
+                    }
+                }
+            };
         }), q =>
         {
             q.ProvideContextualAction = qe =>

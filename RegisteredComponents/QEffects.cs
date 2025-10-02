@@ -1,4 +1,3 @@
-using Dawnsbury.Campaign.LongTerm;
 using Dawnsbury.Core.Mechanics;
 using Dawnsbury.Core.Tiles;
 using Dawnsbury.Modding;
@@ -15,6 +14,7 @@ public static class ExemplarQEffects
     public static readonly QEffectId SkinHardAsHornAttunement = ModManager.RegisterEnumMember<QEffectId>("SkinHardAsHornAttunement");
     public static readonly QEffectId RaiseTheWalls = ModManager.RegisterEnumMember<QEffectId>("RaiseTheWalls");
     public static readonly QEffectId ArrowSplitsArrow = ModManager.RegisterEnumMember<QEffectId>("ArrowSplitsArrow");
+    public static readonly QEffectId HornOfPlentyDailyElixir = ModManager.RegisterEnumMember<QEffectId>("HornOfPlentyDailyElixir");
 
     //Level 1 Feats
     public static readonly QEffectId EnergizedSpark = ModManager.RegisterEnumMember<QEffectId>("EnergizedSpark");
@@ -51,5 +51,5 @@ public static class ExemplarTileQEffects
 
 public static class ExemplarLongTermEffects
 {
-    public static readonly LongTermEffectId HornOfPlentyDailyElixir = ModManager.RegisterEnumMember<LongTermEffectId>("HornOfPlentyDailyElixir");
+    public static readonly string HornOfPlentyDailyElixir = "HornOfPlentyDailyElixir";
 }

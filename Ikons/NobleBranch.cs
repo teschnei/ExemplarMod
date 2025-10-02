@@ -71,6 +71,9 @@ public class NobleBranch
         },
         q =>
         {
+            var heldIkon = Ikon.GetIkonItem(q.Owner, ikonRune);
+            var lastAction = q.Owner.Actions.ActionHistoryThisTurn.LastOrDefault();
+            var lastIkon = lastAction?.Item?.Runes.Any(r => r.ItemName == ikonRune) ?? false ? lastAction.Item : null;
             return new ActionPossibility(new CombatAction(
                 q.Owner,
                 ExemplarIllustrations.NobleBranch,
@@ -79,15 +82,14 @@ public class NobleBranch
                 "You channel a rending pulse of energy down your weapon in the moment of contact. The target of the Strike takes spirit damage equal to the {i}noble branch's{/i} weapon damage dice.",
                 Target.Self().WithAdditionalRestriction(self =>
                 {
-                    var branch = Ikon.GetIkonItem(q.Owner, ikonRune);
-                    if (branch == null)
+                    if (heldIkon == null)
                     {
                         return "You must be wielding the {i}noble branch{/i}.";
                     }
                     var lastAction = self.Actions.ActionHistoryThisTurn.LastOrDefault();
                     if (lastAction == null || !lastAction.HasTrait(Trait.Strike) ||
                         lastAction.CheckResult < CheckResult.Success ||
-                        (lastAction.Item != branch))
+                        (lastIkon == null))
                     {
                         return "Your last action must be a successful Strike with the {i}noble branch{/i}.";
                     }
@@ -97,21 +99,20 @@ public class NobleBranch
             .WithActionCost(1)
             .WithEffectOnSelf(async (action, self) =>
             {
-                var branch = Ikon.GetIkonItem(q.Owner, ikonRune);
                 var lastAction = self.Actions.ActionHistoryThisEncounter.LastOrDefault();
-                int damageDieCount = branch?.WeaponProperties?.DamageDieCount ?? 0;
-                var damageDieSize = branch?.WeaponProperties?.DamageDieSize ?? 0;
+                int damageDieCount = lastIkon?.WeaponProperties?.DamageDieCount ?? 0;
+                var damageDieSize = lastIkon?.WeaponProperties?.DamageDieSize ?? 0;
                 bool weaponDieIncreased = false;
 
                 foreach (QEffect qe in self.QEffects)
                 {
-                    if (!weaponDieIncreased && (qe.IncreaseItemDamageDie?.Invoke(qe, branch!) ?? false))
+                    if (!weaponDieIncreased && (qe.IncreaseItemDamageDie?.Invoke(qe, lastIkon!) ?? false))
                     {
                         damageDieSize = DamageDiceUtils.IncreaseDamageDiceByOneStep(damageDieSize);
                         weaponDieIncreased = true;
                     }
                     Func<QEffect, Item, bool>? increaseItemDamageDieCount = qe.IncreaseItemDamageDieCount;
-                    if (qe.IncreaseItemDamageDieCount?.Invoke(qe, branch!) ?? false)
+                    if (qe.IncreaseItemDamageDieCount?.Invoke(qe, lastIkon!) ?? false)
                     {
                         damageDieCount++;
                     }

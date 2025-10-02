@@ -43,6 +43,7 @@ public class EyeCatchingSpot
                 "You focus your attention on a creature within 30 feet, overwhelming its senses. The creature must succeed at a Will save against your class DC or be fascinated by you until the start of your next turn. The condition ends if you use a hostile action against the target, but not if you use one against its allies.",
                 Target.Ranged(6)
             ).WithActionCost(2)
+            .WithShortDescription("The target must succeed at a Will save against your class DC or be fascinated by you until the start of your next turn.")
             .WithSavingThrow(new SavingThrow(Defense.Will, q.Owner.ClassDC()))
             .WithEffectOnEachTarget(async (action, caster, target, result) =>
             {

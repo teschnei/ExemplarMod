@@ -73,6 +73,9 @@ public class MortalHarvest
         },
         q =>
         {
+            var heldIkon = Ikon.GetIkonItem(q.Owner, ikonRune);
+            var lastAction = q.Owner.Actions.ActionHistoryThisTurn.LastOrDefault();
+            var lastIkon = lastAction?.Item?.Runes.Any(r => r.ItemName == ikonRune) ?? false ? lastAction.Item : null;
             return new ActionPossibility(new CombatAction(
                 q.Owner,
                 ExemplarIllustrations.MortalHarvest,
@@ -81,15 +84,13 @@ public class MortalHarvest
                 "Stride up to half your Speed and make another Strike with the {i}mortal harvest{/i} against a different creature. This Strike uses the same multiple attack penalty as your previous Strike, but counts toward your multiple attack penalty as normal.",
                 Target.Self().WithAdditionalRestriction(self =>
                 {
-                    var harvest = Ikon.GetIkonItem(q.Owner, ikonRune);
-                    if (harvest == null)
+                    if (heldIkon == null)
                     {
                         return "You must be wielding the Mortal Harvest.";
                     }
-                    var lastAction = self.Actions.ActionHistoryThisTurn.LastOrDefault();
                     if (lastAction == null || !lastAction.HasTrait(Trait.Strike) ||
                         lastAction.CheckResult < CheckResult.Success ||
-                        (lastAction.Item != harvest))
+                        (lastIkon == null))
                     {
                         return "Your last action must be a successful Strike with the {i}mortal harvest{/i}.";
                     }
@@ -102,9 +103,8 @@ public class MortalHarvest
                 // Stride up to half Speed
                 await self.StrideAsync("Choose where to stride (half Speed).", allowPass: true, allowCancel: true, maximumHalfSpeed: true);
 
-                var harvest = Ikon.GetIkonItem(q.Owner, ikonRune);
                 List<Option> list = new List<Option>();
-                CombatAction combatAction = self.CreateStrike(harvest!, self.Actions.AttackedThisManyTimesThisTurn - 1);
+                CombatAction combatAction = self.CreateStrike(lastIkon!, self.Actions.AttackedThisManyTimesThisTurn - 1);
                 combatAction.WithActionCost(0);
                 ((CreatureTarget)combatAction.Target).CreatureTargetingRequirements.Add(
                     new LegacyCreatureTargetingRequirement((Creature a, Creature d) =>

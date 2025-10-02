@@ -86,6 +86,7 @@ public class GleamingBlade
 
                 StrikeModifiers strikeModifiers = new StrikeModifiers();
                 //TODO: it's probably better to use a QEffect with Convert for this
+                //TODO: check Sneak Attack (should only apply once)
                 strikeModifiers.ReplacementDamageKind = Ikon.GetBestDamageKindForSpark(self, targets.ChosenCreature!);
                 var map = self.Actions.AttackedThisManyTimesThisTurn;
                 var strike = self.CreateStrike(ikonItem!, map, strikeModifiers).WithActionCost(0);

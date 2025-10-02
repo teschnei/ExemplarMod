@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Dawnsbury.Campaign.Encounters;
+using Dawnsbury.Campaign.LongTerm;
 using Dawnsbury.Core.CharacterBuilder.Feats;
 using Dawnsbury.Core.Mechanics;
 using Dawnsbury.Core.Mechanics.Core;
@@ -49,6 +50,11 @@ public static class ExemplarClassLoader
                 ModManager.AddFeat(feat);
             }
         }
+
+        LongTermEffects.EasyRegister(ExemplarLongTermEffects.HornOfPlentyDailyElixir, LongTermEffectDuration.UntilLongRest, () => new QEffect()
+        {
+            Id = ExemplarQEffects.HornOfPlentyDailyElixir
+        });
 
         //Implementation of "Twin" trait
         ModManager.RegisterActionOnEachCreature(creature =>

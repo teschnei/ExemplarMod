@@ -92,6 +92,7 @@ public class BandsOfImprisonment
                 if (escaped)
                 {
                     //TODO: test if the BonusToAllSpeeds works, then remove the second Stride
+                    //TODO: straight line only!
                     if (!await self.StrideAsync("Choose where to Stride. (1/2)", allowCancel: canCancel, allowPass: !canCancel) && canCancel)
                     {
                         action.RevertRequested = true;

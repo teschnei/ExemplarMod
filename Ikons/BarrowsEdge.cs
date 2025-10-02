@@ -92,7 +92,7 @@ public class BarrowsEdge
                     var lastAction = self.Actions.ActionHistoryThisTurn.LastOrDefault();
                     if (lastAction == null || !lastAction.HasTrait(Trait.Strike) ||
                         lastAction.CheckResult < CheckResult.Success ||
-                        (lastAction.Item != barrow))
+                        !(lastAction.Item?.Runes.Any(r => r.ItemName == ikonRune) ?? false))
                     {
                         return "Your last action must be a successful Strike with the {i}barrow's edge{/i}.";
                     }

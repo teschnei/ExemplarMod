@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Dawnsbury.Core.CharacterBuilder.Feats;
 using Dawnsbury.Core.Mechanics.Enumerations;
+using Dawnsbury.Core.Mechanics.Treasure;
 using Dawnsbury.Mods.Classes.Exemplar.Ikons;
 using Dawnsbury.Mods.Classes.Exemplar.RegisteredComponents;
 using static Dawnsbury.Mods.Classes.Exemplar.ExemplarClassLoader;
@@ -28,24 +29,31 @@ public class TwinStars
             {
                 feat.WithOnCreature(creature =>
                 {
-                    var item = creature.HeldItems.Where(item => item.Runes.Any(rune => rune.ItemName == ikon.Rune) && !item.HasTrait(Trait.TwoHanded) && !item.HasTrait(Trait.Ranged)).FirstOrDefault();
+                    var item = creature.HeldItems.Where(item => item.Runes.Any(rune => rune.ItemName == ikon.Rune) && !item.HasTrait(Trait.TwoHanded)).FirstOrDefault();
+                    Item? twinnedItem = null;
                     if (item != null)
                     {
+                        item.Traits.Add(ExemplarTraits.Twin);
+                        twinnedItem = item.Duplicate();
+                        twinnedItem.Traits.AddRange(Trait.EncounterEphemeral, ExemplarTraits.Twin);
                         if (creature.HeldItems.Count == 1)
                         {
-                            creature.HeldItems.Add(item.Duplicate());
+                            creature.HeldItems.Add(twinnedItem);
                         }
                         else
                         {
-                            creature.CarriedItems.Add(item.Duplicate());
+                            creature.CarriedItems.Add(twinnedItem);
                         }
                     }
                     else
                     {
-                        item = creature.CarriedItems.Where(item => item.Runes.Any(rune => rune.ItemName == ikon.Rune) && !item.HasTrait(Trait.TwoHanded) && !item.HasTrait(Trait.Ranged)).FirstOrDefault();
+                        item = creature.CarriedItems.Where(item => item.Runes.Any(rune => rune.ItemName == ikon.Rune) && !item.HasTrait(Trait.TwoHanded)).FirstOrDefault();
                         if (item != null)
                         {
-                            creature.CarriedItems.Add(item.Duplicate());
+                            item.Traits.Add(ExemplarTraits.Twin);
+                            twinnedItem = item.Duplicate();
+                            twinnedItem.Traits.AddRange(Trait.EncounterEphemeral, ExemplarTraits.Twin);
+                            creature.CarriedItems.Add(twinnedItem);
                         }
                     }
                 });

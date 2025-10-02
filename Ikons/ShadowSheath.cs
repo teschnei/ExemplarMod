@@ -83,7 +83,10 @@ public class ShadowSheath
         },
         q =>
         {
-            var sheath = Ikon.GetIkonItem(q.Owner, ikonRune);
+            var heldIkon = Ikon.GetIkonItem(q.Owner, ikonRune);
+            var lastAction = q.Owner.Actions.ActionHistoryThisTurn.LastOrDefault();
+            var lastIkon = lastAction?.Item?.Runes.Any(r => r.ItemName == ikonRune) ?? false ? lastAction.Item : null;
+            bool thrown = lastAction?.HasTrait(Trait.Thrown) ?? false;
             var action = new CombatAction(
                 q.Owner,
                 ExemplarIllustrations.ShadowSheath,
@@ -92,16 +95,11 @@ public class ShadowSheath
                 "The shadow weapon you threw previously fades, the distraction covering " +
                 "your true intention all along—a second strike hidden in the blind spot of the first! Interact to draw another weapon from the {i}shadow sheath{/i}, then Strike with it at the same multiple attack penalty as the unsuccessful attack. " +
                 "The opponent is off-guard to this attack. This strike counts towards your multiple attack penalty as normal. After the Strike resolves, you can Interact to draw another weapon from the {i}shadow sheath{/i}.",
-                Target.Ranged(sheath?.WeaponProperties?.MaximumRange ?? 100).WithAdditionalConditionOnTargetCreature((self, target) =>
+                heldIkon == null ? Target.Uncastable("You must be wielding a weapon produced from the {i}shadow sheath{/i}.") : heldIkon.DetermineStrikeTarget(thrown ? RangeKind.Ranged : RangeKind.Melee).WithAdditionalConditionOnTargetCreature((self, target) =>
                 {
-                    if (sheath == null)
-                    {
-                        return Usability.NotUsable("You must be wielding a weapon produced from the {i}shadow sheath{/i}.");
-                    }
-                    var lastAction = self.Actions.ActionHistoryThisTurn.LastOrDefault();
                     if (lastAction == null || !lastAction.HasTrait(Trait.Strike) ||
                         lastAction.CheckResult >= CheckResult.Success ||
-                        (lastAction.Item != sheath))
+                        (lastIkon == null))
                     {
                         return Usability.NotUsable("Your last action must be an unsuccessful Strike with the {i}shadow sheath{/i}.");
                     }
@@ -115,13 +113,10 @@ public class ShadowSheath
             .WithActionCost(1)
             .WithEffectOnChosenTargets(async (action, self, targets) =>
             {
-                var lastAction = self.Actions.ActionHistoryThisTurn.LastOrDefault()!;
-                bool thrown = lastAction.HasTrait(Trait.Thrown);
-                var sheath = Ikon.GetIkonItem(self, ikonRune)!;
-                var strike = StrikeRules.CreateStrike(self, sheath, thrown ? RangeKind.Ranged : RangeKind.Melee, self.Actions.AttackedThisManyTimesThisTurn - 1, thrown).WithActionCost(0);
+                var strike = StrikeRules.CreateStrike(self, lastIkon!, thrown ? RangeKind.Ranged : RangeKind.Melee, self.Actions.AttackedThisManyTimesThisTurn - 1, thrown).WithActionCost(0);
                 if (thrown)
                 {
-                    strike.WithSoundEffect(sheath.WeaponProperties?.Sfx ?? SfxName.Bow);
+                    strike.WithSoundEffect(lastIkon?.WeaponProperties?.Sfx ?? SfxName.Bow);
                 }
                 strike.ChosenTargets = ChosenTargets.CreateSingleTarget(targets.ChosenCreature!);
                 var offguard = QEffect.FlatFooted("Liar's Hidden Blade");
@@ -129,10 +124,14 @@ public class ShadowSheath
                 await strike.AllExecute();
                 targets.ChosenCreature.RemoveAllQEffects(q => q == offguard);
             });
-            if (sheath != null)
+            if (lastIkon != null)
             {
-                action.WithActiveRollSpecification(new ActiveRollSpecification(Checks.Attack(sheath!, q.Owner.Actions.AttackedThisManyTimesThisTurn - 1), TaggedChecks.DefenseDC(Defense.AC)))
+                action.WithActiveRollSpecification(new ActiveRollSpecification(Checks.Attack(lastIkon!, q.Owner.Actions.AttackedThisManyTimesThisTurn - 1), TaggedChecks.DefenseDC(Defense.AC)))
                 .WithNoSaveFor((action, cr) => true);
+            }
+            if (thrown)
+            {
+                action.Traits.Add(Trait.Ranged);
             }
             return new ActionPossibility(action);
         })
