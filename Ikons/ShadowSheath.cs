@@ -84,7 +84,7 @@ public class ShadowSheath
         q =>
         {
             var sheath = Ikon.GetIkonItem(q.Owner, ikonRune);
-            return new ActionPossibility(new CombatAction(
+            var action = new CombatAction(
                 q.Owner,
                 ExemplarIllustrations.ShadowSheath,
                 "Liar's Hidden Blade",
@@ -94,7 +94,6 @@ public class ShadowSheath
                 "The opponent is off-guard to this attack. This strike counts towards your multiple attack penalty as normal. After the Strike resolves, you can Interact to draw another weapon from the {i}shadow sheath{/i}.",
                 Target.Ranged(sheath?.WeaponProperties?.MaximumRange ?? 100).WithAdditionalConditionOnTargetCreature((self, target) =>
                 {
-                    var sheath = Ikon.GetIkonItem(q.Owner, ikonRune);
                     if (sheath == null)
                     {
                         return Usability.NotUsable("You must be wielding a weapon produced from the {i}shadow sheath{/i}.");
@@ -114,8 +113,6 @@ public class ShadowSheath
                 })
             )
             .WithActionCost(1)
-            .WithActiveRollSpecification(new ActiveRollSpecification(Checks.Attack(sheath!, q.Owner.Actions.AttackedThisManyTimesThisTurn - 1), TaggedChecks.DefenseDC(Defense.AC)))
-            .WithNoSaveFor((action, cr) => true)
             .WithEffectOnChosenTargets(async (action, self, targets) =>
             {
                 var lastAction = self.Actions.ActionHistoryThisTurn.LastOrDefault()!;
@@ -131,7 +128,13 @@ public class ShadowSheath
                 targets.ChosenCreature!.AddQEffect(offguard);
                 await strike.AllExecute();
                 targets.ChosenCreature.RemoveAllQEffects(q => q == offguard);
-            }));
+            });
+            if (sheath != null)
+            {
+                action.WithActiveRollSpecification(new ActiveRollSpecification(Checks.Attack(sheath!, q.Owner.Actions.AttackedThisManyTimesThisTurn - 1), TaggedChecks.DefenseDC(Defense.AC)))
+                .WithNoSaveFor((action, cr) => true);
+            }
+            return new ActionPossibility(action);
         })
         .WithRune(ikonRune)
         .IkonFeat;

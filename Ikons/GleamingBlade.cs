@@ -67,8 +67,8 @@ public class GleamingBlade
         },
         q =>
         {
-            var ikonItem = Ikon.GetIkonItem(q.Owner, ikonRune)!;
-            return new ActionPossibility(new CombatAction(
+            var ikonItem = Ikon.GetIkonItem(q.Owner, ikonRune);
+            var action = new CombatAction(
                 q.Owner,
                 ExemplarIllustrations.GleamingBlade,
                 "Flowing Spirit Strike",
@@ -77,8 +77,6 @@ public class GleamingBlade
                 Target.Reach(Ikon.GetIkonItem(q.Owner, ikonRune)!).WithAdditionalConditionOnTargetCreature(new IkonWieldedTargetingRequirement(ikonRune, "gleaming blade"))
             )
             .WithActionCost(2)
-            .WithActiveRollSpecification(new ActiveRollSpecification(Checks.Attack(ikonItem, -1), TaggedChecks.DefenseDC(Defense.AC)))
-            .WithNoSaveFor((action, cr) => true)
             .WithEffectOnChosenTargets(async (action, self, targets) =>
             {
                 var penalty = new QEffect("Gleaming Blade penalty", "[this condition has no description]", ExpirationCondition.Never, self, IllustrationName.None)
@@ -90,12 +88,18 @@ public class GleamingBlade
                 //TODO: it's probably better to use a QEffect with Convert for this
                 strikeModifiers.ReplacementDamageKind = Ikon.GetBestDamageKindForSpark(self, targets.ChosenCreature!);
                 var map = self.Actions.AttackedThisManyTimesThisTurn;
-                var strike = self.CreateStrike(ikonItem, map, strikeModifiers).WithActionCost(0);
+                var strike = self.CreateStrike(ikonItem!, map, strikeModifiers).WithActionCost(0);
                 await self.MakeStrike(strike, targets.ChosenCreature!);
                 self.AddQEffect(penalty);
                 await self.MakeStrike(strike, targets.ChosenCreature!);
                 self.RemoveAllQEffects(q => q == penalty);
-            }));
+            });
+            if (ikonItem != null)
+            {
+                action.WithActiveRollSpecification(new ActiveRollSpecification(Checks.Attack(ikonItem, -1), TaggedChecks.DefenseDC(Defense.AC)))
+                      .WithNoSaveFor((action, cr) => true);
+            }
+            return new ActionPossibility(action);
         })
         .WithRune(ikonRune)
         .IkonFeat;

@@ -114,7 +114,7 @@ public class TitansBreaker
         q =>
         {
             var breaker = Ikon.GetIkonItem(q.Owner, ikonRune)!;
-            return new ActionPossibility(new CombatAction(
+            var action = new CombatAction(
                 q.Owner,
                 ExemplarIllustrations.TitansBreaker,
                 "Fracture Mountains",
@@ -126,8 +126,6 @@ public class TitansBreaker
                 Target.Reach(Ikon.GetIkonItem(q.Owner, ikonRune)!).WithAdditionalConditionOnTargetCreature(new IkonWieldedTargetingRequirement(ikonRune, "titan's breaker"))
             )
             .WithActionCost(2)
-            .WithActiveRollSpecification(new ActiveRollSpecification(Checks.Attack(breaker, -1), TaggedChecks.DefenseDC(Defense.AC)))
-            .WithNoSaveFor((action, cr) => true)
             .WithEffectOnChosenTargets(async (action, self, targets) =>
             {
                 //Activate the Immanence's bigger damage mode
@@ -135,7 +133,13 @@ public class TitansBreaker
                 await self.MakeStrike(targets.ChosenCreature!, breaker);
                 self.Actions.AttackedThisManyTimesThisTurn++;
                 q.Tag = false;
-            }));
+            });
+            if (breaker != null)
+            {
+                action.WithActiveRollSpecification(new ActiveRollSpecification(Checks.Attack(breaker, -1), TaggedChecks.DefenseDC(Defense.AC)))
+                .WithNoSaveFor((action, cr) => true);
+            }
+            return new ActionPossibility(action);
         })
         .WithRune(ikonRune)
         .IkonFeat;

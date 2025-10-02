@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Dawnsbury.Campaign.Encounters;
 using Dawnsbury.Core.CharacterBuilder.Feats;
 using Dawnsbury.Core.Mechanics;
 using Dawnsbury.Core.Mechanics.Core;
@@ -89,7 +90,7 @@ public static class ExemplarClassLoader
             new("Ikons", cr =>
                 String.Join("\n",
                     from f in cr.PersistentCharacterSheet?.Calculated.AllFeats ?? []
-                    where f.HasTrait(ExemplarTraits.Ikon)
+                    where f.HasTrait(ExemplarTraits.Ikon) && cr.Battle.Encounter is Pseudoencounter
                     select $"{{b}}{f.DisplayName(cr.PersistentCharacterSheet!)}{{/b}}\n" +
                         "{b}Immanence{/b}\n" +
                         Ikon.GetImmanenceText(f.RulesText) + "\n" +

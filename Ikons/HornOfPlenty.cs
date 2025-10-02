@@ -101,7 +101,7 @@ public class HornOfPlenty
         {
             var hornActions = q.Owner.CarriedItems.FirstOrDefault(i => i.BaseItemName == hornOfPlenty)?.StoredItems.Select(item =>
             {
-                return new ActionPossibility(new CombatAction(q.Owner, item.Illustration, item.Name, [Trait.Manipulate, ExemplarTraits.Transcendence],
+                return new ActionPossibility(new CombatAction(q.Owner, item.Illustration, item.Name, [Trait.Manipulate, ExemplarTraits.Transcendence, Trait.Basic],
                 $"You Interact to draw the {item.Name} and drink it. Rather than nourishing yourself, the item's effects are transferred to a willing ally within 60 feet, as if they had consumed it themself.\n\n{item.GetItemDescriptionWithoutUsability()}", Target.RangedFriend(8))
                 .WithActionCost(1)
                 .WithEffectOnChosenTargets(async (action, self, targets) =>

@@ -90,7 +90,7 @@ public class UnfailingBow
         q =>
         {
             var unfailing = Ikon.GetIkonItem(q.Owner, ikonRune);
-            return new ActionPossibility(new CombatAction(
+            var action = new CombatAction(
                 q.Owner,
                 ExemplarIllustrations.UnfailingBow,
                 "Arrow Splits Arrow",
@@ -124,8 +124,6 @@ public class UnfailingBow
                 })
             )
             .WithActionCost(2)
-            .WithActiveRollSpecification(new ActiveRollSpecification(Checks.Attack(unfailing!, -1), TaggedChecks.DefenseDC(Defense.AC)))
-            .WithNoSaveFor((action, cr) => true)
             .WithEffectOnChosenTargets(async (action, self, targets) =>
             {
                 var unfailing = Ikon.GetIkonItem(self, ikonRune);
@@ -136,7 +134,13 @@ public class UnfailingBow
                     Id = ExemplarQEffects.ArrowSplitsArrow
                 }.WithExpirationEphemeral());
                 await self.MakeStrike(lastAction!.ChosenTargets.ChosenCreature!, unfailing!);
-            }));
+            });
+            if (unfailing != null)
+            {
+                action.WithActiveRollSpecification(new ActiveRollSpecification(Checks.Attack(unfailing!, -1), TaggedChecks.DefenseDC(Defense.AC)))
+                    .WithNoSaveFor((action, cr) => true);
+            }
+            return new ActionPossibility(action);
         })
         .WithRune(ikonRune)
         .IkonFeat;

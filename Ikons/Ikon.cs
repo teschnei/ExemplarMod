@@ -155,7 +155,7 @@ public class Ikon
                 }
             }
         }
-        return poss?.WithPossibilityGroup("Transcendence");
+        return poss?.WithPossibilityGroup("Spark Transcendence");
     }
 
     public static string GetImmanenceText(string rulesText)

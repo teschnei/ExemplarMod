@@ -40,7 +40,8 @@ public class VowOfMortalDefiance
                 !q.Owner.Battle.AllCreatures.Any(creature => creature.HasEffect(ExemplarQEffects.VowOfMortalDefiance)) ?
                 new ActionPossibility(new CombatAction(q.Owner, IllustrationName.VisionOfWeakness, "Vow of Mortal Defiance",
                         [Trait.Auditory, Trait.Concentrate, Trait.Linguistic, Trait.Mental],
-                        "",
+                        "You swear a vow to defeat one creature within 60 feet that has the Good or Evil trait. The first time each round that you deal damage to that creature, you deal an additional 1d6 spirit damage. " +
+                        "You can't use Vow of Mortal Defiance again until you or the target is defeated, flees, or the encounter ends.",
                         new CreatureTarget(RangeKind.Ranged, [new EnemyCreatureTargetingRequirement(), new LegacyCreatureTargetingRequirement((source, target) =>
                         {
                             if (!target.HasTrait(Trait.Good) && !target.HasTrait(Trait.Evil))
@@ -59,7 +60,7 @@ public class VowOfMortalDefiance
                         {
                             q.YouDealDamageEvent = async (q, damageEvent) =>
                             {
-                                if (!damageEvent.Source.HasEffect(ExemplarQEffects.VowOfMortalDefianceUsed))
+                                if (!damageEvent.Source.HasEffect(ExemplarQEffects.VowOfMortalDefianceUsed) && damageEvent.TargetCreature == target)
                                 {
                                     var damageKind = Ikon.GetBestDamageKindForSpark(damageEvent.Source, damageEvent.TargetCreature);
                                     var diceFormula = DiceFormula.FromText("1d6", "Vow of Mortal Defiance");
