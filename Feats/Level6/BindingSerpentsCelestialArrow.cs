@@ -51,7 +51,7 @@ public class BindingSerpentsCelestialArrow
                                     "Make a ranged Strike with your ikon. If the Strike hits, the target must succeed at a Reflex save against your class DC or " +
                                     "the arrow transforms into a multitude of ethereal snakes that coil around the target, immobilizing it until it succeeds at an " +
                                     "Escape attempt against your class DC.",
-                                    Target.Reach(ikonItem))
+                                    ikonItem.DetermineStrikeTarget(RangeKind.Ranged))
                                 .WithActionCost(2)
                                 .WithActiveRollSpecification(new ActiveRollSpecification(Checks.Attack(ikonItem, -1), TaggedChecks.DefenseDC(Defense.AC)))
                                 .WithNoSaveFor((action, cr) => true)

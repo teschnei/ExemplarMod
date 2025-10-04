@@ -1,24 +1,60 @@
 using System.Collections.Generic;
 using System.Linq;
+using Dawnsbury.Audio;
 using Dawnsbury.Core;
 using Dawnsbury.Core.CharacterBuilder.Feats;
 using Dawnsbury.Core.CharacterBuilder.FeatsDb.Common;
 using Dawnsbury.Core.CombatActions;
+using Dawnsbury.Core.Creatures;
 using Dawnsbury.Core.Mechanics;
 using Dawnsbury.Core.Mechanics.Core;
 using Dawnsbury.Core.Mechanics.Enumerations;
+using Dawnsbury.Core.Mechanics.Rules;
 using Dawnsbury.Core.Mechanics.Targeting;
 using Dawnsbury.Core.Mechanics.Treasure;
 using Dawnsbury.Core.Possibilities;
+using Dawnsbury.Display;
 using Dawnsbury.Mods.Classes.Exemplar.Ikons;
 using Dawnsbury.Mods.Classes.Exemplar.RegisteredComponents;
 using static Dawnsbury.Mods.Classes.Exemplar.ExemplarClassLoader;
-using Dawnsbury.Display;
 
 namespace Dawnsbury.Mods.Classes.Exemplar.Feats.Level4;
 
 public class ThroughTheNeedlesEye
 {
+    static Possibility? CreateBlinding(Creature owner, Item ikonItem, RangeKind range, bool thrown)
+    {
+        return
+            new ActionPossibility(new CombatAction(owner, IllustrationName.BloodVendetta,
+                "Blinding of the Needle" + (thrown ? " (throw)" : ""), [ExemplarTraits.Transcendence],
+                "You aim your weapon in a superficial cut above your opponent's eye. Make a Strike with the imbued ikon. If that Strike is " +
+                "successful, the target must succeed at a Fortitude save against your class DC or become blinded for 1 round or until it uses " +
+                "an Interact action to clear the blood from its vision.",
+                ikonItem.DetermineStrikeTarget(range))
+            .WithActionCost(2)
+            .WithActiveRollSpecification(new ActiveRollSpecification(Checks.Attack(ikonItem, -1), TaggedChecks.DefenseDC(Defense.AC)))
+            .WithNoSaveFor((action, cr) => true)
+            .WithEffectOnChosenTargets(async (action, self, targets) =>
+            {
+                if (targets.ChosenCreature != null)
+                {
+                    CombatAction strike = StrikeRules.CreateStrike(self, ikonItem, range, -1, thrown).WithActionCost(0);
+                    if (range == RangeKind.Ranged)
+                    {
+                        strike.WithSoundEffect(ikonItem.WeaponProperties?.Sfx ?? SfxName.Bow);
+                    }
+                    strike.ChosenTargets = ChosenTargets.CreateSingleTarget(targets.ChosenCreature);
+                    if (await strike.AllExecute() && strike.CheckResult >= CheckResult.Success)
+                    {
+                        if (CommonSpellEffects.RollSavingThrow(targets.ChosenCreature, action, Defense.Fortitude, self.ClassDC()) <= CheckResult.Failure)
+                        {
+                            targets.ChosenCreature.AddQEffect(QEffect.QuenchableBlinded("Blinding of the Needle").WithExpirationAtEndOfOwnerTurn());
+                        }
+                    }
+                }
+            })
+        );
+    }
     [FeatGenerator(4)]
     public static IEnumerable<Feat> GetFeat()
     {
@@ -41,32 +77,36 @@ public class ThroughTheNeedlesEye
                     q.ProvideMainAction = q =>
                     {
                         var ikonItem = Ikon.GetIkonItem(q.Owner, (ItemName)ikon.Rune!);
-                        return q.Owner.HasEffect(ikon.EmpoweredQEffectId) && ikonItem != null ?
-                            Ikon.CreateTranscendence(q =>
-                                new ActionPossibility(new CombatAction(q.Owner, IllustrationName.BloodVendetta,
-                                    "Blinding of the Needle", [ExemplarTraits.Transcendence],
-                                    "You aim your weapon in a superficial cut above your opponent's eye. Make a Strike with the imbued ikon. If that Strike is " +
-                                    "successful, the target must succeed at a Fortitude save against your class DC or become blinded for 1 round or until it uses " +
-                                    "an Interact action to clear the blood from its vision.",
-                                    Target.Reach(ikonItem))
-                                .WithActionCost(2)
-                                .WithActiveRollSpecification(new ActiveRollSpecification(Checks.Attack(ikonItem, -1), TaggedChecks.DefenseDC(Defense.AC)))
-                                .WithNoSaveFor((action, cr) => true)
-                                .WithEffectOnChosenTargets(async (action, self, targets) =>
-                                {
-                                    if (targets.ChosenCreature != null)
+                        if (q.Owner.HasEffect(ikon.EmpoweredQEffectId) && ikonItem != null)
+                        {
+                            var ranged = ikonItem.HasTrait(Trait.Ranged);
+                            var throwable = ikonItem.WeaponProperties?.Throwable ?? false;
+
+                            if (!ranged && !throwable)
+                            {
+                                return Ikon.CreateTranscendence(q => CreateBlinding(q.Owner, ikonItem, RangeKind.Melee, false), q, ikon);
+                            }
+                            else if (ranged)
+                            {
+                                return Ikon.CreateTranscendence(q => CreateBlinding(q.Owner, ikonItem, RangeKind.Ranged, false), q, ikon);
+                            }
+                            else
+                            {
+                                return Ikon.CreateTranscendence(q =>
+                                    new SubmenuPossibility(IllustrationName.BloodVendetta, "Blinding of the Needle")
                                     {
-                                        if (await self.MakeStrike(targets.ChosenCreature, ikonItem) >= CheckResult.Success)
-                                        {
-                                            if (CommonSpellEffects.RollSavingThrow(targets.ChosenCreature, action, Defense.Fortitude, self.ClassDC()) <= CheckResult.Failure)
+                                        Subsections = [
+                                            new PossibilitySection("Blinding of the Needle")
                                             {
-                                                targets.ChosenCreature.AddQEffect(QEffect.QuenchableBlinded("Blinding of the Needle").WithExpirationAtEndOfOwnerTurn());
+                                                Possibilities = [CreateBlinding(q.Owner, ikonItem, RangeKind.Melee, false),
+                                                                CreateBlinding(q.Owner, ikonItem, RangeKind.Ranged, true)]
                                             }
-                                        }
-                                    }
-                                })), q, ikon
-                            )
-                        : null;
+                                        ]
+                                    }, q, ikon);
+
+                            }
+                        }
+                        return null;
                     };
                 });
             }).ToList()

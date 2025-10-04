@@ -48,7 +48,7 @@ public class MotionlessCutter
                                     "against a different target within your reach. You can continue making Strikes in this manner, each against a different target, until you have " +
                                     "made a total of four Strikes or you miss with a Strike, whichever comes first. Each attack counts towards your multiple attack penalty, but you " +
                                     "do not increase your penalty until you have made all your attacks.",
-                                    Target.MultipleCreatureTargets([Target.Reach(ikonItem), Target.Reach(ikonItem), Target.Reach(ikonItem), Target.Reach(ikonItem)]).WithMinimumTargets(1).WithMustBeDistinct())
+                                    Target.MultipleCreatureTargets(Enumerable.Repeat(ikonItem.DetermineStrikeTarget(RangeKind.Melee), 4).ToArray()).WithMinimumTargets(1).WithMustBeDistinct())
                                 .WithActionCost(3)
                                 .WithActiveRollSpecification(new ActiveRollSpecification(Checks.Attack(ikonItem, -1), Checks.DefenseDC(Defense.AC)))
                                 .WithNoSaveFor((action, cr) => true)
