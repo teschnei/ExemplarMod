@@ -60,7 +60,7 @@ public class BindingSerpentsCelestialArrow
                                     if (targets.ChosenCreature != null)
                                     {
                                         bool flag = ikonItem.HasTrait(Trait.Ranged);
-                                        CombatAction combatAction = StrikeRules.CreateStrike(self, ikonItem, flag ? RangeKind.Ranged : RangeKind.Melee, -1, !flag, null).WithActionCost(0);
+                                        CombatAction combatAction = StrikeRules.CreateStrike(self, ikonItem, RangeKind.Ranged, -1, !flag, null).WithActionCost(0);
                                         if (flag)
                                         {
                                             combatAction.WithSoundEffect(ikonItem.WeaponProperties?.Sfx ?? SfxName.Bow);
