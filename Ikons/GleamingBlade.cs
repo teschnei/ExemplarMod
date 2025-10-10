@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using Dawnsbury.Core;
 using Dawnsbury.Core.CharacterBuilder.Feats;
 using Dawnsbury.Core.CombatActions;
@@ -8,11 +7,9 @@ using Dawnsbury.Core.Mechanics.Core;
 using Dawnsbury.Core.Mechanics.Damage;
 using Dawnsbury.Core.Mechanics.Enumerations;
 using Dawnsbury.Core.Mechanics.Targeting;
-using Dawnsbury.Core.Mechanics.Treasure;
 using Dawnsbury.Core.Possibilities;
 using Dawnsbury.Core.Roller;
 using Dawnsbury.Display;
-using Dawnsbury.Modding;
 using Dawnsbury.Mods.Classes.Exemplar.RegisteredComponents;
 using static Dawnsbury.Mods.Classes.Exemplar.ExemplarClassLoader;
 
@@ -23,28 +20,6 @@ public class GleamingBlade
     [FeatGenerator(0)]
     public static IEnumerable<Feat> GetFeat()
     {
-        ItemName ikonRune = ModManager.RegisterNewItemIntoTheShop("GleamingBlade", itemName =>
-        {
-            return new Item(itemName, IllustrationName.FearsomeRunestone, "Gleaming Blade", 1, 0, Trait.DoNotAddToShop, ExemplarTraits.IkonSwordKnife)
-            .WithRuneProperties(new RuneProperties("ikon", IkonRuneKind.Ikon, "This blade glitters with such sharpness it seems to cut the very air in front of it.",
-            "This item grants the {i}immanence{/i} and {i}transcendence{/i} abilities of the Gleaming Blade when empowered.", item =>
-            {
-                item.Traits.AddRange([ExemplarTraits.Ikon, Trait.Divine]);
-            })
-            .WithCanBeAppliedTo((Item rune, Item weapon) =>
-            {
-                if (weapon.WeaponProperties == null)
-                {
-                    return "Must be a weapon.";
-                }
-                else if ((!weapon.HasTrait(Trait.Sword)) && (!weapon.HasTrait(Trait.Knife)))
-                {
-                    return "Must be a Sword or a Knife.";
-                }
-                return null;
-            }));
-        });
-
         yield return new Ikon(new Feat(
             ExemplarFeats.GleamingBlade,
             "This blade glitters with such sharpness it seems to cut the very air in front of it.",
@@ -53,28 +28,28 @@ public class GleamingBlade
             $"{{b}}Transcendence — Flowing Spirit Strike {RulesBlock.GetIconTextFromNumberOfActions(2)}{{/b}} (spirit, transcendence)\nMake two Strikes with the {{i}}gleaming blade{{/i}}, each against the same target and using your current multiple attack penalty. If the {{i}}gleaming blade{{/i}} doesn't have the agile trait, the second Strike takes a –2 penalty. If both attacks hit, you combine their damage, which is all dealt as spirit damage. You add any precision damage only once. Combine the damage from both Strikes and apply resistances and weaknesses only once. This counts as two attacks when calculating your multiple attack penalty.",
             [ExemplarTraits.Ikon, ExemplarTraits.IkonWeapon],
             null
-        ).WithIllustration(ExemplarIllustrations.GleamingBlade), q =>
+        ).WithIllustration(ExemplarIllustrations.GleamingBlade), (ikon, q) =>
         {
             q.AddExtraKindedDamageOnStrike = (action, target) =>
             {
-                if (action.Item?.Runes.Any(rune => rune.ItemName == ikonRune) ?? false)
+                if (ikon.IsIkonItem(action.Item))
                 {
-                    int dice = action.Item.WeaponProperties?.DamageDieCount ?? 0;
+                    int dice = action.Item?.WeaponProperties?.DamageDieCount ?? 0;
                     return new KindedDamage(DiceFormula.FromText($"{2 * dice}", "Gleaming Blade"), Ikon.GetBestDamageKindForSpark(action.Owner, target));
                 }
                 return null;
             };
         },
-        q =>
+        (ikon, q) =>
         {
-            var ikonItem = Ikon.GetIkonItem(q.Owner, ikonRune);
+            var ikonItem = Ikon.GetHeldIkon(q.Owner, ikon);
             var action = new CombatAction(
                 q.Owner,
                 ExemplarIllustrations.GleamingBlade,
                 "Flowing Spirit Strike",
                 [ExemplarTraits.Spirit, ExemplarTraits.Transcendence],
                 "Make two Strikes with the {i}gleaming blade{/i}, each against the same target and using your current multiple attack penalty. If the {i}gleaming blade{/i} doesn't have the agile trait, the second Strike takes a –2 penalty. If both attacks hit, you combine their damage, which is all dealt as spirit damage. You add any precision damage only once. Combine the damage from both Strikes and apply resistances and weaknesses only once. This counts as two attacks when calculating your multiple attack penalty.",
-                Target.Reach(Ikon.GetIkonItem(q.Owner, ikonRune)!).WithAdditionalConditionOnTargetCreature(new IkonWieldedTargetingRequirement(ikonRune, "gleaming blade"))
+                Target.Reach(ikonItem!).WithAdditionalConditionOnTargetCreature(new IkonWieldedTargetingRequirement(ikon, "gleaming blade"))
             )
             .WithActionCost(2)
             .WithEffectOnChosenTargets(async (action, self, targets) =>
@@ -102,7 +77,18 @@ public class GleamingBlade
             }
             return new ActionPossibility(action);
         })
-        .WithRune(ikonRune)
+        .WithValidItem(item =>
+        {
+            if (item.WeaponProperties == null)
+            {
+                return "Must be a weapon.";
+            }
+            else if ((!item.HasTrait(Trait.Sword)) && (!item.HasTrait(Trait.Knife)))
+            {
+                return "Must be a Sword or a Knife.";
+            }
+            return null;
+        })
         .IkonFeat;
     }
 }

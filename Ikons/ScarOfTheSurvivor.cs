@@ -27,7 +27,7 @@ public class ScarOfTheSurvivor
             "Your wounds knit shut with hardly a scratch. You regain 1d8 Hit Points. At 3rd level and every 2 levels thereafter, the healing increases by 1d8.",
             [ExemplarTraits.Ikon, ExemplarTraits.IkonBody],
             null
-        ).WithIllustration(ExemplarIllustrations.ScarOfTheSurvivor), q =>
+        ).WithIllustration(ExemplarIllustrations.ScarOfTheSurvivor), (ikon, q) =>
         {
             var diehard = new QEffect()
             {
@@ -37,7 +37,7 @@ public class ScarOfTheSurvivor
             q.Owner.AddQEffect(diehard);
             q.BonusToDefenses = (qe, action, defense) => defense == Defense.Fortitude ? new Bonus(1, BonusType.Status, "Scar of the Survivor", true) : null;
             q.WhenExpires = q => q.Owner.RemoveAllQEffects(q => q == diehard);
-        }, q =>
+        }, (ikon, q) =>
         {
             var healing = (q.Owner.Level + 1) / 2;
             return new ActionPossibility(new CombatAction(

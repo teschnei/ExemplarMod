@@ -16,8 +16,7 @@ public class HurlAtTheHorizon
     {
         var flavorText = "Your weapon flies from your hand as if propelled under its own power.";
         var rulesText = "{b}Usage{/b} imbued into a thrown or melee weapon ikon\n\n The imbued ikon gains the following ability.\n\n" +
-            "{b}Immanence{/b} Your weapon gains the thrown 15 feet trait, or increases its thrown distance by 10 feet if it already has the thrown trait.\n\n" +
-            "{i}Note: there is no warning for using this on an incompatible item, it will just do nothing{/i}.";
+            "{b}Immanence{/b} Your weapon gains the thrown 15 feet trait, or increases its thrown distance by 10 feet if it already has the thrown trait.";
         yield return new TrueFeat(
             ExemplarFeats.HurlAtTheHorizon,
             2,
@@ -29,8 +28,8 @@ public class HurlAtTheHorizon
                 feat.WithOnCreature(creature =>
                 {
                     var ikonItem = creature.HeldItems.Concat(creature.CarriedItems)
-                        .Where(item => item.Runes.Any(rune => rune.ItemName == ikon.Rune)).FirstOrDefault();
-                    if (ikonItem != null && ((ikonItem.WeaponProperties?.Throwable ?? false) || !ikonItem.HasTrait(Trait.Ranged)))
+                        .Where(item => ikon.IsIkonItem(item)).FirstOrDefault();
+                    if (ikonItem != null)
                     {
                         creature.AddQEffect(new QEffect()
                         {
@@ -41,7 +40,7 @@ public class HurlAtTheHorizon
                                     var oldRange = ikonItem!.WeaponProperties?.RangeIncrement ?? 0;
                                     var oldForcedMelee = ikonItem!.WeaponProperties?.ForcedMelee;
                                     bool addedThrown = false;
-                                    if (ikonItem.HasTrait(Trait.Thrown10Feet) || ikonItem.HasTrait(Trait.Thrown20Feet))
+                                    if (ikonItem.WeaponProperties?.Throwable ?? false)
                                     {
                                         ikonItem.WeaponProperties?.WithRangeIncrement(oldRange + 2);
                                     }
@@ -70,6 +69,14 @@ public class HurlAtTheHorizon
                         });
                     }
                 });
+            },
+            item =>
+            {
+                if (item.HasTrait(Trait.Ranged) && !(item.WeaponProperties?.Throwable ?? false))
+                {
+                    return "Hurl at the Horizon: must be a thrown or melee weapon ikon.";
+                }
+                return null;
             }).ToList()
         );
     }

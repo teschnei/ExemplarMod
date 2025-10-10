@@ -76,7 +76,7 @@ public class ThroughTheNeedlesEye
                 {
                     q.ProvideMainAction = q =>
                     {
-                        var ikonItem = Ikon.GetIkonItem(q.Owner, (ItemName)ikon.Rune!);
+                        var ikonItem = Ikon.GetHeldIkon(q.Owner, ikon);
                         if (q.Owner.HasEffect(ikon.EmpoweredQEffectId) && ikonItem != null)
                         {
                             var ranged = ikonItem.HasTrait(Trait.Ranged);
@@ -84,15 +84,15 @@ public class ThroughTheNeedlesEye
 
                             if (!ranged && !throwable)
                             {
-                                return Ikon.CreateTranscendence(q => CreateBlinding(q.Owner, ikonItem, RangeKind.Melee, false), q, ikon);
+                                return Ikon.CreateTranscendence((ikon, q) => CreateBlinding(q.Owner, ikonItem, RangeKind.Melee, false), q, ikon);
                             }
                             else if (ranged)
                             {
-                                return Ikon.CreateTranscendence(q => CreateBlinding(q.Owner, ikonItem, RangeKind.Ranged, false), q, ikon);
+                                return Ikon.CreateTranscendence((ikon, q) => CreateBlinding(q.Owner, ikonItem, RangeKind.Ranged, false), q, ikon);
                             }
                             else
                             {
-                                return Ikon.CreateTranscendence(q =>
+                                return Ikon.CreateTranscendence((ikon, q) =>
                                     new SubmenuPossibility(IllustrationName.BloodVendetta, "Blinding of the Needle")
                                     {
                                         Subsections = [
@@ -102,13 +102,21 @@ public class ThroughTheNeedlesEye
                                                                 CreateBlinding(q.Owner, ikonItem, RangeKind.Ranged, true)]
                                             }
                                         ]
-                                    }, q, ikon);
-
+                                    }, q, ikon
+                                );
                             }
                         }
                         return null;
                     };
                 });
+            },
+        item =>
+            {
+                if (item.WeaponProperties == null)
+                {
+                    return "Through the Needle's Eye: must be a weapon ikon";
+                }
+                return null;
             }).ToList()
         );
     }

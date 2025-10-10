@@ -27,23 +27,6 @@ public class SkybearersBelt
     [FeatGenerator(0)]
     public static IEnumerable<Feat> GetFeat()
     {
-        ItemName ikonRune = ModManager.RegisterNewItemIntoTheShop("SkybearersBelt", itemName =>
-        {
-            return new Item(itemName, IllustrationName.FearsomeRunestone, "Skybearer's Belt", 1, 0, Trait.DoNotAddToShop, ExemplarTraits.IkonBelt)
-            .WithRuneProperties(new RuneProperties("ikon", IkonRuneKind.Ikon, "This girdle wraps around your waist, magnifying your strength to the point you feel you could carry the sky itself.",
-            "This item grants the {i}immanence{/i} and {i}transcendence{/i} abilities of the Skybearer's Belt when empowered.", item =>
-            {
-                item.Traits.AddRange([ExemplarTraits.Ikon, Trait.Divine]);
-            })
-            .WithCanBeAppliedTo((Item rune, Item item) =>
-            {
-                if (!item.HasTrait(Trait.Worn) || item.WornAt != Trait.Belt)
-                {
-                    return "Must be a worn belt.";
-                }
-                return null;
-            }));
-        });
         ItemName freeItem = ModManager.RegisterNewItemIntoTheShop("Ordinary Belt", itemName =>
         {
             return new Item(itemName, IllustrationName.GrapplersBelt, "Belt", 1, 0, Trait.DoNotAddToShop)
@@ -60,15 +43,15 @@ public class SkybearersBelt
             "You ignore the ally's Bulk while carrying them during your Stride. You can Climb, Fly, or Swim instead of Striding if you have the corresponding movement type.",
             [ExemplarTraits.Ikon, ExemplarTraits.IkonWorn],
             null
-        ).WithIllustration(ExemplarIllustrations.SkybearersBelt), q =>
+        ).WithIllustration(ExemplarIllustrations.SkybearersBelt), (ikon, q) =>
         {
-            q.BonusToAttackRolls = (q, action, target) => Ikon.GetIkonItemWorn(q.Owner, ikonRune) != null &&
+            q.BonusToAttackRolls = (q, action, target) => Ikon.GetWornIkon(q.Owner, ikon) != null &&
                 (action.ActionId == ActionId.Disarm || action.ActionId == ActionId.Grapple || action.ActionId == ActionId.Shove || action.ActionId == ActionId.Trip) ?
                     new Bonus(1, BonusType.Circumstance, "Skybearer's Belt", true) : null;
-            q.BonusToDefenses = (q, action, defense) => Ikon.GetIkonItemWorn(q.Owner, ikonRune) != null &&
+            q.BonusToDefenses = (q, action, defense) => Ikon.GetWornIkon(q.Owner, ikon) != null &&
                 (action?.ActionId == ActionId.Disarm || action?.ActionId == ActionId.Grapple || action?.ActionId == ActionId.Shove || action?.ActionId == ActionId.Trip) ?
                     new Bonus(1, BonusType.Circumstance, "Skybearer's Belt", true) : null;
-        }, q =>
+        }, (ikon, q) =>
         {
             return new ActionPossibility(new CombatAction(
                 q.Owner,
@@ -82,7 +65,7 @@ public class SkybearersBelt
                     Squares = cr.Speed
                 }).WithAdditionalTargetingRequirement((self, _) =>
                 {
-                    if (Ikon.GetIkonItemWorn(self, ikonRune) == null)
+                    if (Ikon.GetWornIkon(self, ikon) == null)
                     {
                         return Usability.NotUsable("You must be wearing the Skybearer's Belt");
                     }
@@ -143,7 +126,14 @@ public class SkybearersBelt
                 }
             }));
         })
-        .WithRune(ikonRune)
+        .WithValidItem(item =>
+        {
+            if (!item.HasTrait(Trait.Worn) || item.WornAt != Trait.Belt)
+            {
+                return "Must be a worn belt.";
+            }
+            return null;
+        })
         .WithFreeWornItem(freeItem)
         .IkonFeat;
     }

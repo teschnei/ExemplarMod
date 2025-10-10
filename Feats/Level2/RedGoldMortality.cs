@@ -38,7 +38,7 @@ public class RedGoldMortality
                 {
                     q.AfterYouDealDamage = async (self, action, target) =>
                     {
-                        if (action.Item?.Runes.Any(rune => rune.ItemName == ikon.Rune) ?? false)
+                        if (ikon.IsIkonItem(action.Item))
                         {
                             target.RemoveAllQEffects(q => q.Id == ExemplarQEffects.RedGoldMortality);
                             target.AddQEffect(new QEffect("Red-Gold Mortality", "The next time you recover Hit Points, your divine wound may absorb some of recovery.",
@@ -63,7 +63,9 @@ public class RedGoldMortality
                         }
                     };
                 });
-            }).ToList()
+            },
+            item => null
+            ).ToList()
         );
     }
 }

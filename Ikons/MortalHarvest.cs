@@ -13,10 +13,8 @@ using Dawnsbury.Core.Mechanics.Enumerations;
 using Dawnsbury.Core.Mechanics.Targeting;
 using Dawnsbury.Core.Mechanics.Targeting.TargetingRequirements;
 using Dawnsbury.Core.Mechanics.Targeting.Targets;
-using Dawnsbury.Core.Mechanics.Treasure;
 using Dawnsbury.Core.Possibilities;
 using Dawnsbury.Display;
-using Dawnsbury.Modding;
 using Dawnsbury.Mods.Classes.Exemplar.RegisteredComponents;
 using static Dawnsbury.Mods.Classes.Exemplar.ExemplarClassLoader;
 
@@ -27,28 +25,6 @@ public class MortalHarvest
     [FeatGenerator(0)]
     public static IEnumerable<Feat> GetFeat()
     {
-        ItemName ikonRune = ModManager.RegisterNewItemIntoTheShop("MortalHarvest", itemName =>
-        {
-            return new Item(itemName, IllustrationName.FearsomeRunestone, "Mortal Harvest", 1, 0, Trait.DoNotAddToShop, ExemplarTraits.IkonSickleAxeFlailPolearm)
-            .WithRuneProperties(new RuneProperties("ikon", IkonRuneKind.Ikon, "This weapon, once used for felling trees or crops, now harvests lives instead.",
-            "This item grants the {i}immanence{/i} and {i}transcendence{/i} abilities of the Mortal Harvest when empowered.", item =>
-            {
-                item.Traits.AddRange([ExemplarTraits.Ikon, Trait.Divine]);
-            })
-            .WithCanBeAppliedTo((Item rune, Item weapon) =>
-            {
-                if (weapon.WeaponProperties == null)
-                {
-                    return "Must be a weapon.";
-                }
-                if ((!weapon.HasTrait(Trait.Axe)) && (!weapon.HasTrait(Trait.Flail)) && (!weapon.HasTrait(Trait.Polearm)) && (!weapon.HasTrait(Trait.Sickle)))
-                {
-                    return "Must be a Sickle, Axe, Flail, or Polearm group.";
-                }
-                return null;
-            }));
-        });
-
         yield return new Ikon(new Feat(
             ExemplarFeats.MortalHarvest,
             "This weapon, once used for felling trees or crops, now harvests lives instead.",
@@ -60,22 +36,22 @@ public class MortalHarvest
             "This Strike uses the same multiple attack penalty as your previous Strike, but counts toward your multiple attack penalty as normal.",
             [ExemplarTraits.Ikon, ExemplarTraits.IkonWeapon],
             null
-        ).WithIllustration(ExemplarIllustrations.MortalHarvest), q =>
+        ).WithIllustration(ExemplarIllustrations.MortalHarvest), (ikon, q) =>
         {
             q.YouDealDamageWithStrike = (qe, action, diceFormula, target) =>
             {
-                if (action.Item?.Runes.Any(rune => rune.ItemName == ikonRune) ?? false)
+                if (ikon.IsIkonItem(action.Item))
                 {
                     target.AddQEffect(QEffect.PersistentDamage($"{action.Item?.WeaponProperties?.DamageDieCount}".ToString(), Ikon.GetBestDamageKindForSpark(action.Owner, target)));
                 }
                 return diceFormula;
             };
         },
-        q =>
+        (ikon, q) =>
         {
-            var heldIkon = Ikon.GetIkonItem(q.Owner, ikonRune);
+            var heldIkon = Ikon.GetHeldIkon(q.Owner, ikon);
             var lastAction = q.Owner.Actions.ActionHistoryThisTurn.LastOrDefault();
-            var lastIkon = lastAction?.Item?.Runes.Any(r => r.ItemName == ikonRune) ?? false ? lastAction.Item : null;
+            var lastIkon = ikon.IsIkonItem(lastAction?.Item) ? lastAction?.Item : null;
             return new ActionPossibility(new CombatAction(
                 q.Owner,
                 ExemplarIllustrations.MortalHarvest,
@@ -128,7 +104,18 @@ public class MortalHarvest
                 }
             }));
         })
-        .WithRune(ikonRune)
+        .WithValidItem(item =>
+        {
+            if (item.WeaponProperties == null)
+            {
+                return "Must be a weapon.";
+            }
+            if ((!item.HasTrait(Trait.Axe)) && (!item.HasTrait(Trait.Flail)) && (!item.HasTrait(Trait.Polearm)) && (!item.HasTrait(Trait.Sickle)))
+            {
+                return "Must be a Sickle, Axe, Flail, or Polearm group.";
+            }
+            return null;
+        })
         .IkonFeat;
     }
 }

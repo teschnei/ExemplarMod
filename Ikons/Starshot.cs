@@ -1,6 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
-using Dawnsbury.Core;
 using Dawnsbury.Core.CharacterBuilder.Feats;
 using Dawnsbury.Core.CharacterBuilder.FeatsDb.Common;
 using Dawnsbury.Core.CombatActions;
@@ -9,11 +7,9 @@ using Dawnsbury.Core.Mechanics.Core;
 using Dawnsbury.Core.Mechanics.Enumerations;
 using Dawnsbury.Core.Mechanics.Rules;
 using Dawnsbury.Core.Mechanics.Targeting;
-using Dawnsbury.Core.Mechanics.Treasure;
 using Dawnsbury.Core.Possibilities;
 using Dawnsbury.Core.Roller;
 using Dawnsbury.Display;
-using Dawnsbury.Modding;
 using Dawnsbury.Mods.Classes.Exemplar.RegisteredComponents;
 using static Dawnsbury.Mods.Classes.Exemplar.ExemplarClassLoader;
 
@@ -24,28 +20,6 @@ public class Starshot
     [FeatGenerator(0)]
     public static IEnumerable<Feat> GetFeat()
     {
-        ItemName ikonRune = ModManager.RegisterNewItemIntoTheShop("Starshot", itemName =>
-        {
-            return new Item(itemName, IllustrationName.FearsomeRunestone, "Starshot", 1, 0, Trait.DoNotAddToShop, ExemplarTraits.IkonRanged)
-            .WithRuneProperties(new RuneProperties("ikon", IkonRuneKind.Ikon, "You might be the only one capable of stringing this bow or pulling this trigger; either way, the ikon's shots are packed with explosive power, striking like falling stars.",
-            "This item grants the {i}immanence{/i} and {i}transcendence{/i} abilities of the Starshot when empowered.", item =>
-            {
-                item.Traits.AddRange([ExemplarTraits.Ikon, Trait.Divine]);
-            })
-            .WithCanBeAppliedTo((Item rune, Item weapon) =>
-            {
-                if (weapon.WeaponProperties == null)
-                {
-                    return "Must be a weapon.";
-                }
-                if (!weapon.HasTrait(Trait.Ranged))
-                {
-                    return "Must be a ranged weapon.";
-                }
-                return null;
-            }));
-        });
-
         yield return new Ikon(new Feat(
             ExemplarFeats.Starshot,
             "You might be the only one capable of stringing this bow or pulling this trigger; either way, the ikon's shots are packed with explosive power, striking like falling stars.",
@@ -56,13 +30,13 @@ public class Starshot
             "Creatures larger than you take a -2 circumstance penalty to their saving throws. This shot requires any ammunition that would normally be required.",
             [ExemplarTraits.Ikon, ExemplarTraits.IkonWeapon],
             null
-        ).WithIllustration(ExemplarIllustrations.Starshot), q =>
+        ).WithIllustration(ExemplarIllustrations.Starshot), (ikon, q) =>
         {
             q.AfterYouTakeAction = async (q, action) =>
             {
-                if (action.Item?.Runes.Any(rune => rune.ItemName == ikonRune) ?? false && action.HasTrait(Trait.Strike))
+                if (ikon.IsIkonItem(action.Item) && action.HasTrait(Trait.Strike))
                 {
-                    int dice = action.Item.WeaponProperties?.DamageDieCount ?? 0;
+                    int dice = action.Item?.WeaponProperties?.DamageDieCount ?? 0;
 
                     IEnumerable<Creature> creatures = action.ChosenTargets.ChosenCreature?.Occupies.Neighbours.Creatures ?? [];
                     foreach (var creature in creatures)
@@ -72,7 +46,7 @@ public class Starshot
                 }
             };
         },
-        q =>
+        (ikon, q) =>
         {
             return new ActionPossibility(new CombatAction(
                 q.Owner,
@@ -82,7 +56,7 @@ public class Starshot
                 "You shoot the {i}starshot{/i}, causing a detonation in a 5-foot burst within 60 feet. Each creature in the area must succeed at a basic Reflex save against your class DC or take spirit damage equal to your normal Strike damage with the {i}starshot{/i}. Creatures larger than you take a -2 circumstance penalty to their saving throws. This shot requires any ammunition that would normally be required.",
                 Target.Burst(12, 1).WithAdditionalRequirementOnCaster(self =>
                 {
-                    var starshot = Ikon.GetIkonItem(q.Owner, ikonRune);
+                    var starshot = Ikon.GetHeldIkon(q.Owner, ikon);
                     if (starshot == null)
                     {
                         return Usability.NotUsable("You must be wielding the {i}starshot{/i}.");
@@ -99,7 +73,7 @@ public class Starshot
             .WithSavingThrow(new SavingThrow(Defense.Reflex, q.Owner.ClassDC()))
             .WithEffectOnChosenTargets(async (action, self, targets) =>
             {
-                var starshot = Ikon.GetIkonItem(self, ikonRune);
+                var starshot = Ikon.GetHeldIkon(self, ikon);
                 var strike = StrikeRules.CreateStrike(self, starshot!, RangeKind.Ranged, 0);
                 foreach (var target in targets.GetAllTargetCreatures())
                 {
@@ -118,7 +92,18 @@ public class Starshot
                 }
             }));
         })
-        .WithRune(ikonRune)
+        .WithValidItem(item =>
+        {
+            if (item.WeaponProperties == null)
+            {
+                return "Must be a weapon.";
+            }
+            if (!item.HasTrait(Trait.Ranged))
+            {
+                return "Must be a ranged weapon.";
+            }
+            return null;
+        })
         .IkonFeat;
     }
 }

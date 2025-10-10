@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Linq;
-using Dawnsbury.Core;
 using Dawnsbury.Core.CharacterBuilder.Feats;
 using Dawnsbury.Core.CombatActions;
 using Dawnsbury.Core.Mechanics;
@@ -8,11 +7,9 @@ using Dawnsbury.Core.Mechanics.Core;
 using Dawnsbury.Core.Mechanics.Damage;
 using Dawnsbury.Core.Mechanics.Enumerations;
 using Dawnsbury.Core.Mechanics.Targeting;
-using Dawnsbury.Core.Mechanics.Treasure;
 using Dawnsbury.Core.Possibilities;
 using Dawnsbury.Core.Roller;
 using Dawnsbury.Display;
-using Dawnsbury.Modding;
 using Dawnsbury.Mods.Classes.Exemplar.RegisteredComponents;
 using static Dawnsbury.Mods.Classes.Exemplar.ExemplarClassLoader;
 
@@ -23,27 +20,6 @@ public class UnfailingBow
     [FeatGenerator(0)]
     public static IEnumerable<Feat> GetFeat()
     {
-        ItemName ikonRune = ModManager.RegisterNewItemIntoTheShop("UnfailingBow", itemName =>
-        {
-            return new Item(itemName, IllustrationName.FearsomeRunestone, "Unfailing Bow", 1, 0, Trait.DoNotAddToShop, ExemplarTraits.IkonRanged)
-            .WithRuneProperties(new RuneProperties("ikon", IkonRuneKind.Ikon, "The shots fired by this weapon seem guided by divine accuracy, finding the swiftest targets.",
-            "This item grants the {i}immanence{/i} and {i}transcendence{/i} abilities of the Unfailing Bow when empowered.", item =>
-            {
-                item.Traits.AddRange([ExemplarTraits.Ikon, Trait.Divine]);
-            })
-            .WithCanBeAppliedTo((Item rune, Item weapon) =>
-            {
-                if (weapon.WeaponProperties == null)
-                {
-                    return "Must be a weapon.";
-                }
-                if (!weapon.HasTrait(Trait.Ranged))
-                {
-                    return "Must be a ranged weapon.";
-                }
-                return null;
-            }));
-        });
         yield return new Ikon(new Feat(
             ExemplarFeats.UnfailingBow,
             "The shots fired by this weapon seem guided by divine accuracy, finding the swiftest targets.",
@@ -54,13 +30,13 @@ public class UnfailingBow
             "though any penalties (such as your multiple attack penalty) apply normally to this shot and you don't automatically adjust the degree of success if the initial roll was a natural 1 or 20.",
             [ExemplarTraits.Ikon, ExemplarTraits.IkonWeapon],
             null
-        ).WithIllustration(ExemplarIllustrations.UnfailingBow), q =>
+        ).WithIllustration(ExemplarIllustrations.UnfailingBow), (ikon, q) =>
         {
             q.AddExtraKindedDamageOnStrike = (action, target) =>
             {
-                if (action.Item?.Runes.Any(rune => rune.ItemName == ikonRune) ?? false)
+                if (ikon.IsIkonItem(action.Item))
                 {
-                    int dice = action.Item.WeaponProperties?.DamageDieCount ?? 0;
+                    int dice = action.Item?.WeaponProperties?.DamageDieCount ?? 0;
                     if (action.ChosenTargets.CheckResults[target] == CheckResult.Success)
                     {
                         return new KindedDamage(DiceFormula.FromText($"{1 * dice}", "Unfailing Bow"), Ikon.GetBestDamageKindForSpark(action.Owner, target));
@@ -87,11 +63,11 @@ public class UnfailingBow
                 }
             };
         },
-        q =>
+        (ikon, q) =>
         {
-            var heldIkon = Ikon.GetIkonItem(q.Owner, ikonRune);
+            var heldIkon = Ikon.GetHeldIkon(q.Owner, ikon);
             var lastAction = q.Owner.Actions.ActionHistoryThisTurn.LastOrDefault();
-            var lastIkon = lastAction?.Item?.Runes.Any(r => r.ItemName == ikonRune) ?? false ? lastAction.Item : null;
+            var lastIkon = ikon.IsIkonItem(lastAction?.Item) ? lastAction?.Item : null;
             var action = new CombatAction(
                 q.Owner,
                 ExemplarIllustrations.UnfailingBow,
@@ -137,7 +113,18 @@ public class UnfailingBow
             }
             return new ActionPossibility(action);
         })
-        .WithRune(ikonRune)
+        .WithValidItem(item =>
+        {
+            if (item.WeaponProperties == null)
+            {
+                return "Must be a weapon.";
+            }
+            if (!item.HasTrait(Trait.Ranged))
+            {
+                return "Must be a ranged weapon.";
+            }
+            return null;
+        })
         .IkonFeat;
     }
 }

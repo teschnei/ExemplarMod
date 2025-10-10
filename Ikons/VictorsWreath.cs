@@ -20,23 +20,6 @@ public class VictorsWreath
     [FeatGenerator(0)]
     public static IEnumerable<Feat> GetFeat()
     {
-        ItemName ikonRune = ModManager.RegisterNewItemIntoTheShop("VictorsWreath", itemName =>
-        {
-            return new Item(itemName, IllustrationName.FearsomeRunestone, "Victor's Wreath", 1, 0, Trait.DoNotAddToShop, ExemplarTraits.Ikon)
-            .WithRuneProperties(new RuneProperties("ikon", IkonRuneKind.Ikon, "This symbol of victory—whether a laurel worn around the head or a medal that hangs from your neck—reminds you and your allies that victory is the only acceptable outcome.",
-            "This item grants the {i}immanence{/i} and {i}transcendence{/i} abilities of the Victor's Wreath when empowered.", item =>
-            {
-                item.Traits.AddRange([ExemplarTraits.Ikon, Trait.Divine]);
-            })
-            .WithCanBeAppliedTo((Item rune, Item item) =>
-            {
-                if (!item.HasTrait(Trait.Worn) || (item.WornAt != Trait.Belt && item.WornAt != Trait.Headwear && item.WornAt != Trait.Headband))
-                {
-                    return "Must be a worn headwear or belt.";
-                }
-                return null;
-            }));
-        });
         ItemName freeItem = ModManager.RegisterNewItemIntoTheShop("OrdinaryWreath", itemName =>
         {
             return new Item(itemName, IllustrationName.TiaraOfOpenSkies, "Wreath", 1, 0, Trait.DoNotAddToShop)
@@ -53,13 +36,13 @@ public class VictorsWreath
             "even if that effect would not normally allow a new saving throw.",
             [ExemplarTraits.Ikon, ExemplarTraits.IkonWorn],
             null
-        ).WithIllustration(ExemplarIllustrations.VictorsWreath), q =>
+        ).WithIllustration(ExemplarIllustrations.VictorsWreath), (ikon, q) =>
         {
             q.AddGrantingOfTechnical(cr => cr.FriendOf(q.Owner), qe =>
             {
                 qe.BonusToAttackRolls = (qe, action, target) =>
                 {
-                    var wreath = Ikon.GetIkonItemWorn(q.Owner, ikonRune);
+                    var wreath = Ikon.GetWornIkon(q.Owner, ikon);
                     if (wreath != null && qe.Owner.DistanceTo(q.Owner) <= 3 && action.HasTrait(Trait.Attack))
                     {
                         return new Bonus(1, BonusType.Status, "Victor's Wreath", true);
@@ -68,7 +51,7 @@ public class VictorsWreath
                 };
             });
             q.SpawnsAura = q => q.Owner.AnimationData.AddAuraAnimation(IllustrationName.BlessCircle, 3);
-        }, q =>
+        }, (ikon, q) =>
         {
             return new ActionPossibility(new CombatAction(
                 q.Owner,
@@ -79,7 +62,7 @@ public class VictorsWreath
                 "even if that effect would not normally allow a new saving throw.",
                 Target.Self().WithAdditionalRestriction(self =>
                 {
-                    if (Ikon.GetIkonItemWorn(self, ikonRune) == null)
+                    if (Ikon.GetWornIkon(self, ikon) == null)
                     {
                         return "You must be wearing the Victor's Wreath";
                     }
@@ -95,7 +78,14 @@ public class VictorsWreath
                 }
             }));
         })
-        .WithRune(ikonRune)
+        .WithValidItem(item =>
+        {
+            if (!item.HasTrait(Trait.Worn) || (item.WornAt != Trait.Belt && item.WornAt != Trait.Headwear && item.WornAt != Trait.Headband))
+            {
+                return "Must be a worn headwear or belt.";
+            }
+            return null;
+        })
         .WithFreeWornItem(freeItem)
         .IkonFeat;
     }

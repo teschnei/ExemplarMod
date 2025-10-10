@@ -46,7 +46,8 @@ public class LeapTheFalls
                         }
                     };
                 });
-            }).ToList()
+            },
+            item => null).ToList()
         );
     }
 }

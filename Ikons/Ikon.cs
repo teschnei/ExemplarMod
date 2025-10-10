@@ -22,21 +22,31 @@ public class Ikon
     public static readonly FeatGroup WornIkonGroup = new FeatGroup("Worn Ikon", 2);
     public static readonly FeatGroup BodyIkonGroup = new FeatGroup("Body Ikon", 3);
     public static Dictionary<FeatName, Ikon> IkonLUT = new();
-    public static Dictionary<FeatName, ItemName> ExtraRunes = new();
+    public static Dictionary<FeatName, Dictionary<FeatName, Func<Item, string?>>> IkonExpansionReqLUT = new();
 
     public Feat IkonFeat { get; }
-    public ItemName? Rune { get; private set; }
+    public Func<Item, string?>? ValidItem { get; private set; }
     public ItemName? FreeWornItem { get; private set; }
     public QEffectId EmpoweredQEffectId { get; private set; }
+    public bool Equippable => ValidItem != null;
+    public Action<Item> ModifyItem { get; private set; }
 
-    private Action<QEffect> Immanence { get; }
-    private Func<QEffect, Possibility?> Transcendence { get; }
+    public string ModString => $"ikon_{IkonFeat.FeatName.ToStringOrTechnical()}";
+    public ItemModification IkonModification => new ItemModification(ItemModificationKind.CustomPermanent)
+    {
+        Tag = ModString,
+        ModifyItem = this.ModifyItem
+    };
 
-    public Ikon(Feat ikon, Action<QEffect> immanence, Func<QEffect, Possibility?> transcendence)
+    private Action<Ikon, QEffect> Immanence { get; }
+    private Func<Ikon, QEffect, Possibility?> Transcendence { get; }
+
+    public Ikon(Feat ikon, Action<Ikon, QEffect> immanence, Func<Ikon, QEffect, Possibility?> transcendence)
     {
         IkonFeat = ikon;
         Immanence = immanence;
         Transcendence = transcendence;
+        ModifyItem = item => item.Traits.AddRange(Trait.Divine, ExemplarTraits.Ikon);
         EmpoweredQEffectId = ModManager.RegisterEnumMember<QEffectId>($"Empowered{ikon.FeatName.ToString()}");
 
         IkonFeat.FeatGroup = IkonFeat.Traits switch
@@ -50,15 +60,25 @@ public class Ikon
         IkonLUT.Add(ikon.FeatName, this);
     }
 
-    public Ikon WithRune(ItemName rune)
+    public Ikon WithValidItem(Func<Item, string?> validItem)
     {
-        Rune = rune;
+        ValidItem = validItem;
         return this;
     }
 
     public Ikon WithFreeWornItem(ItemName item)
     {
         FreeWornItem = item;
+        return this;
+    }
+
+    public Ikon WithModifyItem(Action<Item> action)
+    {
+        ModifyItem = item =>
+        {
+            ModifyItem(item);
+            action(item);
+        };
         return this;
     }
 
@@ -73,7 +93,7 @@ public class Ikon
             WhenExpires = q => q.Owner.RemoveAllQEffects(q => q.Id == ExemplarQEffects.IkonExpansion)
         };
         q.Owner = exemplar;
-        Immanence(q);
+        Immanence(this, q);
         return q;
     }
 
@@ -92,8 +112,9 @@ public class Ikon
         );
     }
 
-    public static Item? GetIkonItem(Creature exemplar, ItemName ikonRune) => exemplar.HeldItems.Where(item => item.Runes.Any(rune => rune.ItemName == ikonRune)).FirstOrDefault();
-    public static Item? GetIkonItemWorn(Creature exemplar, ItemName ikonRune) => exemplar.CarriedItems.Where(item => item.HasTrait(Trait.Worn) && item.Runes.Any(rune => rune.ItemName == ikonRune)).FirstOrDefault();
+    public bool IsIkonItem(Item? item) => item?.ItemModifications.Any(mod => mod.Kind == ItemModificationKind.CustomPermanent && (((string?)mod.Tag) == ModString)) ?? false;
+    public static Item? GetHeldIkon(Creature exemplar, Ikon ikon) => exemplar.HeldItems.Where(item => ikon.IsIkonItem(item)).FirstOrDefault();
+    public static Item? GetWornIkon(Creature exemplar, Ikon ikon) => exemplar.CarriedItems.Where(item => item.HasTrait(Trait.Worn) && ikon.IsIkonItem(item)).FirstOrDefault();
 
     public static DamageKind GetBestDamageKindForSpark(Creature exemplar, Creature target)
     {
@@ -115,7 +136,7 @@ public class Ikon
         return target.WeaknessAndResistance.WhatDamageKindIsBestAgainstMe(damageKinds);
     }
 
-    public static IEnumerable<Feat> AddExpansionFeat(string technicalName, string flavorText, string rulesText, List<Trait> traits, Func<Ikon, bool> predicate, Action<Ikon, Feat> modifyFeat)
+    public static IEnumerable<Feat> AddExpansionFeat(string technicalName, string flavorText, string rulesText, List<Trait> traits, Func<Ikon, bool> predicate, Action<Ikon, Feat> modifyFeat, Func<Item, string?> requirement)
     {
         return IkonLUT.Values.Where(predicate).Select(ikon =>
         {
@@ -123,13 +144,18 @@ public class Ikon
                 .WithPrerequisite(sheet => sheet.HasFeat(ikon.IkonFeat), $"You must have the {ikon.IkonFeat.Name} ikon.")
                 .WithIllustration(ikon.IkonFeat.Illustration);
             modifyFeat(ikon, feat);
+            if (!IkonExpansionReqLUT.ContainsKey(ikon.IkonFeat.FeatName))
+            {
+                IkonExpansionReqLUT.Add(ikon.IkonFeat.FeatName, new());
+            }
+            IkonExpansionReqLUT[ikon.IkonFeat.FeatName].Add(feat.FeatName, requirement);
             return feat;
         });
     }
 
-    public static Possibility? CreateTranscendence(Func<QEffect, Possibility?> transcendence, QEffect q, Ikon ikon)
+    public static Possibility? CreateTranscendence(Func<Ikon, QEffect, Possibility?> transcendence, QEffect q, Ikon ikon)
     {
-        var poss = transcendence.Invoke(q);
+        var poss = transcendence.Invoke(ikon, q);
         if (poss is ActionPossibility action)
         {
             action.CombatAction.WithEffectOnChosenTargets(async (self, targets) =>
@@ -185,18 +211,18 @@ public class Ikon
 
 public class IkonWieldedTargetingRequirement : CreatureTargetingRequirement
 {
-    public ItemName IkonRune { get; }
+    public Ikon Ikon { get; }
     public string IkonName { get; }
 
-    public IkonWieldedTargetingRequirement(ItemName ikonRune, string ikonName)
+    public IkonWieldedTargetingRequirement(Ikon ikon, string ikonName)
     {
-        IkonRune = ikonRune;
+        Ikon = ikon;
         IkonName = ikonName;
     }
 
     public override Usability Satisfied(Creature source, Creature target)
     {
-        if (Ikon.GetIkonItem(source, IkonRune) == null)
+        if (Ikon.GetHeldIkon(source, Ikon) == null)
         {
             return Usability.NotUsable($"You must be wielding the {{i}}{IkonName}{{/i}}.");
         }

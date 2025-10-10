@@ -72,7 +72,7 @@ public class SkinHardAsHorn
         .WithPermanentQEffect(null, q =>
         {
             q.Id = ExemplarQEffects.SkinHardAsHornAttunement;
-        }), q =>
+        }), (ikon, q) =>
         {
             q.StateCheck = (qe) =>
             {
@@ -84,7 +84,7 @@ public class SkinHardAsHorn
                 }
             };
         },
-        q =>
+        (ikon, q) =>
         {
             return new ActionPossibility(new CombatAction(q.Owner, ExemplarIllustrations.SkinHardAsHorn,
                 "Crash Against Me", [ExemplarTraits.Transcendence],

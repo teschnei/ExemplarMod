@@ -20,23 +20,6 @@ public class ThousandLeagueSandals
     [FeatGenerator(0)]
     public static IEnumerable<Feat> GetFeat()
     {
-        ItemName ikonRune = ModManager.RegisterNewItemIntoTheShop("ThousandLeagueSandals", itemName =>
-        {
-            return new Item(itemName, IllustrationName.FearsomeRunestone, "Thousand League Sandals", 1, 0, Trait.DoNotAddToShop, ExemplarTraits.IkonShoes)
-            .WithRuneProperties(new RuneProperties("ikon", IkonRuneKind.Ikon, "Threadbare but trustworthy, your sandals have carried you this far, and they'll carry you much farther still.",
-            "This item grants the {i}immanence{/i} and {i}transcendence{/i} abilities of the Thousand League Sandals when empowered.", item =>
-            {
-                item.Traits.AddRange([ExemplarTraits.Ikon, Trait.Divine]);
-            })
-            .WithCanBeAppliedTo((Item rune, Item item) =>
-            {
-                if (!item.HasTrait(Trait.Worn) || item.WornAt != Trait.Shoes)
-                {
-                    return "Must be worn shoes.";
-                }
-                return null;
-            }));
-        });
         ItemName freeItem = ModManager.RegisterNewItemIntoTheShop("OrdinaryBoots", itemName =>
         {
             return new Item(itemName, IllustrationName.BootsOfBounding, "Boots", 1, 0, Trait.DoNotAddToShop)
@@ -52,10 +35,10 @@ public class ThousandLeagueSandals
             "Your feet carry you so quickly they leave a slipstream that speeds your allies on. You Stride. Each ally within 10 feet of you at the start of your movement can Stride as a reaction.",
             [ExemplarTraits.Ikon, ExemplarTraits.IkonWorn],
             null
-        ).WithIllustration(ExemplarIllustrations.ThousandLeagueSandals), q =>
+        ).WithIllustration(ExemplarIllustrations.ThousandLeagueSandals), (ikon, q) =>
         {
-            q.BonusToAllSpeeds = qe => Ikon.GetIkonItemWorn(qe.Owner, ikonRune) != null ? new Bonus(2, BonusType.Circumstance, "Thousand League Sandals") : null;
-        }, q =>
+            q.BonusToAllSpeeds = qe => Ikon.GetWornIkon(qe.Owner, ikon) != null ? new Bonus(2, BonusType.Circumstance, "Thousand League Sandals") : null;
+        }, (ikon, q) =>
         {
             return new ActionPossibility(new CombatAction(
                 q.Owner,
@@ -65,7 +48,7 @@ public class ThousandLeagueSandals
                 "Your feet carry you so quickly they leave a slipstream that speeds your allies on. You Stride. Each ally within 10 feet of you at the start of your movement can Stride as a reaction.",
                 Target.Self().WithAdditionalRestriction(self =>
                 {
-                    if (Ikon.GetIkonItemWorn(self, ikonRune) == null)
+                    if (Ikon.GetWornIkon(self, ikon) == null)
                     {
                         return "You must be wearing the Thousand League Sandals";
                     }
@@ -98,7 +81,14 @@ public class ThousandLeagueSandals
                 }
             }));
         })
-        .WithRune(ikonRune)
+        .WithValidItem(item =>
+        {
+            if (!item.HasTrait(Trait.Worn) || item.WornAt != Trait.Shoes)
+            {
+                return "Must be worn shoes.";
+            }
+            return null;
+        })
         .WithFreeWornItem(freeItem)
         .IkonFeat;
     }
