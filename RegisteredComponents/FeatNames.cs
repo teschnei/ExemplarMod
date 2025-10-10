@@ -6,6 +6,7 @@ namespace Dawnsbury.Mods.Classes.Exemplar.RegisteredComponents;
 public static class ExemplarFeats
 {
     public static readonly FeatName ExemplarClass = ModManager.RegisterFeatName("ExemplarClass", "Exemplar");
+    public static readonly FeatName HumbleStrikes = ModManager.RegisterFeatName("HumbleStrikes", "Humble Strikes");
     //Ikons
     public static readonly FeatName BarrowsEdge = ModManager.RegisterFeatName("BarrowsEdge", "Barrow's Edge");
     public static readonly FeatName BandsOfImprisonment = ModManager.RegisterFeatName("BandsOfImprisonment", "Bands of Imprisonment");

@@ -44,10 +44,12 @@ public static class ExemplarBaseClass
             ],
             [Trait.Fortitude, Trait.Will],
             3,
-            "{b}Divine Spark and Ikons{/b}\n" +
+            "{b}1. Divine Spark and Ikons.{/b} " +
             "You can focus your divine power through special items known as ikons. You can select 3 ikons. You can empower one ikon with your divine spark. Each ikon has both a passive immanence effect and an active transcendence effect. You can place your divine spark into an item using the Shift Immanence action.\n\n" +
-            "{b}Spark Transcendence{/b}\n" +
-            "When your spark dwells within an ikon, you get that ikon's immanence effect continually. However, you can also Spark Transcendence in a mighty deed, channeling your divinity through the ikon - though when you Spark Transcendence, the force of the act temporarily casts your divine spark out of the ikon.",
+            "{b}2. Spark Transcendence.{/b} " +
+            "When your spark dwells within an ikon, you get that ikon's immanence effect continually. However, you can also Spark Transcendence in a mighty deed, channeling your divinity through the ikon - though when you Spark Transcendence, the force of the act temporarily casts your divine spark out of the ikon.\n\n" +
+            "{b}3. Humble Strikes.{/b} When you are wielding a simple weapon, increase the damage die size of that weapon by one step.\n\n" +
+            "{b}4. Shield block {icon:Reaction}.{/b} You can use your shield to reduce damage you take from attacks.",
             null
         )
         .WithClassFeatures(features =>
@@ -67,7 +69,6 @@ public static class ExemplarBaseClass
         .WithOnSheet(sheet =>
         {
             sheet.GrantFeat(FeatName.ShieldBlock);
-            sheet.GrantFeat(FeatName.DeadlySimplicity);
             sheet.AddSelectionOption(new MultipleFeatSelectionOption("Ikon", "Ikon", 1, ft => ft.HasTrait(ExemplarTraits.Ikon), 3));
             sheet.AddSelectionOption(new SingleFeatSelectionOption("ExemplarFeat1", "Exemplar Feat", 1, ft => ft.HasTrait(ExemplarTraits.Exemplar)));
             sheet.AddSelectionOption(new SingleFeatSelectionOption("RootEpithet", "Root Epithet", 3, ft => ft.HasTrait(ExemplarTraits.RootEpithet)));
@@ -92,6 +93,17 @@ public static class ExemplarBaseClass
         .WithPermanentQEffect(null, q => ShiftImmanenceQEffect(q))
         .WithOnCreature((sheet, cr) =>
         {
+            cr.AddQEffect(new QEffect(
+                "Humble Strikes",
+                "Simple weapons you wield increase their damage die by one step.",
+                ExpirationCondition.Never,
+                cr,
+                IllustrationName.None)
+            {
+                Innate = true,
+                IncreaseItemDamageDie = (_, wep) => wep.HasTrait(Trait.Simple)
+            }
+            );
             if (cr.Level >= 7)
             {
                 cr.AddQEffect(new QEffect("Spirit Striking", "You deal 2 additional spirit damage with weapons and unarmed attacks in which you are an expert.")
