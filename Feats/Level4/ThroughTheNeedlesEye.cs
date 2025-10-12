@@ -24,25 +24,24 @@ public class ThroughTheNeedlesEye
 {
     static Possibility? CreateBlinding(Creature owner, Item ikonItem, RangeKind range, bool thrown)
     {
-        return
-            new ActionPossibility(new CombatAction(owner, IllustrationName.BloodVendetta,
+        CombatAction strike = StrikeRules.CreateStrike(owner, ikonItem, range, -1, thrown).WithActionCost(0);
+        if (range == RangeKind.Ranged)
+        {
+            strike.WithSoundEffect(ikonItem.WeaponProperties?.Sfx ?? SfxName.Bow);
+        }
+        return new ActionPossibility(new CombatAction(owner, IllustrationName.BloodVendetta,
                 "Blinding of the Needle" + (thrown ? " (throw)" : ""), [ExemplarTraits.Transcendence],
                 "You aim your weapon in a superficial cut above your opponent's eye. Make a Strike with the imbued ikon. If that Strike is " +
                 "successful, the target must succeed at a Fortitude save against your class DC or become blinded for 1 round or until it uses " +
                 "an Interact action to clear the blood from its vision.",
                 ikonItem.DetermineStrikeTarget(range))
             .WithActionCost(2)
-            .WithActiveRollSpecification(new ActiveRollSpecification(Checks.Attack(ikonItem, -1), TaggedChecks.DefenseDC(Defense.AC)))
+            .WithActiveRollSpecification(new ActiveRollSpecification(Utility.Attack(strike, ikonItem, -1), TaggedChecks.DefenseDC(Defense.AC)))
             .WithNoSaveFor((action, cr) => true)
             .WithEffectOnChosenTargets(async (action, self, targets) =>
             {
                 if (targets.ChosenCreature != null)
                 {
-                    CombatAction strike = StrikeRules.CreateStrike(self, ikonItem, range, -1, thrown).WithActionCost(0);
-                    if (range == RangeKind.Ranged)
-                    {
-                        strike.WithSoundEffect(ikonItem.WeaponProperties?.Sfx ?? SfxName.Bow);
-                    }
                     strike.ChosenTargets = ChosenTargets.CreateSingleTarget(targets.ChosenCreature);
                     if (await strike.AllExecute() && strike.CheckResult >= CheckResult.Success)
                     {

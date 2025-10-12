@@ -97,7 +97,8 @@ public class GleamingBlade
             });
             if (ikonItem != null)
             {
-                action.WithActiveRollSpecification(new ActiveRollSpecification(Checks.Attack(ikonItem, -1), TaggedChecks.DefenseDC(Defense.AC)))
+                var tooltipStrike = q.Owner.CreateStrike(ikonItem, q.Owner.Actions.AttackedThisManyTimesThisTurn).WithActionCost(0);
+                action.WithActiveRollSpecification(new ActiveRollSpecification(Utility.Attack(tooltipStrike, ikonItem, -1), TaggedChecks.DefenseDC(Defense.AC)))
                       .WithNoSaveFor((action, cr) => true);
             }
             return new ActionPossibility(action);

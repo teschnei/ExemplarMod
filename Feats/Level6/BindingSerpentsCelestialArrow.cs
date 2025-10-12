@@ -44,41 +44,45 @@ public class BindingSerpentsCelestialArrow
                     q.ProvideMainAction = q =>
                     {
                         var ikonItem = Ikon.GetIkonItem(q.Owner, (ItemName)ikon.Rune!);
-                        return q.Owner.HasEffect(ikon.EmpoweredQEffectId) && ikonItem != null && ((ikonItem.WeaponProperties?.Throwable ?? false) || ikonItem.HasTrait(Trait.Ranged)) ?
-                            Ikon.CreateTranscendence(q =>
-                                new ActionPossibility(new CombatAction(q.Owner, IllustrationName.AnimalFormSnake,
-                                    "Coiling Serpents", [ExemplarTraits.Transcendence],
-                                    "Make a ranged Strike with your ikon. If the Strike hits, the target must succeed at a Reflex save against your class DC or " +
-                                    "the arrow transforms into a multitude of ethereal snakes that coil around the target, immobilizing it until it succeeds at an " +
-                                    "Escape attempt against your class DC.",
-                                    ikonItem.DetermineStrikeTarget(RangeKind.Ranged))
-                                .WithActionCost(2)
-                                .WithActiveRollSpecification(new ActiveRollSpecification(Checks.Attack(ikonItem, -1), TaggedChecks.DefenseDC(Defense.AC)))
-                                .WithNoSaveFor((action, cr) => true)
-                                .WithEffectOnChosenTargets(async (action, self, targets) =>
-                                {
-                                    if (targets.ChosenCreature != null)
+                        if (ikonItem != null)
+                        {
+                            bool flag = ikonItem.HasTrait(Trait.Ranged);
+                            CombatAction combatAction = StrikeRules.CreateStrike(q.Owner, ikonItem, RangeKind.Ranged, -1, !flag, null).WithActionCost(0);
+                            if (flag)
+                            {
+                                combatAction.WithSoundEffect(ikonItem.WeaponProperties?.Sfx ?? SfxName.Bow);
+                            }
+                            return q.Owner.HasEffect(ikon.EmpoweredQEffectId) && ikonItem != null && ((ikonItem.WeaponProperties?.Throwable ?? false) || ikonItem.HasTrait(Trait.Ranged)) ?
+                                Ikon.CreateTranscendence(q =>
+                                    new ActionPossibility(new CombatAction(q.Owner, IllustrationName.AnimalFormSnake,
+                                        "Coiling Serpents", [ExemplarTraits.Transcendence],
+                                        "Make a ranged Strike with your ikon. If the Strike hits, the target must succeed at a Reflex save against your class DC or " +
+                                        "the arrow transforms into a multitude of ethereal snakes that coil around the target, immobilizing it until it succeeds at an " +
+                                        "Escape attempt against your class DC.",
+                                        ikonItem.DetermineStrikeTarget(RangeKind.Ranged))
+                                    .WithActionCost(2)
+                                    .WithActiveRollSpecification(new ActiveRollSpecification(Utility.Attack(combatAction, ikonItem, -1), TaggedChecks.DefenseDC(Defense.AC)))
+                                    .WithNoSaveFor((action, cr) => true)
+                                    .WithEffectOnChosenTargets(async (action, self, targets) =>
                                     {
-                                        bool flag = ikonItem.HasTrait(Trait.Ranged);
-                                        CombatAction combatAction = StrikeRules.CreateStrike(self, ikonItem, RangeKind.Ranged, -1, !flag, null).WithActionCost(0);
-                                        if (flag)
+                                        if (targets.ChosenCreature != null)
                                         {
-                                            combatAction.WithSoundEffect(ikonItem.WeaponProperties?.Sfx ?? SfxName.Bow);
-                                        }
-                                        if (await self.MakeStrike(combatAction, targets.ChosenCreature) >= CheckResult.Success)
-                                        {
-                                            if (CommonSpellEffects.RollSavingThrow(targets.ChosenCreature, action, Defense.Reflex, self.ClassDC()) <= CheckResult.Failure)
+                                            if (await self.MakeStrike(combatAction, targets.ChosenCreature) >= CheckResult.Success)
                                             {
-                                                QEffect immobilized = QEffect.Immobilized().WithExpirationNever();
-                                                immobilized.ProvideContextualAction = q => new ActionPossibility(Possibilities.CreateEscapeAgainstEffect(
-                                                        q.Owner, q, "Coiling Serpents", self.ClassDC())).WithPossibilityGroup("Remove debuff");
-                                                targets.ChosenCreature.AddQEffect(immobilized);
+                                                if (CommonSpellEffects.RollSavingThrow(targets.ChosenCreature, action, Defense.Reflex, self.ClassDC()) <= CheckResult.Failure)
+                                                {
+                                                    QEffect immobilized = QEffect.Immobilized().WithExpirationNever();
+                                                    immobilized.ProvideContextualAction = q => new ActionPossibility(Possibilities.CreateEscapeAgainstEffect(
+                                                            q.Owner, q, "Coiling Serpents", self.ClassDC())).WithPossibilityGroup("Remove debuff");
+                                                    targets.ChosenCreature.AddQEffect(immobilized);
+                                                }
                                             }
                                         }
-                                    }
-                                })), q, ikon
-                            )
-                        : null;
+                                    })), q, ikon
+                                )
+                            : null;
+                        }
+                        return null;
                     };
                 });
             }).ToList()

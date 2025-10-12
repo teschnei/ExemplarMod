@@ -126,7 +126,8 @@ public class ShadowSheath
             });
             if (lastIkon != null)
             {
-                action.WithActiveRollSpecification(new ActiveRollSpecification(Checks.Attack(lastIkon!, q.Owner.Actions.AttackedThisManyTimesThisTurn - 1), TaggedChecks.DefenseDC(Defense.AC)))
+                var strike = StrikeRules.CreateStrike(q.Owner, lastIkon, thrown ? RangeKind.Ranged : RangeKind.Melee, q.Owner.Actions.AttackedThisManyTimesThisTurn - 1, thrown).WithActionCost(0);
+                action.WithActiveRollSpecification(new ActiveRollSpecification(Utility.Attack(strike, lastIkon!, q.Owner.Actions.AttackedThisManyTimesThisTurn - 1), TaggedChecks.DefenseDC(Defense.AC)))
                 .WithNoSaveFor((action, cr) => true);
             }
             if (thrown)
