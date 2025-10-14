@@ -20,23 +20,6 @@ public class FetchingBangles
     [FeatGenerator(0)]
     public static IEnumerable<Feat> GetFeat()
     {
-        ItemName ikonRune = ModManager.RegisterNewItemIntoTheShop("FetchingBangles", itemName =>
-        {
-            return new Item(itemName, IllustrationName.FearsomeRunestone, "Fetching Bangles", 1, 0, Trait.DoNotAddToShop, ExemplarTraits.IkonBracers)
-            .WithRuneProperties(new RuneProperties("ikon", IkonRuneKind.Ikon, "These lovely armbands sparkle and gleam, reflecting your own incredible magnetism.",
-            "This item grants the {i}immanence{/i} and {i}transcendence{/i} abilities of the Fetching Bangles when empowered.", item =>
-            {
-                item.Traits.AddRange([ExemplarTraits.Ikon, Trait.Divine]);
-            })
-            .WithCanBeAppliedTo((Item rune, Item item) =>
-            {
-                if (!item.HasTrait(Trait.Worn) || item.WornAt != Trait.Bracers)
-                {
-                    return "Must be worn bracers.";
-                }
-                return null;
-            }));
-        });
         ItemName freeItem = ModManager.RegisterNewItemIntoTheShop("OrdinaryBangles", itemName =>
         {
             return new Item(itemName, IllustrationName.DoublingRings, "Bangles", 1, 0, Trait.DoNotAddToShop)
@@ -53,7 +36,7 @@ public class FetchingBangles
             "Choose an enemy within 20 feet of you. It must succeed at a Will save against your class DC or be pulled directly toward you into a square adjacent to you.",
             [ExemplarTraits.Ikon, ExemplarTraits.IkonWorn],
             null
-        ).WithIllustration(ExemplarIllustrations.FetchingBangles), q =>
+        ).WithIllustration(ExemplarIllustrations.FetchingBangles), (ikon, q) =>
         {
             q.AddGrantingOfTechnical(cr => cr.EnemyOf(q.Owner) && cr.DistanceTo(q.Owner) <= 2, tq =>
             {
@@ -68,7 +51,7 @@ public class FetchingBangles
                     }
                 };
             });
-        }, q =>
+        }, (ikon, q) =>
         {
             return new ActionPossibility(new CombatAction(
                 q.Owner,
@@ -87,7 +70,14 @@ public class FetchingBangles
                 }
             }));
         })
-        .WithRune(ikonRune)
+        .WithValidItem(item =>
+        {
+            if (!item.HasTrait(Trait.Worn) || item.WornAt != Trait.Bracers)
+            {
+                return "Must be worn bracers.";
+            }
+            return null;
+        })
         .WithFreeWornItem(freeItem)
         .IkonFeat;
     }

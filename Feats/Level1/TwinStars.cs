@@ -17,8 +17,7 @@ public class TwinStars
         var flavorText = "Your divine spark embodies a primordial duality, and your ikon splits itself accordingly into two corresponding halves.";
         var rulesText = "{b}Usage{/b} imbued into a one-handed weapon ikon.\n\nWhen combat begins, your weapon splits into two copies of itself, which both gain the twin trait; these copies are identical " +
             "except for one mirrored feature, such as a sun motif on one and a moon motif on another. As these are both manifestations of the same object, your divine spark empowers the " +
-            "two halves as if they were a single ikon.\n\n" +
-            "{i}Note: there is no warning for using this on an incompatible item, it will just do nothing{/i}.";
+            "two halves as if they were a single ikon.";
         yield return new TrueFeat(
             ExemplarFeats.TwinStars,
             1,
@@ -29,7 +28,7 @@ public class TwinStars
             {
                 feat.WithOnCreature(creature =>
                 {
-                    var item = creature.HeldItems.Where(item => item.Runes.Any(rune => rune.ItemName == ikon.Rune) && !item.HasTrait(Trait.TwoHanded)).FirstOrDefault();
+                    var item = creature.HeldItems.Where(item => ikon.IsIkonItem(item)).FirstOrDefault();
                     Item? twinnedItem = null;
                     if (item != null)
                     {
@@ -47,7 +46,7 @@ public class TwinStars
                     }
                     else
                     {
-                        item = creature.CarriedItems.Where(item => item.Runes.Any(rune => rune.ItemName == ikon.Rune) && !item.HasTrait(Trait.TwoHanded)).FirstOrDefault();
+                        item = creature.CarriedItems.Where(item => ikon.IsIkonItem(item)).FirstOrDefault();
                         if (item != null)
                         {
                             item.Traits.Add(ExemplarTraits.Twin);
@@ -57,6 +56,13 @@ public class TwinStars
                         }
                     }
                 });
+            }, item =>
+            {
+                if (item.HasTrait(Trait.TwoHanded))
+                {
+                    return "Twin Stars: must be a one-handed weapon ikon.";
+                }
+                return null;
             }).ToList()
         );
     }

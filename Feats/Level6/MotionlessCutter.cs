@@ -5,7 +5,6 @@ using Dawnsbury.Core.CombatActions;
 using Dawnsbury.Core.Mechanics.Core;
 using Dawnsbury.Core.Mechanics.Enumerations;
 using Dawnsbury.Core.Mechanics.Targeting;
-using Dawnsbury.Core.Mechanics.Treasure;
 using Dawnsbury.Core.Possibilities;
 using Dawnsbury.Display;
 using Dawnsbury.Mods.Classes.Exemplar.Ikons;
@@ -25,8 +24,7 @@ public class MotionlessCutter
             "Make a Strike that deals slashing damage with your weapon ikon. If that Strike is successful, you can immediately make another Strike " +
             "against a different target within your reach. You can continue making Strikes in this manner, each against a different target, until you have " +
             "made a total of four Strikes or you miss with a Strike, whichever comes first. Each attack counts towards your multiple attack penalty, but you " +
-            "do not increase your penalty until you have made all your attacks.\n\n" +
-            "{i}Note: there is no warning for using this on an incompatible item, it will just do nothing{/i}.";
+            "do not increase your penalty until you have made all your attacks.";
         yield return new TrueFeat(
             ExemplarFeats.MotionlessCutter,
             6,
@@ -39,12 +37,12 @@ public class MotionlessCutter
                 {
                     q.ProvideMainAction = q =>
                     {
-                        var ikonItem = Ikon.GetIkonItem(q.Owner, (ItemName)ikon.Rune!);
+                        var ikonItem = Ikon.GetHeldIkon(q.Owner, ikon);
                         if (ikonItem != null)
                         {
                             var strike = q.Owner.CreateStrike(ikonItem, q.Owner.Actions.AttackedThisManyTimesThisTurn, new StrikeModifiers { ReplacementDamageKind = DamageKind.Slashing }).WithActionCost(0);
                             return q.Owner.HasEffect(ikon.EmpoweredQEffectId) && ikonItem != null && (!ikonItem.HasTrait(Trait.Ranged) && ikonItem.DetermineDamageKinds().Contains(DamageKind.Slashing)) ?
-                                Ikon.CreateTranscendence(q =>
+                                Ikon.CreateTranscendence((ikon, q) =>
                                     new ActionPossibility(new CombatAction(q.Owner, ExemplarIllustrations.SeverFourDragonflyWings,
                                         "Sever Four Dragonfly Wings", [ExemplarTraits.Transcendence],
                                         "Make a Strike that deals slashing damage with your weapon ikon. If that Strike is successful, you can immediately make another Strike " +
@@ -71,6 +69,14 @@ public class MotionlessCutter
                         return null;
                     };
                 });
+            },
+            item =>
+            {
+                if (item.HasTrait(Trait.Ranged) || item.WeaponProperties == null || !item.DetermineDamageKinds().Contains(DamageKind.Slashing))
+                {
+                    return "Motionless Cutter: must be a melee weapon ikon that deals slashing damage.";
+                }
+                return null;
             }).ToList()
         );
     }

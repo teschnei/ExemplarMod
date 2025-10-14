@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Linq;
-using Dawnsbury.Core;
 using Dawnsbury.Core.CharacterBuilder.Feats;
 using Dawnsbury.Core.CharacterBuilder.FeatsDb.Common;
 using Dawnsbury.Core.CombatActions;
@@ -10,11 +9,9 @@ using Dawnsbury.Core.Mechanics.Core;
 using Dawnsbury.Core.Mechanics.Enumerations;
 using Dawnsbury.Core.Mechanics.Rules;
 using Dawnsbury.Core.Mechanics.Targeting;
-using Dawnsbury.Core.Mechanics.Treasure;
 using Dawnsbury.Core.Possibilities;
 using Dawnsbury.Core.Roller;
 using Dawnsbury.Display;
-using Dawnsbury.Modding;
 using Dawnsbury.Mods.Classes.Exemplar.RegisteredComponents;
 using static Dawnsbury.Mods.Classes.Exemplar.ExemplarClassLoader;
 
@@ -25,26 +22,6 @@ public class HandsOfTheWildling
     [FeatGenerator(0)]
     public static IEnumerable<Feat> GetFeat()
     {
-        ItemName ikonRune = ModManager.RegisterNewItemIntoTheShop("HandsOfTheWildling", itemName =>
-        {
-            //TODO: figure out a way to apply this to an unarmed strike of choice
-            //TODO: okay there are no free-hand weapons in DD either
-            return new Item(itemName, IllustrationName.FearsomeRunestone, "Hands of the Wildling", 1, 0, Trait.DoNotAddToShop, ExemplarTraits.IkonFreeHand)
-            .WithRuneProperties(new RuneProperties("ikon", IkonRuneKind.Ikon, "Tattooed fists, savage claws, or even powerful gauntlets - you swing each with the fury of an animal from the woods.",
-            "This item grants the {i}immanence{/i} and {i}transcendence{/i} abilities of the Hands of the Wildling when empowered.", item =>
-            {
-                item.Traits.AddRange([ExemplarTraits.Ikon, Trait.Divine]);
-            })
-            .WithCanBeAppliedTo((Item rune, Item weapon) =>
-            {
-                if (weapon.WeaponProperties == null)
-                {
-                    return "Must be a weapon.";
-                }
-                return null;
-            }));
-        });
-
         yield return new Ikon(new Feat(
             ExemplarFeats.HandsOfTheWildling,
             "Tattooed fists, savage claws, or even powerful gauntlets—you swing each with the fury of an animal from the woods.",
@@ -55,13 +32,13 @@ public class HandsOfTheWildling
             "You can choose to swing with abandon, which imposes a -2 circumstance penalty to enemies' saving throws, but causes you to become off-guard until the start of your next turn.",
             [ExemplarTraits.Ikon, ExemplarTraits.IkonWeapon],
             null
-        ).WithIllustration(ExemplarIllustrations.HandsOfTheWildling), q =>
+        ).WithIllustration(ExemplarIllustrations.HandsOfTheWildling), (ikon, q) =>
         {
             q.AfterYouTakeAction = async (q, action) =>
             {
-                if (action.Item?.Runes.Any(rune => rune.ItemName == ikonRune) ?? false && action.HasTrait(Trait.Strike))
+                if (ikon.IsIkonItem(action.Item) && action.HasTrait(Trait.Strike))
                 {
-                    int dice = action.Item.WeaponProperties?.DamageDieCount ?? 0;
+                    int dice = action.Item?.WeaponProperties?.DamageDieCount ?? 0;
 
                     IEnumerable<Creature> creatures = action.ChosenTargets.ChosenCreature?.Occupies.Neighbours.Creatures.Where(cr => cr != q.Owner) ?? [];
                     foreach (var creature in creatures)
@@ -70,7 +47,7 @@ public class HandsOfTheWildling
                     }
                 }
             };
-        }, q =>
+        }, (ikon, q) =>
         {
             return new SubmenuPossibility(ExemplarIllustrations.HandsOfTheWildling, "Feral Swing")
             {
@@ -95,7 +72,7 @@ public class HandsOfTheWildling
                     (abandon ? " Swinging with abandon imposes a -2 circumstance bonus to enemies' saving throws, but causes you to become off-guard until the start of your next turn." : ""),
                     Target.Cone(3).WithAdditionalRequirementOnCaster(caster =>
                     {
-                        var hands = Ikon.GetIkonItem(q.Owner, ikonRune);
+                        var hands = Ikon.GetHeldIkon(q.Owner, ikon);
                         if (hands == null)
                         {
                             return Usability.NotUsable("You must be wielding the {i}hands of the wildling{/i}");
@@ -107,7 +84,7 @@ public class HandsOfTheWildling
                 .WithSavingThrow(new SavingThrow(Defense.Reflex, q.Owner.ClassDC()))
                 .WithEffectOnChosenTargets(async (action, self, targets) =>
                 {
-                    var hands = Ikon.GetIkonItem(self, ikonRune);
+                    var hands = Ikon.GetHeldIkon(self, ikon);
                     var penalty = new QEffect("Hands of the Wildling penalty", "", ExpirationCondition.Never, self)
                     {
                         BonusToDefenses = (q, penaltyAction, defense) => defense == Defense.Reflex && penaltyAction == action ? new Bonus(-2, BonusType.Circumstance, "Hands of the Wildling (with abandon)") : null
@@ -133,7 +110,14 @@ public class HandsOfTheWildling
                 }));
             }
         })
-        .WithRune(ikonRune)
+        .WithValidItem(item =>
+        {
+            if (item.WeaponProperties == null)
+            {
+                return "Must be a weapon.";
+            }
+            return null;
+        })
         .IkonFeat;
     }
 }

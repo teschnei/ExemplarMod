@@ -1,6 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
-using Dawnsbury.Core;
 using Dawnsbury.Core.CharacterBuilder.Feats;
 using Dawnsbury.Core.CombatActions;
 using Dawnsbury.Core.Mechanics;
@@ -9,11 +7,9 @@ using Dawnsbury.Core.Mechanics.Damage;
 using Dawnsbury.Core.Mechanics.Enumerations;
 using Dawnsbury.Core.Mechanics.Rules;
 using Dawnsbury.Core.Mechanics.Targeting;
-using Dawnsbury.Core.Mechanics.Treasure;
 using Dawnsbury.Core.Possibilities;
 using Dawnsbury.Core.Roller;
 using Dawnsbury.Display;
-using Dawnsbury.Modding;
 using Dawnsbury.Mods.Classes.Exemplar.RegisteredComponents;
 using static Dawnsbury.Mods.Classes.Exemplar.ExemplarClassLoader;
 
@@ -24,28 +20,6 @@ public class TitansBreaker
     [FeatGenerator(0)]
     public static IEnumerable<Feat> GetFeat()
     {
-        ItemName ikonRune = ModManager.RegisterNewItemIntoTheShop("TitansBreaker", itemName =>
-        {
-            return new Item(itemName, IllustrationName.FearsomeRunestone, "Titan's Breaker", 1, 0, Trait.DoNotAddToShop, ExemplarTraits.Ikon)
-            .WithRuneProperties(new RuneProperties("ikon", IkonRuneKind.Ikon, "You wield a weapon whose blows shatter mountains with ease.",
-            "This item grants the {i}immanence{/i} and {i}transcendence{/i} abilities of the Titan's Breaker when empowered.", item =>
-            {
-                item.Traits.AddRange([ExemplarTraits.Ikon, Trait.Divine]);
-            })
-            .WithCanBeAppliedTo((Item rune, Item weapon) =>
-            {
-                if (weapon.WeaponProperties == null)
-                {
-                    return "Must be a weapon.";
-                }
-                else if ((!weapon.HasTrait(Trait.Club)) && (!weapon.HasTrait(Trait.Hammer)) && (!weapon.HasTrait(Trait.Axe)) && (!weapon.HasTrait(Trait.Unarmed)))
-                {
-                    return "Must be a Club, Axe, Hammer or Unarmed.";
-                }
-                return null;
-            }));
-        });
-
         yield return new Ikon(new Feat(
             ExemplarFeats.TitansBreaker,
             "You wield a weapon whose blows shatter mountains with ease.",
@@ -59,18 +33,18 @@ public class TitansBreaker
             "it's increased to 8 spirit damage and three extra dice.",
             [ExemplarTraits.Ikon, ExemplarTraits.IkonWeapon],
             null
-        ).WithIllustration(ExemplarIllustrations.TitansBreaker), q =>
+        ).WithIllustration(ExemplarIllustrations.TitansBreaker), (ikon, q) =>
         {
             //Flag for "is this Strike from Fracture Mountains?"
             q.Tag = false;
 
             q.AddExtraKindedDamageOnStrike = (action, target) =>
             {
-                if (action.Item?.Runes.Any(rune => rune.ItemName == ikonRune) ?? false)
+                if (ikon.IsIkonItem(action.Item))
                 {
                     if ((bool)q.Tag == false)
                     {
-                        int dice = action.Item.WeaponProperties?.DamageDieCount ?? 0;
+                        int dice = action.Item?.WeaponProperties?.DamageDieCount ?? 0;
                         return new KindedDamage(DiceFormula.FromText($"{2 * dice}", "Titan's Breaker"), Ikon.GetBestDamageKindForSpark(action.Owner, target));
                     }
                     else
@@ -111,9 +85,9 @@ public class TitansBreaker
                 return null;
             };
         },
-        q =>
+        (ikon, q) =>
         {
-            var breaker = Ikon.GetIkonItem(q.Owner, ikonRune)!;
+            var breaker = Ikon.GetHeldIkon(q.Owner, ikon)!;
             var action = new CombatAction(
                 q.Owner,
                 ExemplarIllustrations.TitansBreaker,
@@ -123,7 +97,7 @@ public class TitansBreaker
                 "when calculating your multiple attack penalty. If this Strike hits, your additional spirit damage from the ikon's immanence increases to 4 plus " +
                 "an extra die of weapon damage. If you're at least 10th level, it's increased to 6 spirit damage and two extra dice, and if you're at least 18th level " +
                 "it's increased to 8 spirit damage and three extra dice.",
-                Target.Reach(Ikon.GetIkonItem(q.Owner, ikonRune)!).WithAdditionalConditionOnTargetCreature(new IkonWieldedTargetingRequirement(ikonRune, "titan's breaker"))
+                Target.Reach(Ikon.GetHeldIkon(q.Owner, ikon)!).WithAdditionalConditionOnTargetCreature(new IkonWieldedTargetingRequirement(ikon, "titan's breaker"))
             )
             .WithActionCost(2)
             .WithEffectOnChosenTargets(async (action, self, targets) =>
@@ -142,7 +116,18 @@ public class TitansBreaker
             }
             return new ActionPossibility(action);
         })
-        .WithRune(ikonRune)
+        .WithValidItem(item =>
+        {
+            if (item.WeaponProperties == null)
+            {
+                return "Must be a weapon.";
+            }
+            else if ((!item.HasTrait(Trait.Club)) && (!item.HasTrait(Trait.Hammer)) && (!item.HasTrait(Trait.Axe)) && (!item.HasTrait(Trait.Unarmed)))
+            {
+                return "Must be a Club, Axe, Hammer or Unarmed.";
+            }
+            return null;
+        })
         .IkonFeat;
     }
 }

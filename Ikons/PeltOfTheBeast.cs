@@ -23,23 +23,6 @@ public class PeltOfTheBeast
     [FeatGenerator(0)]
     public static IEnumerable<Feat> GetFeat()
     {
-        ItemName ikonRune = ModManager.RegisterNewItemIntoTheShop("PeltOfTheBeast", itemName =>
-        {
-            return new Item(itemName, IllustrationName.FearsomeRunestone, "Pelt of the Beast", 1, 0, Trait.DoNotAddToShop, ExemplarTraits.IkonCloakBelt)
-            .WithRuneProperties(new RuneProperties("ikon", IkonRuneKind.Ikon, "This animal hide, whether worn about the shoulders or waist, is all you need to survive in the harshest elements.",
-            "This item grants the {i}immanence{/i} and {i}transcendence{/i} abilities of the Pelt of the Beast when empowered.", item =>
-            {
-                item.Traits.AddRange([ExemplarTraits.Ikon, Trait.Divine]);
-            })
-            .WithCanBeAppliedTo((Item rune, Item item) =>
-            {
-                if (!item.HasTrait(Trait.Worn) || (item.WornAt != Trait.Cloak && item.WornAt != Trait.Belt))
-                {
-                    return "Must be a worn cloak or belt.";
-                }
-                return null;
-            }));
-        });
         ItemName freeItem = ModManager.RegisterNewItemIntoTheShop("OrdinaryCloak", itemName =>
         {
             return new Item(itemName, IllustrationName.CloakOfEnergyResistance, "Cloak", 1, 0, Trait.DoNotAddToShop)
@@ -98,11 +81,11 @@ public class PeltOfTheBeast
         .WithPermanentQEffect(null, q =>
         {
             q.Id = ExemplarQEffects.PeltOfTheBeastAttunement;
-        }), q =>
+        }), (ikon, q) =>
         {
             q.StateCheck = (qe) =>
             {
-                var pelt = Ikon.GetIkonItemWorn(qe.Owner, ikonRune);
+                var pelt = Ikon.GetWornIkon(qe.Owner, ikon);
                 var peltq = qe.Owner.FindQEffect(ExemplarQEffects.PeltOfTheBeastAttunement);
                 if (pelt != null && peltq != null && peltq.Tag is ValueTuple<DamageKind, Trait> tag)
                 {
@@ -110,7 +93,7 @@ public class PeltOfTheBeast
                 }
             };
         },
-        q =>
+        (ikon, q) =>
         {
             var peltActions = peltFeatTypes.Select(feats =>
             {
@@ -121,7 +104,7 @@ public class PeltOfTheBeast
                     "+2 circumstance bonus to AC and saving throws against effects with that trait.",
                     Target.Self().WithAdditionalRestriction(self =>
                     {
-                        if (Ikon.GetIkonItemWorn(self, ikonRune) == null)
+                        if (Ikon.GetWornIkon(self, ikon) == null)
                         {
                             return "You must be wearing the pelt of the beast.";
                         }
@@ -158,7 +141,14 @@ public class PeltOfTheBeast
             };
 
         })
-        .WithRune(ikonRune)
+        .WithValidItem(item =>
+        {
+            if (!item.HasTrait(Trait.Worn) || (item.WornAt != Trait.Cloak && item.WornAt != Trait.Belt))
+            {
+                return "Must be a worn cloak or belt.";
+            }
+            return null;
+        })
         .WithFreeWornItem(freeItem)
         .IkonFeat;
     }

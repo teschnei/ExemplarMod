@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using Dawnsbury.Core;
 using Dawnsbury.Core.CharacterBuilder.Feats;
 using Dawnsbury.Core.CombatActions;
@@ -28,7 +27,7 @@ public class TheDeft
         {
             var actions = Possibilities.Create(exemplar).Filter(poss =>
                 (poss.CombatAction.ActionId == ActionId.DrawItem || poss.CombatAction.ActionId == ActionId.ReplaceItemInHand || poss.CombatAction.ActionId == ActionId.Reload) &&
-                (poss.CombatAction.Item != null && poss.CombatAction.Item.Runes.Any(rune => rune.RuneProperties?.RuneKind == IkonRuneKind.Ikon) &&
+                (poss.CombatAction.Item != null && poss.CombatAction.Item.HasTrait(ExemplarTraits.Ikon) &&
                 (poss.CombatAction.Item.HasTrait(Trait.Reload1) || poss.CombatAction.Item.HasTrait(Trait.Reload2) || (!poss.CombatAction.Item.HasTrait(Trait.Ranged) && (poss.CombatAction.Item.WeaponProperties?.Throwable ?? false)))));
             return new SubmenuPossibility(IllustrationName.Feint, "The Deft")
             {

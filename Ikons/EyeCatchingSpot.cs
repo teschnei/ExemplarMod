@@ -27,13 +27,13 @@ public class EyeCatchingSpot
             "You focus your attention on a creature within 30 feet, overwhelming its senses. The creature must succeed at a Will save against your class DC or be fascinated by you until the start of your next turn. The condition ends if you use a hostile action against the target, but not if you use one against its allies.",
             [ExemplarTraits.Ikon, ExemplarTraits.IkonBody],
             null
-        ).WithIllustration(ExemplarIllustrations.EyeCatchingSpot), q =>
+        ).WithIllustration(ExemplarIllustrations.EyeCatchingSpot), (ikon, q) =>
         {
             q.AddGrantingOfTechnical(cr => cr.EnemyOf(q.Owner), qe =>
             {
                 qe.BonusToAttackRolls = (qe, action, target) => action.HasTrait(Trait.Attack) && action.HasTrait(Trait.Melee) && target == q.Owner ? new Bonus(-1, BonusType.Circumstance, "Eye-Catching Spot") : null;
             });
-        }, q =>
+        }, (ikon, q) =>
         {
             return new ActionPossibility(new CombatAction(
                 q.Owner,

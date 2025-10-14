@@ -22,25 +22,6 @@ public class BandsOfImprisonment
     [FeatGenerator(0)]
     public static IEnumerable<Feat> GetFeat()
     {
-        ItemName ikonRune = ModManager.RegisterNewItemIntoTheShop("BandsofImprisonment", itemName =>
-        {
-            return new Item(itemName, IllustrationName.FearsomeRunestone, "Bands of Imprisonment", 1, 0, Trait.DoNotAddToShop, ExemplarTraits.IkonBands)
-            .WithRuneProperties(new RuneProperties("ikon", IkonRuneKind.Ikon, "These weighted bands don't enhance your power—rather, they keep your strength in check, honing your discipline.",
-            "This item grants the {i}immanence{/i} and {i}transcendence{/i} abilities of the Bands of Imprisonment when empowered.", item =>
-            {
-                item.Traits.AddRange([ExemplarTraits.Ikon, Trait.Divine]);
-                item.Name = "bands of imprisonment";
-                item.ShortName = "bands of imprisonment";
-            })
-            .WithCanBeAppliedTo((Item rune, Item item) =>
-            {
-                if (!item.HasTrait(Trait.Worn) || (item.WornAt != Trait.Shoes && item.WornAt != Trait.Bracers && item.WornAt != Trait.Headband))
-                {
-                    return "Must be worn anklets, bracers, or circlet.";
-                }
-                return null;
-            }));
-        });
         ItemName freeItem = ModManager.RegisterNewItemIntoTheShop("OrdinaryBracers", itemName =>
         {
             return new Item(itemName, IllustrationName.BracersOfMissileDeflection, "Bracers", 1, 0, Trait.DoNotAddToShop)
@@ -55,11 +36,11 @@ public class BandsOfImprisonment
             $"{{b}}Transcendence — Break Free {RulesBlock.GetIconTextFromNumberOfActions(2)}{{/b}} (transcendence)\nYou can attempt to Escape with a +2 status bonus on your check, then Stride up to twice your Speed in a straight line, and finally make a melee Strike. If you don't need to Escape or you can't move or choose not to, you still take the other actions listed.",
             [ExemplarTraits.Ikon, ExemplarTraits.IkonWorn],
             null
-        ).WithIllustration(ExemplarIllustrations.BandsOfImprisonment), q =>
+        ).WithIllustration(ExemplarIllustrations.BandsOfImprisonment), (ikon, q) =>
         {
             q.StateCheck = q => q.Owner.WeaknessAndResistance.AddResistance(DamageKind.Mental, q.Owner.Level / 2);
             q.BonusToDefenses = (qfSelf, action, defense) => defense == Defense.Will ? new Bonus(1, BonusType.Status, "Bands of Imprisonment") : null;
-        }, q =>
+        }, (ikon, q) =>
         {
             return new ActionPossibility(new CombatAction(
                 q.Owner,
@@ -105,7 +86,14 @@ public class BandsOfImprisonment
                 }
             }));
         })
-        .WithRune(ikonRune)
+        .WithValidItem(item =>
+        {
+            if (!item.HasTrait(Trait.Worn) || (item.WornAt != Trait.Shoes && item.WornAt != Trait.Bracers && item.WornAt != Trait.Headband))
+            {
+                return "Must be worn anklets, bracers, or circlet.";
+            }
+            return null;
+        })
         .WithFreeWornItem(freeItem)
         .IkonFeat;
     }

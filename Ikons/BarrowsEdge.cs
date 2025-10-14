@@ -1,17 +1,14 @@
 using System.Collections.Generic;
 using System.Linq;
-using Dawnsbury.Core;
 using Dawnsbury.Core.CharacterBuilder.Feats;
 using Dawnsbury.Core.CombatActions;
 using Dawnsbury.Core.Mechanics.Core;
 using Dawnsbury.Core.Mechanics.Damage;
 using Dawnsbury.Core.Mechanics.Enumerations;
 using Dawnsbury.Core.Mechanics.Targeting;
-using Dawnsbury.Core.Mechanics.Treasure;
 using Dawnsbury.Core.Possibilities;
 using Dawnsbury.Core.Roller;
 using Dawnsbury.Display;
-using Dawnsbury.Modding;
 using Dawnsbury.Mods.Classes.Exemplar.RegisteredComponents;
 using static Dawnsbury.Mods.Classes.Exemplar.ExemplarClassLoader;
 
@@ -22,28 +19,6 @@ public class BarrowsEdge
     [FeatGenerator(0)]
     public static IEnumerable<Feat> GetFeat()
     {
-        ItemName ikonRune = ModManager.RegisterNewItemIntoTheShop("BarrowsEdge", itemName =>
-        {
-            return new Item(itemName, IllustrationName.FearsomeRunestone, "Barrow's Edge", 1, 0, Trait.DoNotAddToShop, ExemplarTraits.IkonSlashingPiercing)
-            .WithRuneProperties(new RuneProperties("ikon", IkonRuneKind.Ikon, "This blade subtly rattles in its scabbard, as if it wants to be unsheathed so it can consume violence.",
-            "This item grants the {i}immanence{/i} and {i}transcendence{/i} abilities of the Barrow's Edge when empowered.", item =>
-            {
-                item.Traits.AddRange([ExemplarTraits.Ikon, Trait.Divine]);
-            })
-            .WithCanBeAppliedTo((Item rune, Item weapon) =>
-            {
-                if (weapon.WeaponProperties == null)
-                {
-                    return "Must be a weapon.";
-                }
-                else if (weapon.WeaponProperties.DamageKind.ToString() != "Slashing" && weapon.WeaponProperties.DamageKind.ToString() != "Piercing")
-                {
-                    return "Must be a Slashing or a Piercing Weapon.";
-                }
-                return null;
-            }));
-        });
-
         yield return new Ikon(new Feat(
             ExemplarFeats.BarrowsEdge,
             "This blade subtly rattles in its scabbard, as if it wants to be unsheathed so it can consume violence.",
@@ -52,13 +27,13 @@ public class BarrowsEdge
             $"{{b}}Transcendence — Drink of my Foes {RulesBlock.GetIconTextFromNumberOfActions(1)}{{/b}} (healing, transcendence, vitality)\n{{b}}Requirements{{/b}} Your last action was a successful Strike with the {{i}}barrow's edge{{/i}}.\nYour blade glows as it absorbs your foe's vitality. You regain Hit Points equal to half the damage dealt.",
             [ExemplarTraits.Ikon, ExemplarTraits.IkonWeapon],
             null
-        ).WithIllustration(ExemplarIllustrations.BarrowsEdge), q =>
+        ).WithIllustration(ExemplarIllustrations.BarrowsEdge), (ikon, q) =>
         {
             q.AddExtraKindedDamageOnStrike = (action, target) =>
             {
-                if (action.Item?.Runes.Any(rune => rune.ItemName == ikonRune) ?? false)
+                if (ikon.IsIkonItem(action.Item))
                 {
-                    int dice = action.Item.WeaponProperties?.DamageDieCount ?? 0;
+                    int dice = action.Item!.WeaponProperties?.DamageDieCount ?? 0;
                     return new KindedDamage(DiceFormula.FromText($"{(target.HP <= target.MaxHP / 2 ? 3 * dice : dice)}", "Barrow's Edge"), Ikon.GetBestDamageKindForSpark(action.Owner, target));
                 }
                 return null;
@@ -74,7 +49,7 @@ public class BarrowsEdge
                     }
                 };
             });
-        }, q =>
+        }, (ikon, q) =>
         {
             return new ActionPossibility(new CombatAction(
                 q.Owner,
@@ -84,7 +59,7 @@ public class BarrowsEdge
                 "Your blade glows as it absorbs your foe's vitality. You regain Hit Points equal to half the damage dealt.",
                 Target.Self().WithAdditionalRestriction(self =>
                 {
-                    var barrow = Ikon.GetIkonItem(q.Owner, ikonRune);
+                    var barrow = Ikon.GetHeldIkon(q.Owner, ikon);
                     if (barrow == null)
                     {
                         return "You must be wielding the {i}barrow's edge{/i}.";
@@ -92,7 +67,7 @@ public class BarrowsEdge
                     var lastAction = self.Actions.ActionHistoryThisTurn.LastOrDefault();
                     if (lastAction == null || !lastAction.HasTrait(Trait.Strike) ||
                         lastAction.CheckResult < CheckResult.Success ||
-                        !(lastAction.Item?.Runes.Any(r => r.ItemName == ikonRune) ?? false))
+                        !(ikon.IsIkonItem(lastAction.Item)))
                     {
                         return "Your last action must be a successful Strike with the {i}barrow's edge{/i}.";
                     }
@@ -104,7 +79,18 @@ public class BarrowsEdge
                 await caster.HealAsync(((int)(q.Tag ?? 0) / 2).ToString(), action);
             }));
         })
-        .WithRune(ikonRune)
+        .WithValidItem(item =>
+        {
+            if (item.WeaponProperties == null)
+            {
+                return "Must be a weapon.";
+            }
+            else if (item.WeaponProperties.DamageKind.ToString() != "Slashing" && item.WeaponProperties.DamageKind.ToString() != "Piercing")
+            {
+                return "Must be a Slashing or a Piercing Weapon.";
+            }
+            return null;
+        })
         .IkonFeat;
     }
 }

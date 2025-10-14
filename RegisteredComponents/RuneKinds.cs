@@ -9,5 +9,5 @@ public class IkonRuneKind
     /// thanks to Sudo!
     /// The technical Weapon Implement persistent Rune Kind ID 
     /// </summary>
-    public static readonly RuneKind Ikon = ModManager.RegisterEnumMember<RuneKind>("Ikon");
+    //public static readonly RuneKind Ikon = ModManager.RegisterEnumMember<RuneKind>("Ikon");
 }

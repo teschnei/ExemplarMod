@@ -28,7 +28,7 @@ public class FlowOfWar
         .WithActionCost(0)
         .WithPermanentQEffect("You become quickened until the end of your turn and can use the extra action only to Strike or Stride.", q =>
         {
-            q.ProvideMainAction = q.Owner.Actions.ActionHistoryThisTurn.Count() == 0 && !q.Owner.HasEffect(ExemplarQEffects.FlowOfWarUsed) ? q => new ActionPossibility(new CombatAction(
+            q.ProvideContextualAction = q => q.Owner.Actions.ActionHistoryThisTurn.Count() == 0 && !q.Owner.HasEffect(ExemplarQEffects.FlowOfWarUsed) ? new ActionPossibility(new CombatAction(
                     q.Owner,
                     IllustrationName.Haste,
                     "Flow of War",
@@ -45,6 +45,8 @@ public class FlowOfWar
                         Id = ExemplarQEffects.FlowOfWarUsed,
                         ExpiresAt = ExpirationCondition.Never
                     });
+                    //Apply the extra action
+                    self.Actions.ResetToFull();
                 })
             ) : null;
         });

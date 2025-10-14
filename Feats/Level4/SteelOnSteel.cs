@@ -10,7 +10,6 @@ using Dawnsbury.Core.Mechanics.Damage;
 using Dawnsbury.Core.Mechanics.Enumerations;
 using Dawnsbury.Core.Mechanics.Targeting;
 using Dawnsbury.Core.Mechanics.Targeting.Targets;
-using Dawnsbury.Core.Mechanics.Treasure;
 using Dawnsbury.Core.Possibilities;
 using Dawnsbury.Core.Roller;
 using Dawnsbury.Display;
@@ -44,9 +43,9 @@ public class SteelOnSteel
                 {
                     q.ProvideMainAction = q =>
                     {
-                        var ikonItem = Ikon.GetIkonItem(q.Owner, (ItemName)ikon.Rune!);
+                        var ikonItem = Ikon.GetHeldIkon(q.Owner, ikon);
                         return q.Owner.HasEffect(ikon.EmpoweredQEffectId) && (ikonItem != null && ((ikonItem.WeaponProperties != null && !ikonItem.HasTrait(Trait.Ranged)) || (ikonItem.HasTrait(Trait.Shield)))) ?
-                            Ikon.CreateTranscendence(q =>
+                            Ikon.CreateTranscendence((ikon, q) =>
                                 new SubmenuPossibility(IllustrationName.SteelShield, "Ringing Challenge")
                                 {
                                     Subsections = [
@@ -61,6 +60,14 @@ public class SteelOnSteel
                     };
 
                 });
+            },
+            item =>
+            {
+                if (!item.HasTrait(Trait.Shield) && (item.WeaponProperties == null || item.HasTrait(Trait.Ranged)))
+                {
+                    return "Steel on Steel: must be a melee weapon ikon or shield ikon.";
+                }
+                return null;
             }).ToList()
         );
         Possibility? steelOnSteelAction(QEffect q, Target target)

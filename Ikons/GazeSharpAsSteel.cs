@@ -29,10 +29,10 @@ public class GazeSharpAsSteel
             "You take in every movement around you, affording you unparalleled accuracy. Your next successful Strike against an enemy before the end of your next turn deals an additional 1d6 precision damage (2d6 at 10th level, 3d6 at 18th).",
             [ExemplarTraits.Ikon, ExemplarTraits.IkonBody],
             null
-        ).WithIllustration(ExemplarIllustrations.GazeSharpAsSteel), q =>
+        ).WithIllustration(ExemplarIllustrations.GazeSharpAsSteel), (ikon, q) =>
         {
             q.BonusToDefenses = (q, action, defense) => action?.HasTrait(Trait.Ranged) ?? false && defense == Defense.AC ? new Bonus(2, BonusType.Status, "Gaze Sharp as Steel") : null;
-        }, q =>
+        }, (ikon, q) =>
         {
             int dice = (q.Owner.Level >= 18 ? 3 : q.Owner.Level >= 10 ? 2 : 1);
             string extraDamage = $"{dice}d6";

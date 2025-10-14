@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Dawnsbury.Core;
 using Dawnsbury.Core.CharacterBuilder.Feats;
 using Dawnsbury.Core.CharacterBuilder.FeatsDb.Common;
 using Dawnsbury.Core.CombatActions;
@@ -15,7 +14,6 @@ using Dawnsbury.Core.Mechanics.Treasure;
 using Dawnsbury.Core.Possibilities;
 using Dawnsbury.Core.Roller;
 using Dawnsbury.Display;
-using Dawnsbury.Modding;
 using Dawnsbury.Mods.Classes.Exemplar.RegisteredComponents;
 using static Dawnsbury.Mods.Classes.Exemplar.ExemplarClassLoader;
 
@@ -26,28 +24,6 @@ public class NobleBranch
     [FeatGenerator(0)]
     public static IEnumerable<Feat> GetFeat()
     {
-        ItemName ikonRune = ModManager.RegisterNewItemIntoTheShop("NobleBranch", itemName =>
-        {
-            return new Item(itemName, IllustrationName.FearsomeRunestone, "Noble Branch", 1, 0, Trait.DoNotAddToShop, ExemplarTraits.IkonStaff)
-            .WithRuneProperties(new RuneProperties("ikon", IkonRuneKind.Ikon, "This humble stick-like weapon has an elegant simplicity to it, affording you reliable strikes over flashy maneuvers.",
-            "This item grants the {i}immanence{/i} and {i}transcendence{/i} abilities of the Noble Branch when empowered.", item =>
-            {
-                item.Traits.AddRange([ExemplarTraits.Ikon, Trait.Divine]);
-            })
-            .WithCanBeAppliedTo((Item rune, Item weapon) =>
-            {
-                if (weapon.WeaponProperties == null)
-                {
-                    return "Must be a weapon.";
-                }
-                if ((!weapon.HasTrait(Trait.Staff)) && (!weapon.HasTrait(Trait.Spear)) && (!weapon.HasTrait(Trait.Polearm)))
-                {
-                    return "Must be a staff, bo staff, fighting stick, khakkara, or any weapon in the spear or polearm weapon group";
-                }
-                return null;
-            }));
-        });
-
         yield return new Ikon(new Feat(
             ExemplarFeats.NobleBranch,
             "This humble stick-like weapon has an elegant simplicity to it, affording you reliable strikes over flashy maneuvers.",
@@ -57,23 +33,23 @@ public class NobleBranch
             "{b}Effect{/b} You channel a rending pulse of energy down your weapon in the moment of contact. The target of the Strike takes spirit damage equal to the {i}noble branch's{/i} weapon damage dice.",
             [ExemplarTraits.Ikon, ExemplarTraits.IkonWeapon],
             null
-        ).WithIllustration(ExemplarIllustrations.NobleBranch), q =>
+        ).WithIllustration(ExemplarIllustrations.NobleBranch), (ikon, q) =>
         {
             q.AddExtraKindedDamageOnStrike = (action, target) =>
             {
-                if (action.Item?.Runes.Any(rune => rune.ItemName == ikonRune) ?? false)
+                if (ikon.IsIkonItem(action.Item))
                 {
-                    int dice = action.Item.WeaponProperties?.DamageDieCount ?? 0;
+                    int dice = action.Item?.WeaponProperties?.DamageDieCount ?? 0;
                     return new KindedDamage(DiceFormula.FromText($"{2 * dice}", "Gleaming Blade"), Ikon.GetBestDamageKindForSpark(action.Owner, target));
                 }
                 return null;
             };
         },
-        q =>
+        (ikon, q) =>
         {
-            var heldIkon = Ikon.GetIkonItem(q.Owner, ikonRune);
+            var heldIkon = Ikon.GetHeldIkon(q.Owner, ikon);
             var lastAction = q.Owner.Actions.ActionHistoryThisTurn.LastOrDefault();
-            var lastIkon = lastAction?.Item?.Runes.Any(r => r.ItemName == ikonRune) ?? false ? lastAction.Item : null;
+            var lastIkon = ikon.IsIkonItem(lastAction?.Item) ? lastAction?.Item : null;
             return new ActionPossibility(new CombatAction(
                 q.Owner,
                 ExemplarIllustrations.NobleBranch,
@@ -122,7 +98,18 @@ public class NobleBranch
                 await CommonSpellEffects.DealDirectDamage(action, diceFormula, lastAction!.ChosenTargets.ChosenCreature!, CheckResult.Failure, Ikon.GetBestDamageKindForSpark(self, lastAction!.ChosenTargets.ChosenCreature!));
             }));
         })
-        .WithRune(ikonRune)
+        .WithValidItem(item =>
+        {
+            if (item.WeaponProperties == null)
+            {
+                return "Must be a weapon.";
+            }
+            if ((!item.HasTrait(Trait.Staff)) && (!item.HasTrait(Trait.Spear)) && (!item.HasTrait(Trait.Polearm)))
+            {
+                return "Must be a staff, bo staff, fighting stick, khakkara, or any weapon in the spear or polearm weapon group";
+            }
+            return null;
+        })
         .IkonFeat;
     }
 }

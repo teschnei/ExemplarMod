@@ -67,7 +67,7 @@ public class HornOfPlenty
                     }
                 }
             };
-        }), q =>
+        }), (ikon, q) =>
         {
             q.ProvideContextualAction = qe =>
             {
@@ -100,7 +100,7 @@ public class HornOfPlenty
                 };
             };
         },
-        q =>
+        (ikon, q) =>
         {
             var hornActions = q.Owner.CarriedItems.FirstOrDefault(i => i.BaseItemName == hornOfPlenty)?.StoredItems.Select(item =>
             {
@@ -132,7 +132,7 @@ public class HornOfPlenty
                 ]
             };
         })
-        .WithRune(hornOfPlenty)
+        .WithFreeWornItem(hornOfPlenty)
         .IkonFeat;
     }
 }

@@ -15,6 +15,7 @@ public static class ExemplarQEffects
     public static readonly QEffectId RaiseTheWalls = ModManager.RegisterEnumMember<QEffectId>("RaiseTheWalls");
     public static readonly QEffectId ArrowSplitsArrow = ModManager.RegisterEnumMember<QEffectId>("ArrowSplitsArrow");
     public static readonly QEffectId HornOfPlentyDailyElixir = ModManager.RegisterEnumMember<QEffectId>("HornOfPlentyDailyElixir");
+    public static readonly QEffectId ShadowSheathItemStorage = ModManager.RegisterEnumMember<QEffectId>("ShadowSheathItemStorage");
 
     //Level 1 Feats
     public static readonly QEffectId EnergizedSpark = ModManager.RegisterEnumMember<QEffectId>("EnergizedSpark");
