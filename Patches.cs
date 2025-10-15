@@ -96,7 +96,7 @@ static class IkonSelectionPatch
         {
             Item item = InventoryState.ikonExpanded;
 
-            var ikons = Ikons.Ikon.IkonLUT.Values.Where(i => sheet?.Calculated.AllFeatGrants.Any(fg => fg.GrantedFeat == i.IkonFeat && fg.AtLevel <= sheet.EditingInventoryAtLevel && i.Equippable && i.ValidItem?.Invoke(item) == null) ?? false);
+            var ikons = Ikons.Ikon.IkonLUT.Values.Where(i => sheet?.Calculated.AllFeatGrants.Any(fg => fg.GrantedFeat == i.IkonFeat && fg.AtLevel <= (sheet.IsCampaignCharacter ? sheet.MaximumLevel : sheet.EditingInventoryAtLevel) && i.Equippable && i.ValidItem?.Invoke(item) == null) ?? false);
 
             __state = CalcMenu(rect, ikons.Count());
             if (__state != null)
@@ -118,10 +118,10 @@ static class IkonSelectionPatch
             __state = null;
         }
     }
-    static void Postfix(CharacterSheet sheet, Rectangle rect, int atLevel, Buttons? __state)
+    static void Postfix(CharacterSheet sheet, Rectangle rect, int atLevel, bool avoidDrawingFace, Buttons? __state)
     {
         var allItems = sheet.Inventory.Backpack.Concat([sheet.Inventory.LeftHand, sheet.Inventory.RightHand, sheet.Inventory.Armor]);
-        var allIkons = Ikons.Ikon.IkonLUT.Values.Where(i => i.Equippable && (sheet?.Calculated.AllFeatGrants.Any(fg => fg.GrantedFeat == i.IkonFeat && fg.AtLevel <= sheet.EditingInventoryAtLevel) ?? false));
+        var allIkons = Ikons.Ikon.IkonLUT.Values.Where(i => i.Equippable && (sheet?.Calculated.AllFeatGrants.Any(fg => fg.GrantedFeat == i.IkonFeat && fg.AtLevel <= (sheet.IsCampaignCharacter ? sheet.MaximumLevel : sheet.EditingInventoryAtLevel)) ?? false));
         if (InventoryState.ikonExpanded != null && __state != null)
         {
             Item item = InventoryState.ikonExpanded;
@@ -138,7 +138,7 @@ static class IkonSelectionPatch
                 var selected = selectedIkons?.Contains(ikon) ?? false;
                 bool mouseOver = Root.IsMouseOverNative(button);
                 string? disabledBy = Ikons.Ikon.IkonExpansionReqLUT.TryGetValue(ikon.IkonFeat.FeatName, out var d) ? d
-                    .Where(kvp => sheet?.Calculated.AllFeatGrants.Any(fg => fg.GrantedFeat.FeatName == kvp.Key && fg.AtLevel <= atLevel) ?? false)
+                    .Where(kvp => sheet?.Calculated.AllFeatGrants.Any(fg => fg.GrantedFeat.FeatName == kvp.Key && fg.AtLevel <= (atLevel >= 1 ? atLevel : sheet.MaximumLevel)) ?? false)
                     .Select(kvp => kvp.Value(item)).FirstOrDefault() : null;
                 UI.DrawUIButton(Primitives.Unscale(button), (rect) =>
                 {
@@ -180,8 +180,12 @@ static class IkonSelectionPatch
         var availableIkons = allIkons.Select(ikon => ikon.ModString);
         if (equippedIkons.Intersect(availableIkons).Count() != availableIkons.Count())
         {
-            Rectangle warning = new Rectangle(rect.Left, rect.Bottom - 130, 400, 120);
-            Writer.DrawString("You have unassigned ikons", warning, Color.Red, null);
+            Rectangle warning = new Rectangle(rect.Right - 80, rect.Top + (avoidDrawingFace ? 0 : 200), 80, 90);
+            Writer.DrawString("{icon:RedWarning}", warning, Color.Red, null, Writer.TextAlignment.Right);
+            if (Root.IsMouseOver(warning))
+            {
+                Tooltip.DrawTooltipAround(Primitives.Scale(warning), "You have unassigned ikons.");
+            }
         }
     }
 }
@@ -196,7 +200,8 @@ static class IkonSelectionPatch2
         {
             if (itemSlot.Item != null)
             {
-                var ikons = Ikons.Ikon.IkonLUT.Values.Where(i => sheet?.Calculated.AllFeatGrants.Any(fg => fg.GrantedFeat == i.IkonFeat && fg.AtLevel <= sheet.EditingInventoryAtLevel && i.Equippable && i.ValidItem?.Invoke(itemSlot.Item) == null) ?? false);
+                var ikons = Ikons.Ikon.IkonLUT.Values.Where(i =>
+                        sheet?.Calculated.AllFeatGrants.Any(fg => fg.GrantedFeat == i.IkonFeat && fg.AtLevel <= (sheet.IsCampaignCharacter ? sheet.MaximumLevel : sheet.EditingInventoryAtLevel) && i.Equippable && i.ValidItem?.Invoke(itemSlot.Item) == null) ?? false);
                 if (ikons.Count() > 0)
                 {
                     int height = rectangle.Height / 4;

@@ -1,8 +1,11 @@
 using System.Collections.Generic;
 using System.Linq;
+using Dawnsbury.Auxiliary;
 using Dawnsbury.Core;
 using Dawnsbury.Core.CharacterBuilder.Feats;
+using Dawnsbury.Core.CharacterBuilder.FeatsDb.Common;
 using Dawnsbury.Core.CombatActions;
+using Dawnsbury.Core.Mechanics;
 using Dawnsbury.Core.Mechanics.Core;
 using Dawnsbury.Core.Mechanics.Enumerations;
 using Dawnsbury.Core.Mechanics.Targeting;
@@ -74,7 +77,29 @@ public class VictorsWreath
                 var allies = self.Battle.AllCreatures.Where(a => a.FriendOf(self) && a != self && a.DistanceTo(self) <= 3);
                 foreach (var ally in allies)
                 {
-                    //TODO: QEffects don't save the DC usually, so...
+                    var effect = ally.QEffects.Where(q => q.CountsAsADebuff && q.SourceAction?.SavingThrow != null).FirstOrDefault();
+                    if (effect != null)
+                    {
+                        var bonus = new QEffect()
+                        {
+                            BonusToDefenses = (_, _, _) => new Bonus(2, BonusType.Status, "One Moment till Glory", true)
+                        };
+                        ally.AddQEffect(bonus);
+                        if (CommonSpellEffects.RollSavingThrow(ally, q.SourceAction!, q.SourceAction!.SavingThrow!.Defense, q.SourceAction.SavingThrow.DC(q.SourceAction?.Owner)) >= CheckResult.Success)
+                        {
+                            //This ability doesn't actually say what it does, so I'm just going to assume it removes the effect on a success
+                            effect.ExpiresAt = ExpirationCondition.Immediately;
+                        }
+                        bonus.ExpiresAt = ExpirationCondition.Immediately;
+                    }
+                    else
+                    {
+                        var persistentEffect = ally.QEffects.Where(q => q.Key?.StartsWith("PersistentDamage") ?? false).FirstOrDefault();
+                        if (persistentEffect != null)
+                        {
+                            persistentEffect.RollPersistentDamageRecoveryCheck(false);
+                        }
+                    }
                 }
             }));
         })
