@@ -25,7 +25,7 @@ public static class ExemplarArchetype
             .WithOnSheet(sheet =>
             {
                 sheet.SetProficiency(Trait.Martial, Proficiency.Trained);
-                sheet.AddSelectionOptionRightNow(new SingleFeatSelectionOption("Ikon", "Ikon", 1, ft => ft.HasTrait(ExemplarTraits.Ikon)));
+                sheet.AddSelectionOptionRightNow(new SingleFeatSelectionOption("Ikon", "Ikon", -1, ft => ft.HasTrait(ExemplarTraits.Ikon)));
 
                 sheet.AtEndOfRecalculation += (sheet) =>
                 {

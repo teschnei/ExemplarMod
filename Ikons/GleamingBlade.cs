@@ -47,7 +47,7 @@ public class GleamingBlade
                 q.Owner,
                 ExemplarIllustrations.GleamingBlade,
                 "Flowing Spirit Strike",
-                [ExemplarTraits.Spirit, ExemplarTraits.Transcendence],
+                [ExemplarTraits.Spirit, ExemplarTraits.Transcendence, Trait.AlwaysHits, Trait.IsHostile],
                 "Make two Strikes with the {i}gleaming blade{/i}, each against the same target and using your current multiple attack penalty. If the {i}gleaming blade{/i} doesn't have the agile trait, the second Strike takes a –2 penalty. If both attacks hit, you combine their damage, which is all dealt as spirit damage. You add any precision damage only once. Combine the damage from both Strikes and apply resistances and weaknesses only once. This counts as two attacks when calculating your multiple attack penalty.",
                 Target.Reach(ikonItem!).WithAdditionalConditionOnTargetCreature(new IkonWieldedTargetingRequirement(ikon, "gleaming blade"))
             )
@@ -73,20 +73,20 @@ public class GleamingBlade
             if (ikonItem != null)
             {
                 var tooltipStrike = q.Owner.CreateStrike(ikonItem, q.Owner.Actions.AttackedThisManyTimesThisTurn).WithActionCost(0);
-                action.WithActiveRollSpecification(new ActiveRollSpecification(Utility.Attack(tooltipStrike, ikonItem, -1), TaggedChecks.DefenseDC(Defense.AC)))
-                      .WithNoSaveFor((action, cr) => true);
+                action.WithTargetingTooltip((action, target, _) => CombatActionExecution.BreakdownAttackForTooltip(tooltipStrike, target).TooltipDescription);
             }
             return new ActionPossibility(action);
         })
+        .WithWeaponUnarmedSubFeats(ExemplarFeats.GleamingBladeWeapon, ExemplarFeats.GleamingBladeUnarmed)
         .WithValidItem(item =>
         {
             if (item.WeaponProperties == null)
             {
                 return "Must be a weapon.";
             }
-            else if ((!item.HasTrait(Trait.Sword)) && (!item.HasTrait(Trait.Knife)))
+            else if (!((item.HasTrait(Trait.Sword)) || (item.HasTrait(Trait.Knife)) || (item.HasTrait(Trait.Unarmed) && !item.HasTrait(Trait.Ranged) && item.DetermineDamageKinds().Contains(DamageKind.Slashing))))
             {
-                return "Must be a Sword or a Knife.";
+                return "Must be a sword or a knife, or a melee unarmed attack that deals slashing damage.";
             }
             return null;
         })

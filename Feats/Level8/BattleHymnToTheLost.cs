@@ -84,7 +84,7 @@ public class BattleHymnToTheLost
                     new CombatAction(qf.Owner,
                         new SideBySideIllustration(item.Illustration, IllustrationName.SongOfStrength),
                         "Battle Hymn to the Lost",
-                        [Trait.Concentrate, Trait.Divine],
+                        [Trait.Concentrate, Trait.Divine, Trait.AlwaysHits, Trait.IsHostile],
                         "You make a Strike. Regardless of whether the Strike succeeds, spirits of warriors who died gloriously in battle surge out to attack with you. " +
                         "They appear in a 30-foot cone if you make a melee Strike or in a 10-foot emanation around your target if you made a ranged Strike. " +
                         $"Each enemy in the area takes {S.HeightenedVariable(qf.Owner.Level / 4, 2)}d10 damage with a basic Reflex save against your class DC; you choose whether the damage is bludgeoning, " +
@@ -94,9 +94,13 @@ public class BattleHymnToTheLost
                         "This action can only be performed once per combat encounter.",
                         //TODO: thrown?
                         item.DetermineStrikeTarget(item.HasTrait(Trait.Ranged) ? RangeKind.Ranged : RangeKind.Melee))
+                    .WithTargetingTooltip((action, target, something) =>
+                    {
+                        return CombatActionExecution.BreakdownAttackForTooltip(strike, target).TooltipDescription + "\n\n" +
+                            CombatActionExecution.BreakdownSavingThrowForTooltip(action, target, new SavingThrow(Defense.Reflex, action.Owner.ClassDC())).TooltipDescription;
+
+                    })
                     .WithActionCost(2)
-                    .WithActiveRollSpecification(new ActiveRollSpecification(Utility.Attack(strike, item, -1), TaggedChecks.DefenseDC(Defense.AC)))
-                    .WithNoSaveFor((action, cr) => true)
                     .WithEffectOnChosenTargets(async (action, self, targets) =>
                     {
                         string damage = $"{(self.Level) / 4}d10";

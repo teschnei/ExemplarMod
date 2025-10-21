@@ -14,7 +14,11 @@ public static class ExemplarFeats
     public static readonly FeatName FetchingBangles = ModManager.RegisterFeatName("FetchingBangles", "Fetching Bangles");
     public static readonly FeatName GazeSharpAsSteel = ModManager.RegisterFeatName("GazeSharpAsSteel", "Gaze Sharp As Steel");
     public static readonly FeatName GleamingBlade = ModManager.RegisterFeatName("GleamingBlade", "Gleaming Blade");
+    public static readonly FeatName GleamingBladeWeapon = ModManager.RegisterFeatName("GleamingBladeWeapon", "Gleaming Blade (Weapon)");
+    public static readonly FeatName GleamingBladeUnarmed = ModManager.RegisterFeatName("GleamingBladeUnarmed", "Gleaming Blade (Unarmed)");
     public static readonly FeatName HandsOfTheWildling = ModManager.RegisterFeatName("HandsOfTheWildling", "Hands Of The Wildling");
+    public static readonly FeatName HandsOfTheWildlingWeapon = ModManager.RegisterFeatName("HandsOfTheWildlingWeapon", "Hands Of The Wildling (Weapon)");
+    public static readonly FeatName HandsOfTheWildlingUnarmed = ModManager.RegisterFeatName("HandsOfTheWildlingUnarmed", "Hands Of The Wildling (Unarmed)");
     public static readonly FeatName HornOfPlenty = ModManager.RegisterFeatName("HornOfPlenty", "Horn Of Plenty");
     public static readonly FeatName MirroredAegis = ModManager.RegisterFeatName("MirroredAegis", "Mirrored Aegis");
     public static readonly FeatName MortalHarvest = ModManager.RegisterFeatName("MortalHarvest", "Mortal Harvest");
@@ -27,6 +31,8 @@ public static class ExemplarFeats
     public static readonly FeatName Starshot = ModManager.RegisterFeatName("Starshot", "Starshot");
     public static readonly FeatName ThousandLeagueSandals = ModManager.RegisterFeatName("ThousandLeagueSandals", "Thousand League Sandals");
     public static readonly FeatName TitansBreaker = ModManager.RegisterFeatName("TitansBreaker", "Titans Breaker");
+    public static readonly FeatName TitansBreakerWeapon = ModManager.RegisterFeatName("TitansBreakerWeapon", "Titans Breaker (Weapon)");
+    public static readonly FeatName TitansBreakerUnarmed = ModManager.RegisterFeatName("TitansBreakerUnarmed", "Titans Breaker (Unarmed)");
     public static readonly FeatName UnfailingBow = ModManager.RegisterFeatName("UnfailingBow", "Unfailing Bow");
     public static readonly FeatName VictorsWreath = ModManager.RegisterFeatName("VictorsWreath", "Victor's Wreath");
 

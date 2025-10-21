@@ -30,14 +30,13 @@ public class ThroughTheNeedlesEye
             strike.WithSoundEffect(ikonItem.WeaponProperties?.Sfx ?? SfxName.Bow);
         }
         return new ActionPossibility(new CombatAction(owner, IllustrationName.BloodVendetta,
-                "Blinding of the Needle" + (thrown ? " (throw)" : ""), [ExemplarTraits.Transcendence],
+                "Blinding of the Needle" + (thrown ? " (throw)" : ""), [ExemplarTraits.Transcendence, Trait.AlwaysHits, Trait.IsHostile],
                 "You aim your weapon in a superficial cut above your opponent's eye. Make a Strike with the imbued ikon. If that Strike is " +
                 "successful, the target must succeed at a Fortitude save against your class DC or become blinded for 1 round or until it uses " +
                 "an Interact action to clear the blood from its vision.",
                 ikonItem.DetermineStrikeTarget(range))
             .WithActionCost(2)
-            .WithActiveRollSpecification(new ActiveRollSpecification(Utility.Attack(strike, ikonItem, -1), TaggedChecks.DefenseDC(Defense.AC)))
-            .WithNoSaveFor((action, cr) => true)
+            .WithTargetingTooltip((action, target, _) => CombatActionExecution.BreakdownAttackForTooltip(strike, target).TooltipDescription)
             .WithEffectOnChosenTargets(async (action, self, targets) =>
             {
                 if (targets.ChosenCreature != null)

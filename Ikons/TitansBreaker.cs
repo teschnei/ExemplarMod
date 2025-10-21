@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using Dawnsbury.Core.CharacterBuilder.Feats;
 using Dawnsbury.Core.CombatActions;
 using Dawnsbury.Core.Mechanics;
-using Dawnsbury.Core.Mechanics.Core;
 using Dawnsbury.Core.Mechanics.Damage;
 using Dawnsbury.Core.Mechanics.Enumerations;
 using Dawnsbury.Core.Mechanics.Rules;
@@ -25,7 +24,7 @@ public class TitansBreaker
             "You wield a weapon whose blows shatter mountains with ease.",
             "{b}Usage{/b} any melee weapon in the club, hammer, or axe group, or any melee unarmed Strikes that deals bludgeoning damage\n\n" +
             "{b}Immanence{/b} The {i}titan's breaker{/i} deals 2 additional spirit damage per weapon damage die to creatures it Strikes. " +
-            /*"Constructs and objects are not immune to this spirit damage, and this*/ "This spirit damage bypasses hardness equal to your level.\n\n" +
+            "Constructs and objects are not immune to this spirit damage, and this spirit damage bypasses hardness equal to your level.\n\n" +
             $"{{b}}Transcendence — Fracture Mountains {RulesBlock.GetIconTextFromNumberOfActions(2)}{{/b}} (spirit, transcendence)\n" +
             "Your spirit is so dense it takes on tangible force. Make a melee Strike with the {i}titan's breaker{/i}. This counts as two attacks " +
             "when calculating your multiple attack penalty. If this Strike hits, your additional spirit damage from the ikon's immanence increases to 4 plus " +
@@ -38,10 +37,16 @@ public class TitansBreaker
             //Flag for "is this Strike from Fracture Mountains?"
             q.Tag = false;
 
+            q.AddGrantingOfTechnical(target => target.HasTrait(Trait.Construct) || target.HasTrait(Trait.Object), qf =>
+            {
+                qf.DoNotUseResistancesAndImmunitiesAgainst = action => action.Owner == q.Owner && ikon.IsIkonItem(action.Item);
+            });
+
             q.AddExtraKindedDamageOnStrike = (action, target) =>
             {
                 if (ikon.IsIkonItem(action.Item))
                 {
+                    target.WeaknessAndResistance.AppliedHardness += action.Owner.Level;
                     if ((bool)q.Tag == false)
                     {
                         int dice = action.Item?.WeaponProperties?.DamageDieCount ?? 0;
@@ -92,7 +97,7 @@ public class TitansBreaker
                 q.Owner,
                 ExemplarIllustrations.TitansBreaker,
                 "Fracture Mountains",
-                [ExemplarTraits.Spirit, ExemplarTraits.Transcendence],
+                [ExemplarTraits.Spirit, ExemplarTraits.Transcendence, Trait.AlwaysHits, Trait.IsHostile],
                 "Your spirit is so dense it takes on tangible force. Make a melee Strike with the {i}titan's breaker{/i}. This counts as two attacks " +
                 "when calculating your multiple attack penalty. If this Strike hits, your additional spirit damage from the ikon's immanence increases to 4 plus " +
                 "an extra die of weapon damage. If you're at least 10th level, it's increased to 6 spirit damage and two extra dice, and if you're at least 18th level " +
@@ -111,20 +116,20 @@ public class TitansBreaker
             if (breaker != null)
             {
                 var tooltipStrike = q.Owner.CreateStrike(breaker, q.Owner.Actions.AttackedThisManyTimesThisTurn).WithActionCost(0);
-                action.WithActiveRollSpecification(new ActiveRollSpecification(Utility.Attack(tooltipStrike, breaker, -1), TaggedChecks.DefenseDC(Defense.AC)))
-                .WithNoSaveFor((action, cr) => true);
+                action.WithTargetingTooltip((action, target, _) => CombatActionExecution.BreakdownAttackForTooltip(tooltipStrike, target).TooltipDescription);
             }
             return new ActionPossibility(action);
         })
+        .WithWeaponUnarmedSubFeats(ExemplarFeats.TitansBreakerWeapon, ExemplarFeats.TitansBreakerUnarmed)
         .WithValidItem(item =>
         {
             if (item.WeaponProperties == null)
             {
                 return "Must be a weapon.";
             }
-            else if ((!item.HasTrait(Trait.Club)) && (!item.HasTrait(Trait.Hammer)) && (!item.HasTrait(Trait.Axe)) && (!item.HasTrait(Trait.Unarmed)))
+            else if (!((item.HasTrait(Trait.Club)) || (item.HasTrait(Trait.Hammer)) || (item.HasTrait(Trait.Axe)) || (item.HasTrait(Trait.Unarmed) && !item.HasTrait(Trait.Ranged) && item.DetermineDamageKinds().Contains(DamageKind.Bludgeoning))))
             {
-                return "Must be a Club, Axe, Hammer or Unarmed.";
+                return "Must be a club, axe, hammer or unarmed Strike that deals bludgeoning damage.";
             }
             return null;
         })

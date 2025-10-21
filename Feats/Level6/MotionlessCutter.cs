@@ -44,15 +44,14 @@ public class MotionlessCutter
                             return q.Owner.HasEffect(ikon.EmpoweredQEffectId) && ikonItem != null && (!ikonItem.HasTrait(Trait.Ranged) && ikonItem.DetermineDamageKinds().Contains(DamageKind.Slashing)) ?
                                 Ikon.CreateTranscendence((ikon, q) =>
                                     new ActionPossibility(new CombatAction(q.Owner, ExemplarIllustrations.SeverFourDragonflyWings,
-                                        "Sever Four Dragonfly Wings", [ExemplarTraits.Transcendence],
+                                        "Sever Four Dragonfly Wings", [ExemplarTraits.Transcendence, Trait.AlwaysHits, Trait.IsHostile],
                                         "Make a Strike that deals slashing damage with your weapon ikon. If that Strike is successful, you can immediately make another Strike " +
                                         "against a different target within your reach. You can continue making Strikes in this manner, each against a different target, until you have " +
                                         "made a total of four Strikes or you miss with a Strike, whichever comes first. Each attack counts towards your multiple attack penalty, but you " +
                                         "do not increase your penalty until you have made all your attacks.",
                                         Target.MultipleCreatureTargets(Enumerable.Repeat(ikonItem.DetermineStrikeTarget(RangeKind.Melee), 4).ToArray()).WithMinimumTargets(1).WithMustBeDistinct())
                                     .WithActionCost(3)
-                                    .WithActiveRollSpecification(new ActiveRollSpecification(Utility.Attack(strike, ikonItem, -1), Checks.DefenseDC(Defense.AC)))
-                                    .WithNoSaveFor((action, cr) => true)
+                                    .WithTargetingTooltip((action, target, _) => CombatActionExecution.BreakdownAttackForTooltip(strike, target).TooltipDescription)
                                     .WithEffectOnChosenTargets(async (action, self, targets) =>
                                     {
                                         foreach (var target in targets.GetAllTargetCreatures())

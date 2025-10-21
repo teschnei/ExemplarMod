@@ -47,7 +47,6 @@ public static class ExemplarQEffects
 public static class ExemplarTileQEffects
 {
     public static readonly TileQEffectId BornOfTheBonesOfTheEarthTerrain = ModManager.RegisterEnumMember<TileQEffectId>("BornOfTheBonesOfTheEarthTerrain");
-
 }
 
 public static class ExemplarLongTermEffects

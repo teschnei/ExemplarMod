@@ -3,8 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using Dawnsbury.Auxiliary;
 using Dawnsbury.Core.CharacterBuilder;
+using Dawnsbury.Core.CharacterBuilder.Feats;
 using Dawnsbury.Core.CombatActions;
 using Dawnsbury.Core.Creatures;
+using Dawnsbury.Core.Mechanics.Core;
+using Dawnsbury.Core.Mechanics.Rules;
 using Dawnsbury.Core.Mechanics.Treasure;
 using Dawnsbury.Core.Tiles;
 using Dawnsbury.Display;
@@ -25,9 +28,40 @@ public static class UnfailingBowPatch
     static void Postfix(CombatAction combatAction, ref int __result)
     {
         var unfailing = combatAction.Owner.FindQEffect(Ikon.IkonLUT[ExemplarFeats.UnfailingBow].EmpoweredQEffectId);
-        if (unfailing != null && unfailing.Tag != null)
+        if (unfailing != null && unfailing.Tag != null && combatAction.HasTrait(ExemplarTraits.ArrowGuaranteed))
         {
-            __result = (int)unfailing.Tag;
+            //__result = (int)unfailing.Tag;
+            __result = 20;
+        }
+    }
+}
+
+[HarmonyPatch(typeof(CombatActionExecution), "BreakdownAttack", typeof(CombatAction), typeof(Creature), typeof(bool))]
+public static class UnfailingBowPatch2
+{
+    static void Postfix(ref CheckBreakdown __result, CombatAction action)
+    {
+        if (action.HasTrait(ExemplarTraits.ArrowGuaranteed) && (__result.GuaranteedNumber == 20 || (__result.GuaranteedNumber == 19 && __result.Keenified)))
+        {
+            if (__result.GuaranteedNumber + __result.TotalCheckBonus < __result.TotalDC + 10)
+            {
+                int critHit = 0;
+                int hit = __result.CritHits;
+                int miss = __result.Hits + Math.Max(__result.Misses - 20, 0);
+                int critMiss = __result.Misses >= 20 ? 20 : 0;
+
+		        int num9 = critHit + hit + miss + critMiss;
+		        int hitChance = 100 * (critHit + hit) / num9;
+		        int critChance = 100 * critHit / num9;
+		        string text = "{b}" + __result.GuaranteedNumber + __result.TotalCheckBonus.WithPlus() + "=" + (__result.GuaranteedNumber + __result.TotalCheckBonus) + "{/b} vs. {b}" + __result.TotalDC + "{/b}\nResult: {b}" + ((critChance >= 100) ? "Critical success." : ((hitChance >= 100 && critChance == 0) ? "Success." : ((hitChance > 0) ? "Depends on concealment roll." : "Failure."))) + "{/b}";
+		        string description = text + __result.TooltipDescription[__result.TooltipDescription.IndexOf("\n\n")..];
+		        __result = new CheckBreakdown(__result.TotalCheckBonus, __result.TotalDC, description, __result.Transformers, isSavingThrow: false, critMiss, miss, hit, critHit, __result.FortuneEffect)
+		        {
+			        Keenified = __result.Keenified,
+			        GuaranteedNumber = __result.GuaranteedNumber,
+			        UsedBonus = __result.UsedBonus
+		        };
+            }
         }
     }
 }
@@ -41,6 +75,19 @@ public static class BornOfTheBonesOfTheEarthPatch
         if (__result == true && (who.PersistentCharacterSheet?.Calculated.HasFeat(ExemplarFeats.BornOfTheBonesOfTheEarth) ?? false))
         {
             __result = false;
+        }
+    }
+}
+
+[HarmonyPatch(typeof(ItemRules), nameof(ItemRules.AdjustUnarmedItemBasedOnHandwraps))]
+public static class IkonUnarmedPatch
+{
+    static void Postfix(Item? unarmedStrike, Creature wearer)
+    {
+        if (unarmedStrike != null)
+        {
+            Ikon.IkonLUT.Values.Where(ikon => ikon.UnarmedFeat != null && (wearer.PersistentCharacterSheet?.Calculated.HasFeat((FeatName)ikon.UnarmedFeat) ?? false) && ikon.ValidItem?.Invoke(unarmedStrike) == null)
+                .ForEach(ikon => unarmedStrike.WithModification(ikon.IkonModification));
         }
     }
 }
@@ -96,7 +143,7 @@ static class IkonSelectionPatch
         {
             Item item = InventoryState.ikonExpanded;
 
-            var ikons = Ikons.Ikon.IkonLUT.Values.Where(i => sheet?.Calculated.AllFeatGrants.Any(fg => fg.GrantedFeat == i.IkonFeat && fg.AtLevel <= (sheet.IsCampaignCharacter ? sheet.MaximumLevel : sheet.EditingInventoryAtLevel) && i.Equippable && i.ValidItem?.Invoke(item) == null) ?? false);
+            var ikons = Ikons.Ikon.IkonLUT.Values.Where(i => sheet?.Calculated.AllFeatGrants.Any(fg => fg.GrantedFeat == i.IkonFeat && fg.AtLevel <= (sheet.IsCampaignCharacter ? sheet.MaximumLevel : sheet.EditingInventoryAtLevel) && i.Equippable(sheet) && i.ValidItem?.Invoke(item) == null) ?? false);
 
             __state = CalcMenu(rect, ikons.Count());
             if (__state != null)
@@ -121,13 +168,13 @@ static class IkonSelectionPatch
     static void Postfix(CharacterSheet sheet, Rectangle rect, int atLevel, bool avoidDrawingFace, Buttons? __state)
     {
         var allItems = sheet.Inventory.Backpack.Concat([sheet.Inventory.LeftHand, sheet.Inventory.RightHand, sheet.Inventory.Armor]);
-        var allIkons = Ikons.Ikon.IkonLUT.Values.Where(i => i.Equippable && (sheet?.Calculated.AllFeatGrants.Any(fg => fg.GrantedFeat == i.IkonFeat && fg.AtLevel <= (sheet.IsCampaignCharacter ? sheet.MaximumLevel : sheet.EditingInventoryAtLevel)) ?? false));
+        var allIkons = Ikons.Ikon.IkonLUT.Values.Where(i => i.Equippable(sheet) && (sheet?.Calculated.AllFeatGrants.Any(fg => fg.GrantedFeat == i.IkonFeat && fg.AtLevel <= (sheet.IsCampaignCharacter ? sheet.MaximumLevel : sheet.EditingInventoryAtLevel)) ?? false));
         if (InventoryState.ikonExpanded != null && __state != null)
         {
             Item item = InventoryState.ikonExpanded;
 
             var ikons = allIkons.Where(i => i.ValidItem?.Invoke(item) == null);
-            var ikonMods = item.ItemModifications.Where(mod => mod.Kind == ItemModificationKind.CustomPermanent && ((string?)mod.Tag ?? "").StartsWith("ikon"));
+            var ikonMods = item.ItemModifications.Where(mod => mod.Kind == ItemModificationKind.CustomPermanent && ((mod.Tag as string)?.StartsWith("ikon") ?? false));
             var selectedIkons = ikons.Where(ikon => (ikonMods.Select(mod => mod.Tag as string).Any(mt => mt?.Contains(ikon.IkonFeat.FeatName.ToStringOrTechnical()) ?? false)));
 
             Primitives.DrawAndFillRectangle(__state.bg, ColorScheme.Instance.MenuBackgroundColorLighter, Color.Black);
@@ -151,13 +198,13 @@ static class IkonSelectionPatch
                 {
                     if (selectedIkons?.Contains(ikon) ?? false)
                     {
-                        item.ItemModifications.RemoveAll(mod => mod.Kind == ItemModificationKind.CustomPermanent && (string?)mod.Tag == ikon.ModString);
+                        item.ItemModifications.RemoveAll(mod => mod.Kind == ItemModificationKind.CustomPermanent && (mod.Tag as string) == ikon.ModString);
                     }
                     else
                     {
                         foreach (var i in allItems)
                         {
-                            i?.ItemModifications.RemoveAll(mod => mod.Kind == ItemModificationKind.CustomPermanent && (string?)mod.Tag == ikon.ModString);
+                            i?.ItemModifications.RemoveAll(mod => mod.Kind == ItemModificationKind.CustomPermanent && (mod.Tag as string) == ikon.ModString);
                         }
                         item.WithModification(ikon.IkonModification);
                     }
@@ -176,7 +223,7 @@ static class IkonSelectionPatch
         }
 
         //Warn if there are any unset ikons
-        var equippedIkons = allItems.Where(i => i != null).SelectMany(i => i!.ItemModifications.Where(mod => mod.Kind == ItemModificationKind.CustomPermanent && (((string?)mod.Tag)?.StartsWith("ikon") ?? false))).Select(mod => (string?)mod.Tag ?? "");
+        var equippedIkons = allItems.Where(i => i != null).SelectMany(i => i!.ItemModifications.Where(mod => mod.Kind == ItemModificationKind.CustomPermanent && ((mod.Tag as string)?.StartsWith("ikon") ?? false))).Select(mod => mod.Tag as string ?? "");
         var availableIkons = allIkons.Select(ikon => ikon.ModString);
         if (equippedIkons.Intersect(availableIkons).Count() != availableIkons.Count())
         {
@@ -201,7 +248,7 @@ static class IkonSelectionPatch2
             if (itemSlot.Item != null)
             {
                 var ikons = Ikons.Ikon.IkonLUT.Values.Where(i =>
-                        sheet?.Calculated.AllFeatGrants.Any(fg => fg.GrantedFeat == i.IkonFeat && fg.AtLevel <= (sheet.IsCampaignCharacter ? sheet.MaximumLevel : sheet.EditingInventoryAtLevel) && i.Equippable && i.ValidItem?.Invoke(itemSlot.Item) == null) ?? false);
+                        sheet?.Calculated.AllFeatGrants.Any(fg => fg.GrantedFeat == i.IkonFeat && fg.AtLevel <= (sheet.IsCampaignCharacter ? sheet.MaximumLevel : sheet.EditingInventoryAtLevel) && i.Equippable(sheet) && i.ValidItem?.Invoke(itemSlot.Item) == null) ?? false);
                 if (ikons.Count() > 0)
                 {
                     int height = rectangle.Height / 4;

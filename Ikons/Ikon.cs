@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Dawnsbury.Core.CharacterBuilder;
 using Dawnsbury.Core.CharacterBuilder.Feats;
 using Dawnsbury.Core.CombatActions;
 using Dawnsbury.Core.Creatures;
@@ -15,6 +16,30 @@ using Dawnsbury.Mods.Classes.Exemplar.RegisteredComponents;
 
 namespace Dawnsbury.Mods.Classes.Exemplar.Ikons;
 
+public class Immanence
+{
+    public string ShortDesc { get; }
+    public Action<Ikon, QEffect> Modifier { get; }
+
+    Immanence(string shortDesc, Action<Ikon, QEffect> modifier)
+    {
+        ShortDesc = shortDesc;
+        Modifier = modifier;
+    }
+}
+
+public class Transcendence
+{
+    public string ShortDesc { get; }
+    public Func<Ikon, QEffect, Possibility?> Creator { get; }
+
+    Transcendence(string shortDesc, Func<Ikon, QEffect, Possibility?> creator)
+    {
+        ShortDesc = shortDesc;
+        Creator = creator;
+    }
+}
+
 public class Ikon
 {
     public static readonly string IkonKey = "IkonEmpowered";
@@ -28,8 +53,10 @@ public class Ikon
     public Func<Item, string?>? ValidItem { get; private set; }
     public ItemName? FreeWornItem { get; private set; }
     public QEffectId EmpoweredQEffectId { get; private set; }
-    public bool Equippable => ValidItem != null;
+    public bool Equippable(CharacterSheet sheet) => ValidItem != null && (WeaponFeat != null ? sheet.Calculated.HasFeat((FeatName)WeaponFeat) : true);
     public Action<Item> ModifyItem { get; private set; }
+    public FeatName? WeaponFeat { get; private set; }
+    public FeatName? UnarmedFeat { get; private set; }
 
     public string ModString => $"ikon_{IkonFeat.FeatName.ToStringOrTechnical()}";
     public ItemModification IkonModification => new ItemModification(ItemModificationKind.CustomPermanent)
@@ -82,6 +109,19 @@ public class Ikon
         return this;
     }
 
+    public Ikon WithWeaponUnarmedSubFeats(FeatName weaponFeatName, FeatName unarmedFeatName)
+    {
+        var weaponFeat = new Feat(weaponFeatName, "", "This ikon can be assigned to an item in the Inventory.", [], null);
+        var unarmedFeat = new Feat(unarmedFeatName, "", "This ikon will be assigned to matching unarmed weapons automatically.", [], null);
+
+        WeaponFeat = weaponFeatName;
+        UnarmedFeat = unarmedFeatName;
+
+        IkonFeat.Subfeats = [weaponFeat, unarmedFeat];
+
+        return this;
+    }
+
     public QEffect GetEmpoweredQEffect(Creature exemplar)
     {
         var q = new QEffect($"Empowered {IkonFeat.Name}", $"Your {IkonFeat.Name} is housing your divine spark, granting you its Immanence and Transcendence abilities.",
@@ -112,8 +152,8 @@ public class Ikon
         );
     }
 
-    public bool IsIkonItem(Item? item) => item?.ItemModifications.Any(mod => mod.Kind == ItemModificationKind.CustomPermanent && (((string?)mod.Tag) == ModString)) ?? false;
-    public static Item? GetHeldIkon(Creature exemplar, Ikon ikon) => exemplar.HeldItems.Where(item => ikon.IsIkonItem(item)).FirstOrDefault();
+    public bool IsIkonItem(Item? item) => item?.ItemModifications.Any(mod => mod.Kind == ItemModificationKind.CustomPermanent && ((mod.Tag as string) == ModString)) ?? false;
+    public static Item? GetHeldIkon(Creature exemplar, Ikon ikon) => exemplar.HeldItems.Where(item => ikon.IsIkonItem(item)).FirstOrDefault() ?? (ikon.IsIkonItem(exemplar.UnarmedStrike) ? exemplar.UnarmedStrike : null);
     public static Item? GetWornIkon(Creature exemplar, Ikon ikon) => exemplar.CarriedItems.Where(item => item.HasTrait(Trait.Worn) && ikon.IsIkonItem(item)).FirstOrDefault();
 
     public static DamageKind GetBestDamageKindForSpark(Creature exemplar, Creature target)
@@ -127,7 +167,7 @@ public class Ikon
             damageKinds.AddRange(energizedSparkList.Select(spark => spark.Item2));
         }
         var sanctifiedSoul = exemplar.FindQEffect(ExemplarQEffects.SanctifiedSoul);
-        if (sanctifiedSoul != null && sanctifiedSoul.Tag is ValueTuple<Trait, DamageKind> sanctification)
+        if (sanctifiedSoul != null && sanctifiedSoul.Tag is ValueTuple<Trait, DamageKind> sanctification && Alignments.IsCreatureVulnerableToAlignmentDamage(target, sanctification.Item2))
         {
             damageTraits.Add(sanctification.Item1);
             damageKinds.Add(sanctification.Item2);

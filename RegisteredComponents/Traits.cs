@@ -16,6 +16,7 @@ public static class ExemplarTraits
     public static readonly Trait IkonBody = ModManager.RegisterTrait("IkonBody", new TraitProperties("IkonBody", false));
     public static readonly Trait PeltOfTheBeastAttune = ModManager.RegisterTrait("PeltOfTheBeastAttune", new TraitProperties("PeltOfTheBeastAttune", false));
     public static readonly Trait SkinHardAsHornAttune = ModManager.RegisterTrait("SkinHardAsHornAttune", new TraitProperties("SkinHardAsHornAttune", false));
+    public static readonly Trait ArrowGuaranteed = ModManager.RegisterTrait("ArrowGuaranteed", new TraitProperties("ArrowGuaranteed", false));
 
     //Rune Traits
     public static readonly Trait IkonBands = ModManager.RegisterTrait("Ikon1", new TraitProperties("Ikon", true, "Drag onto any worn anklets, bracers, or circlet."));

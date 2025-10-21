@@ -60,7 +60,7 @@ public class ShadowSheath
                 q.Owner,
                 ExemplarIllustrations.ShadowSheath,
                 "Liar's Hidden Blade",
-                [ExemplarTraits.Spirit, ExemplarTraits.Transcendence],
+                [ExemplarTraits.Spirit, ExemplarTraits.Transcendence, Trait.AlwaysHits, Trait.IsHostile],
                 "The shadow weapon you threw previously fades, the distraction covering " +
                 "your true intention all along—a second strike hidden in the blind spot of the first! Interact to draw another weapon from the {i}shadow sheath{/i}, then Strike with it at the same multiple attack penalty as the unsuccessful attack. " +
                 "The opponent is off-guard to this attack. This strike counts towards your multiple attack penalty as normal. After the Strike resolves, you can Interact to draw another weapon from the {i}shadow sheath{/i}.",
@@ -98,8 +98,7 @@ public class ShadowSheath
             if (ikonItem != null)
             {
                 var strike = StrikeRules.CreateStrike(q.Owner, ikonItem, thrown ? RangeKind.Ranged : RangeKind.Melee, q.Owner.Actions.AttackedThisManyTimesThisTurn - 1, thrown).WithActionCost(0);
-                action.WithActiveRollSpecification(new ActiveRollSpecification(Utility.Attack(strike, ikonItem, q.Owner.Actions.AttackedThisManyTimesThisTurn - 1), TaggedChecks.DefenseDC(Defense.AC)))
-                .WithNoSaveFor((action, cr) => true);
+                action.WithTargetingTooltip((action, target, _) => CombatActionExecution.BreakdownAttackForTooltip(strike, target).TooltipDescription);
             }
             if (thrown)
             {

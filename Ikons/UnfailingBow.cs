@@ -6,6 +6,7 @@ using Dawnsbury.Core.Mechanics;
 using Dawnsbury.Core.Mechanics.Core;
 using Dawnsbury.Core.Mechanics.Damage;
 using Dawnsbury.Core.Mechanics.Enumerations;
+using Dawnsbury.Core.Mechanics.Rules;
 using Dawnsbury.Core.Mechanics.Targeting;
 using Dawnsbury.Core.Possibilities;
 using Dawnsbury.Core.Roller;
@@ -25,7 +26,7 @@ public class UnfailingBow
             "The shots fired by this weapon seem guided by divine accuracy, finding the swiftest targets.",
             "{b}Usage{/b} a ranged weapon\n\n" +
             "{b}Immanence{/b} The {i}unfailing bow{/i} deals an additional 1 spirit damage per weapon damage die to creatures it Strikes, or 1d4 additional spirit damage per weapon die on a critical hit.\n\n" +
-            $"{{b}}Transcendence — Arrow Splits Arrow {RulesBlock.GetIconTextFromNumberOfActions(2)}{{/b}} (transcendence)\n{{b}}Requirements{{/b}} Your previous action was to Strike with the {{i}}unfailing bow{{/i}}.\n" +
+            $"{{b}}Transcendence — Arrow Splits Arrow {RulesBlock.GetIconTextFromNumberOfActions(1)}{{/b}} (transcendence)\n{{b}}Requirements{{/b}} Your previous action was to Strike with the {{i}}unfailing bow{{/i}}.\n" +
             "{b}Effect{/b} You repeat your motions exactly, your attack landing in the same location as your previous shot. You make a Strike against the same target. The result of your d20 roll is the same as the result of the required shot, " +
             "though any penalties (such as your multiple attack penalty) apply normally to this shot and you don't automatically adjust the degree of success if the initial roll was a natural 1 or 20.",
             [ExemplarTraits.Ikon, ExemplarTraits.IkonWeapon],
@@ -53,7 +54,7 @@ public class UnfailingBow
                     {
                         if (breakdownResult.ThresholdToDowngrade <= 10)
                         {
-                            breakdownResult.CheckResult.WorsenByOneStep();
+                            breakdownResult.CheckResult = breakdownResult.CheckResult.WorsenByOneStep();
                         }
                     }
                 }
@@ -72,7 +73,7 @@ public class UnfailingBow
                 q.Owner,
                 ExemplarIllustrations.UnfailingBow,
                 "Arrow Splits Arrow",
-                [ExemplarTraits.Transcendence],
+                [ExemplarTraits.Transcendence, Trait.AlwaysHits, Trait.IsHostile],
                 "You repeat your motions exactly, your attack landing in the same location as your previous shot. You make a Strike against the same target. The result of your d20 roll is the same as the result of the required shot, " +
                 "though any penalties (such as your multiple attack penalty) apply normally to this shot and you don't automatically adjust the degree of success if the initial roll was a natural 1 or 20.",
                 heldIkon == null ? Target.Uncastable("You must be wielding the {i}unfailing bow{/i}.") : heldIkon.DetermineStrikeTarget(RangeKind.Ranged).WithAdditionalConditionOnTargetCreature((self, target) =>
@@ -96,21 +97,26 @@ public class UnfailingBow
                     return Usability.Usable;
                 })
             )
-            .WithActionCost(2)
+            .WithActionCost(1)
             .WithEffectOnChosenTargets(async (action, self, targets) =>
             {
                 //See Patches.cs for the guaranteed roll number
-                self.AddQEffect(new QEffect()
+                var arrowQ = new QEffect()
                 {
                     Id = ExemplarQEffects.ArrowSplitsArrow
-                }.WithExpirationEphemeral());
-                await self.MakeStrike(lastAction!.ChosenTargets.ChosenCreature!, lastIkon!);
+                };
+                self.AddQEffect(arrowQ);
+                var strike = StrikeRules.CreateStrike(self, lastIkon!, lastIkon!.HasTrait(Trait.Ranged) ? RangeKind.Ranged : RangeKind.Melee, self.Actions.AttackedThisManyTimesThisTurn).WithActionCost(0);
+                strike.Traits.Add(ExemplarTraits.ArrowGuaranteed);
+                strike.ChosenTargets = ChosenTargets.CreateSingleTarget(targets.ChosenCreature!);
+                await strike.AllExecute();
+                self.RemoveAllQEffects(q => q == arrowQ);
             });
             if (lastIkon != null)
             {
                 var tooltipStrike = q.Owner.CreateStrike(lastIkon, q.Owner.Actions.AttackedThisManyTimesThisTurn).WithActionCost(0);
-                action.WithActiveRollSpecification(new ActiveRollSpecification(Utility.Attack(tooltipStrike, lastIkon, -1), TaggedChecks.DefenseDC(Defense.AC)))
-                    .WithNoSaveFor((action, cr) => true);
+                tooltipStrike.Traits.Add(ExemplarTraits.ArrowGuaranteed);
+                action.WithTargetingTooltip((action, target, _) => CombatActionExecution.BreakdownAttackForTooltip(tooltipStrike, target).TooltipDescription);
             }
             return new ActionPossibility(action);
         })

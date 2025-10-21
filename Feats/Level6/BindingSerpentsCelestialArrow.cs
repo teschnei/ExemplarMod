@@ -53,14 +53,13 @@ public class BindingSerpentsCelestialArrow
                             return q.Owner.HasEffect(ikon.EmpoweredQEffectId) && ikonItem != null && ((ikonItem.WeaponProperties?.Throwable ?? false) || ikonItem.HasTrait(Trait.Ranged)) ?
                                 Ikon.CreateTranscendence((ikon, q) =>
                                     new ActionPossibility(new CombatAction(q.Owner, IllustrationName.AnimalFormSnake,
-                                        "Coiling Serpents", [ExemplarTraits.Transcendence],
+                                        "Coiling Serpents", [ExemplarTraits.Transcendence, Trait.AlwaysHits, Trait.IsHostile],
                                         "Make a ranged Strike with your ikon. If the Strike hits, the target must succeed at a Reflex save against your class DC or " +
                                         "the arrow transforms into a multitude of ethereal snakes that coil around the target, immobilizing it until it succeeds at an " +
                                         "Escape attempt against your class DC.",
                                         ikonItem.DetermineStrikeTarget(RangeKind.Ranged))
                                     .WithActionCost(2)
-                                    .WithActiveRollSpecification(new ActiveRollSpecification(Utility.Attack(combatAction, ikonItem, -1), TaggedChecks.DefenseDC(Defense.AC)))
-                                    .WithNoSaveFor((action, cr) => true)
+                                    .WithTargetingTooltip((action, target, _) => CombatActionExecution.BreakdownAttackForTooltip(combatAction, target).TooltipDescription)
                                     .WithEffectOnChosenTargets(async (action, self, targets) =>
                                     {
                                         if (targets.ChosenCreature != null)

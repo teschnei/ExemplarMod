@@ -77,7 +77,7 @@ public class MortalHarvest
             .WithEffectOnSelf(async (act, self) =>
             {
                 // Stride up to half Speed
-                await self.StrideAsync("Choose where to stride (half Speed).", allowPass: true, allowCancel: true, maximumHalfSpeed: true);
+                bool moved = await self.StrideAsync("Choose where to stride (half Speed).", allowPass: true, allowCancel: true, maximumHalfSpeed: true);
 
                 List<Option> list = new List<Option>();
                 CombatAction combatAction = self.CreateStrike(lastIkon!, self.Actions.AttackedThisManyTimesThisTurn - 1);
@@ -88,7 +88,7 @@ public class MortalHarvest
                     )
                 );
                 GameLoop.AddDirectUsageOnCreatureOptions(combatAction, list);
-                list.Add(new PassViaButtonOption("Don't Strike."));
+                list.Add(new PassViaButtonOption(moved ? "Don't Strike" : "Cancel"));
                 if (list.Count > 0)
                 {
                     if (list.Count == 1)
@@ -100,7 +100,13 @@ public class MortalHarvest
                         TopBarText = "Choose a creature to Strike.",
                         TopBarIcon = act.Illustration
                     });
-                    await result.ChosenOption.Action();
+                    if (!await result.ChosenOption.Action())
+                    {
+                        if (!moved)
+                        {
+                            act.RevertRequested = true;
+                        }
+                    }
                 }
             }));
         })
