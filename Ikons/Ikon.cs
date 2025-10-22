@@ -53,7 +53,7 @@ public class Ikon
     public Func<Item, string?>? ValidItem { get; private set; }
     public ItemName? FreeWornItem { get; private set; }
     public QEffectId EmpoweredQEffectId { get; private set; }
-    public bool Equippable(CharacterSheet sheet) => ValidItem != null && (WeaponFeat != null ? sheet.Calculated.HasFeat((FeatName)WeaponFeat) : true);
+    public bool Equippable(CharacterSheet sheet) => ValidItem != null;// && (WeaponFeat != null ? sheet.Calculated.HasFeat((FeatName)WeaponFeat) : true);
     public Action<Item> ModifyItem { get; private set; }
     public FeatName? WeaponFeat { get; private set; }
     public FeatName? UnarmedFeat { get; private set; }
@@ -117,7 +117,7 @@ public class Ikon
         WeaponFeat = weaponFeatName;
         UnarmedFeat = unarmedFeatName;
 
-        IkonFeat.Subfeats = [weaponFeat, unarmedFeat];
+        //IkonFeat.Subfeats = [weaponFeat, unarmedFeat];
 
         return this;
     }
