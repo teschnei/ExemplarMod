@@ -30,8 +30,7 @@ public static class UnfailingBowPatch
         var unfailing = combatAction.Owner.FindQEffect(Ikon.IkonLUT[ExemplarFeats.UnfailingBow].EmpoweredQEffectId);
         if (unfailing != null && unfailing.Tag != null && combatAction.HasTrait(ExemplarTraits.ArrowGuaranteed))
         {
-            //__result = (int)unfailing.Tag;
-            __result = 20;
+            __result = (int)unfailing.Tag;
         }
     }
 }

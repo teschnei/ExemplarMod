@@ -77,7 +77,7 @@ public class VictorsWreath
                 var allies = self.Battle.AllCreatures.Where(a => a.FriendOf(self) && a != self && a.DistanceTo(self) <= 3);
                 foreach (var ally in allies)
                 {
-                    var effect = ally.QEffects.Where(q => q.CountsAsADebuff && q.SourceAction?.SavingThrow != null).FirstOrDefault();
+                    var effect = ally.QEffects.Where(q => q.CountsAsADebuff && q.SourceAction?.SavingThrow != null && q.SourceAction?.Owner != null).FirstOrDefault();
                     if (effect != null)
                     {
                         var bonus = new QEffect()
@@ -85,7 +85,7 @@ public class VictorsWreath
                             BonusToDefenses = (_, _, _) => new Bonus(2, BonusType.Status, "One Moment till Glory", true)
                         };
                         ally.AddQEffect(bonus);
-                        if (CommonSpellEffects.RollSavingThrow(ally, q.SourceAction!, q.SourceAction!.SavingThrow!.Defense, q.SourceAction.SavingThrow.DC(q.SourceAction?.Owner)) >= CheckResult.Success)
+                        if (CommonSpellEffects.RollSavingThrow(ally, effect.SourceAction!, effect.SourceAction!.SavingThrow!.Defense, effect.SourceAction.SavingThrow.DC(effect.SourceAction?.Owner)) >= CheckResult.Success)
                         {
                             //This ability doesn't actually say what it does, so I'm just going to assume it removes the effect on a success
                             effect.ExpiresAt = ExpirationCondition.Immediately;
