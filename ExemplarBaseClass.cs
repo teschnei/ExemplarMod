@@ -13,7 +13,6 @@ using Dawnsbury.Core.Creatures;
 using Dawnsbury.Core.Mechanics;
 using Dawnsbury.Core.Mechanics.Core;
 using Dawnsbury.Core.Mechanics.Enumerations;
-using Dawnsbury.Core.Mechanics.Rules;
 using Dawnsbury.Core.Mechanics.Targeting;
 using Dawnsbury.Core.Mechanics.Treasure;
 using Dawnsbury.Core.Possibilities;
@@ -45,7 +44,8 @@ public static class ExemplarBaseClass
             [Trait.Fortitude, Trait.Will],
             3,
             "{b}1. Divine Spark and Ikons.{/b} " +
-            "You can focus your divine power through special items known as ikons. You can select 3 ikons. You can empower one ikon with your divine spark. Each ikon has both a passive immanence effect and an active transcendence effect. You can place your divine spark into an item using the Shift Immanence action.\n\n" +
+            "You can focus your divine power through special items known as ikons. You can select 3 ikons. You can empower one ikon with your divine spark. Each ikon has both a passive immanence effect and an active transcendence effect. You can place your divine spark into an item using the Shift Immanence action.\n" +
+            "You can place your ikons into items in the Inventory screens, with the 'Manage Ikons' button that appears on mousing over an item.  For unarmed ikons, they may be assigned via Handwraps of Mighty Blows, or simply left unassigned to automatically apply to unarmed Strikes.\n\n" +
             "{b}2. Spark Transcendence.{/b} " +
             "When your spark dwells within an ikon, you get that ikon's immanence effect continually. However, you can also Spark Transcendence in a mighty deed, channeling your divinity through the ikon - though when you Spark Transcendence, the force of the act temporarily casts your divine spark out of the ikon.\n\n" +
             "{b}3. Humble Strikes.{/b} When you are wielding a simple weapon, increase the damage die size of that weapon by one step.\n\n" +

@@ -6,6 +6,7 @@ using Dawnsbury.Core.Mechanics.Damage;
 using Dawnsbury.Core.Mechanics.Enumerations;
 using Dawnsbury.Core.Mechanics.Rules;
 using Dawnsbury.Core.Mechanics.Targeting;
+using Dawnsbury.Core.Mechanics.Treasure;
 using Dawnsbury.Core.Possibilities;
 using Dawnsbury.Core.Roller;
 using Dawnsbury.Display;
@@ -120,14 +121,14 @@ public class TitansBreaker
             }
             return new ActionPossibility(action);
         })
-        .WithWeaponUnarmedSubFeats(ExemplarFeats.TitansBreakerWeapon, ExemplarFeats.TitansBreakerUnarmed)
         .WithValidItem(item =>
         {
             if (item.WeaponProperties == null)
             {
                 return "Must be a weapon.";
             }
-            else if (!((item.HasTrait(Trait.Club)) || (item.HasTrait(Trait.Hammer)) || (item.HasTrait(Trait.Axe)) || (item.HasTrait(Trait.Unarmed) && !item.HasTrait(Trait.Ranged) && item.DetermineDamageKinds().Contains(DamageKind.Bludgeoning))))
+            else if (!((item.HasTrait(Trait.Club)) || (item.HasTrait(Trait.Hammer)) || (item.HasTrait(Trait.Axe)) ||
+                        (item.HasTrait(Trait.Unarmed) && !item.HasTrait(Trait.Ranged) && item.DetermineDamageKinds().Contains(DamageKind.Bludgeoning)) || item.ItemName == ItemName.HandwrapsOfMightyBlows ))
             {
                 return "Must be a club, axe, hammer or unarmed Strike that deals bludgeoning damage.";
             }

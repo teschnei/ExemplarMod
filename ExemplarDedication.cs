@@ -16,11 +16,12 @@ public static class ExemplarArchetype
     {
         yield return ArchetypeFeats.CreateMulticlassDedication(ExemplarTraits.Exemplar,
                 "A spark of inherent divine power has lit itself within you.",
-                "You become trained in martial weapons. You gain one ikon, " +
-                "the ability to use the ikon’s immanence and transcendence actions and effects, and the Shift Immanence action. " +
+                "You become trained in martial weapons.\n\nYou gain one ikon, " +
+                "the ability to use the ikon’s immanence and transcendence actions and effects, and the Shift Immanence action.\n" +
                 "Because you have only a single ikon, when you Spark Transcendence, " +
-                "your divine spark recedes back to the depths of your soul and must be recalled with Shift Immanence to re-empower your ikon. " +
-                "You become trained in exemplar class DC.")
+                "your divine spark recedes back to the depths of your soul and must be recalled with Shift Immanence to re-empower your ikon.\n\n" +
+                "You become trained in exemplar class DC.\n\n" +
+                "You can place your ikons into items in the Inventory screens, with the 'Manage Ikons' button that appears on mousing over an item.  For unarmed ikons, they may be assigned via Handwraps of Mighty Blows, or simply left unassigned to automatically apply to unarmed Strikes.")
             .WithDemandsAbilityOrAbility14(Ability.Strength, Ability.Dexterity)
             .WithOnSheet(sheet =>
             {

@@ -53,10 +53,8 @@ public class Ikon
     public Func<Item, string?>? ValidItem { get; private set; }
     public ItemName? FreeWornItem { get; private set; }
     public QEffectId EmpoweredQEffectId { get; private set; }
-    public bool Equippable(CharacterSheet sheet) => ValidItem != null;// && (WeaponFeat != null ? sheet.Calculated.HasFeat((FeatName)WeaponFeat) : true);
+    public bool Equippable(CharacterSheet sheet) => ValidItem != null;
     public Action<Item> ModifyItem { get; private set; }
-    public FeatName? WeaponFeat { get; private set; }
-    public FeatName? UnarmedFeat { get; private set; }
 
     public string ModString => $"ikon_{IkonFeat.FeatName.ToStringOrTechnical()}";
     public ItemModification IkonModification => new ItemModification(ItemModificationKind.CustomPermanent)
@@ -106,19 +104,6 @@ public class Ikon
             ModifyItem(item);
             action(item);
         };
-        return this;
-    }
-
-    public Ikon WithWeaponUnarmedSubFeats(FeatName weaponFeatName, FeatName unarmedFeatName)
-    {
-        var weaponFeat = new Feat(weaponFeatName, "", "This ikon can be assigned to an item in the Inventory.", [], null);
-        var unarmedFeat = new Feat(unarmedFeatName, "", "This ikon will be assigned to matching unarmed weapons automatically.", [], null);
-
-        WeaponFeat = weaponFeatName;
-        UnarmedFeat = unarmedFeatName;
-
-        //IkonFeat.Subfeats = [weaponFeat, unarmedFeat];
-
         return this;
     }
 

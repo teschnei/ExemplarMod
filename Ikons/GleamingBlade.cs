@@ -7,6 +7,7 @@ using Dawnsbury.Core.Mechanics.Core;
 using Dawnsbury.Core.Mechanics.Damage;
 using Dawnsbury.Core.Mechanics.Enumerations;
 using Dawnsbury.Core.Mechanics.Targeting;
+using Dawnsbury.Core.Mechanics.Treasure;
 using Dawnsbury.Core.Possibilities;
 using Dawnsbury.Core.Roller;
 using Dawnsbury.Display;
@@ -77,14 +78,13 @@ public class GleamingBlade
             }
             return new ActionPossibility(action);
         })
-        .WithWeaponUnarmedSubFeats(ExemplarFeats.GleamingBladeWeapon, ExemplarFeats.GleamingBladeUnarmed)
         .WithValidItem(item =>
         {
             if (item.WeaponProperties == null)
             {
                 return "Must be a weapon.";
             }
-            else if (!((item.HasTrait(Trait.Sword)) || (item.HasTrait(Trait.Knife)) || (item.HasTrait(Trait.Unarmed) && !item.HasTrait(Trait.Ranged) && item.DetermineDamageKinds().Contains(DamageKind.Slashing))))
+            else if (!((item.HasTrait(Trait.Sword)) || (item.HasTrait(Trait.Knife)) || (item.HasTrait(Trait.Unarmed) && !item.HasTrait(Trait.Ranged) && item.DetermineDamageKinds().Contains(DamageKind.Slashing)) || (item.ItemName == ItemName.HandwrapsOfMightyBlows)))
             {
                 return "Must be a sword or a knife, or a melee unarmed attack that deals slashing damage.";
             }

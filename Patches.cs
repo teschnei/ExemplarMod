@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Dawnsbury.Auxiliary;
 using Dawnsbury.Core.CharacterBuilder;
-using Dawnsbury.Core.CharacterBuilder.Feats;
 using Dawnsbury.Core.CombatActions;
 using Dawnsbury.Core.Creatures;
 using Dawnsbury.Core.Mechanics.Core;
@@ -49,17 +48,17 @@ public static class UnfailingBowPatch2
                 int miss = __result.Hits + Math.Max(__result.Misses - 20, 0);
                 int critMiss = __result.Misses >= 20 ? 20 : 0;
 
-		        int num9 = critHit + hit + miss + critMiss;
-		        int hitChance = 100 * (critHit + hit) / num9;
-		        int critChance = 100 * critHit / num9;
-		        string text = "{b}" + __result.GuaranteedNumber + __result.TotalCheckBonus.WithPlus() + "=" + (__result.GuaranteedNumber + __result.TotalCheckBonus) + "{/b} vs. {b}" + __result.TotalDC + "{/b}\nResult: {b}" + ((critChance >= 100) ? "Critical success." : ((hitChance >= 100 && critChance == 0) ? "Success." : ((hitChance > 0) ? "Depends on concealment roll." : "Failure."))) + "{/b}";
-		        string description = text + __result.TooltipDescription[__result.TooltipDescription.IndexOf("\n\n")..];
-		        __result = new CheckBreakdown(__result.TotalCheckBonus, __result.TotalDC, description, __result.Transformers, isSavingThrow: false, critMiss, miss, hit, critHit, __result.FortuneEffect)
-		        {
-			        Keenified = __result.Keenified,
-			        GuaranteedNumber = __result.GuaranteedNumber,
-			        UsedBonus = __result.UsedBonus
-		        };
+                int num9 = critHit + hit + miss + critMiss;
+                int hitChance = 100 * (critHit + hit) / num9;
+                int critChance = 100 * critHit / num9;
+                string text = "{b}" + __result.GuaranteedNumber + __result.TotalCheckBonus.WithPlus() + "=" + (__result.GuaranteedNumber + __result.TotalCheckBonus) + "{/b} vs. {b}" + __result.TotalDC + "{/b}\nResult: {b}" + ((critChance >= 100) ? "Critical success." : ((hitChance >= 100 && critChance == 0) ? "Success." : ((hitChance > 0) ? "Depends on concealment roll." : "Failure."))) + "{/b}";
+                string description = text + __result.TooltipDescription[__result.TooltipDescription.IndexOf("\n\n")..];
+                __result = new CheckBreakdown(__result.TotalCheckBonus, __result.TotalDC, description, __result.Transformers, isSavingThrow: false, critMiss, miss, hit, critHit, __result.FortuneEffect)
+                {
+                    Keenified = __result.Keenified,
+                    GuaranteedNumber = __result.GuaranteedNumber,
+                    UsedBonus = __result.UsedBonus
+                };
             }
         }
     }
@@ -85,8 +84,20 @@ public static class IkonUnarmedPatch
     {
         if (unarmedStrike != null)
         {
-            Ikon.IkonLUT.Values.Where(ikon => ikon.UnarmedFeat != null && (wearer.PersistentCharacterSheet?.Calculated.HasFeat((FeatName)ikon.UnarmedFeat) ?? false) && ikon.ValidItem?.Invoke(unarmedStrike) == null)
-                .ForEach(ikon => unarmedStrike.WithModification(ikon.IkonModification));
+            var validIkons = Ikon.IkonLUT.Values.Where(ikon => ikon.ValidItem != null && ikon.ValidItem.Invoke(unarmedStrike) == null);
+            foreach(var ikon in validIkons)
+            {
+                if (!wearer.HeldItems.Concat(wearer.CarriedItems).Any(item => ikon.IsIkonItem(item)))
+                {
+                    unarmedStrike.WithModification(ikon.IkonModification);
+                }
+            }
+            Item? bestHandwraps = StrikeRules.GetBestHandwraps(wearer);
+            if (bestHandwraps != null)
+            {
+                bestHandwraps.ItemModifications.Where(mod => (mod.Tag as string)?.StartsWith("ikon") ?? false).ForEach(mod =>
+                        unarmedStrike.WithModification(mod));
+            }
         }
     }
 }

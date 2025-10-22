@@ -9,6 +9,7 @@ using Dawnsbury.Core.Mechanics.Core;
 using Dawnsbury.Core.Mechanics.Enumerations;
 using Dawnsbury.Core.Mechanics.Rules;
 using Dawnsbury.Core.Mechanics.Targeting;
+using Dawnsbury.Core.Mechanics.Treasure;
 using Dawnsbury.Core.Possibilities;
 using Dawnsbury.Core.Roller;
 using Dawnsbury.Display;
@@ -110,14 +111,13 @@ public class HandsOfTheWildling
                 }));
             }
         })
-        .WithWeaponUnarmedSubFeats(ExemplarFeats.HandsOfTheWildlingWeapon, ExemplarFeats.HandsOfTheWildlingUnarmed)
         .WithValidItem(item =>
         {
             if (item.WeaponProperties == null)
             {
                 return "Must be a weapon.";
             }
-            if (/*!item.HasTrait(Trait.FreeHand) || */item.HasTrait(Trait.Ranged) || !item.HasTrait(Trait.Unarmed))
+            if ((item.HasTrait(Trait.Ranged) || !item.HasTrait(Trait.Unarmed)) && item.ItemName != ItemName.HandwrapsOfMightyBlows)
             {
                 return "Must be a melee free-hand weapon or unarmed Strike.";
             }
