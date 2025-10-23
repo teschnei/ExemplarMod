@@ -235,7 +235,7 @@ static class IkonSelectionPatch
         //Warn if there are any unset ikons
         var equippedIkons = allItems.Where(i => i != null).SelectMany(i => i!.ItemModifications.Where(mod => mod.Kind == ItemModificationKind.CustomPermanent && ((mod.Tag as string)?.StartsWith("ikon") ?? false))).Select(mod => mod.Tag as string ?? "");
         var availableIkons = allIkons.Select(ikon => ikon.ModString);
-        if (equippedIkons.Intersect(availableIkons).Count() != availableIkons.Count())
+        if (equippedIkons.Intersect(availableIkons).Count() != availableIkons.Count() && allItems.Any(item => item != null))
         {
             Rectangle warning = new Rectangle(rect.Right - 80, rect.Top + (avoidDrawingFace ? 0 : 200), 80, 90);
             Writer.DrawString("{icon:RedWarning}", warning, Color.Red, null, Writer.TextAlignment.Right);
