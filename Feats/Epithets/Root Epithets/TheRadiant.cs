@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using Dawnsbury.Core;
 using Dawnsbury.Core.CharacterBuilder.Feats;
 using Dawnsbury.Core.CombatActions;
+using Dawnsbury.Core.Mechanics;
 using Dawnsbury.Core.Mechanics.Enumerations;
 using Dawnsbury.Core.Mechanics.Targeting;
 using Dawnsbury.Core.Mechanics.Targeting.TargetingRequirements;
@@ -41,6 +42,10 @@ public class TheRadiant
                 .WithEffectOnEachTarget(async (action, self, target, _) =>
                 {
                     await target.HealAsync($"{2 + (self.Level * 2)}", CombatAction.CreateSimple(self, "The Radiant", [Trait.Emotion, Trait.Mental]));
+                    target.AddQEffect(new QEffect()
+                    {
+                        Id = ExemplarQEffects.TheRadiantUsedOnTarget
+                    });
                 })
             )
         )
