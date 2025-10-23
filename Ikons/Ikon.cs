@@ -180,6 +180,10 @@ public class Ikon
 
     public static Possibility? CreateTranscendence(Func<Ikon, QEffect, Possibility?> transcendence, QEffect q, Ikon ikon)
     {
+        if (q.Owner.HasEffect(ExemplarQEffects.SparkedTranscendence))
+        {
+            return null;
+        }
         var poss = transcendence.Invoke(ikon, q);
         if (poss is ActionPossibility action)
         {
@@ -187,6 +191,10 @@ public class Ikon
             {
                 q.ExpiresAt = ExpirationCondition.Immediately;
                 q.Owner.FindQEffect(ExemplarQEffects.ShiftImmanence)!.Tag = ikon.IkonFeat;
+                q.Owner.AddQEffect(new QEffect()
+                {
+                    Id = ExemplarQEffects.SparkedTranscendence
+                }.WithExpirationAtStartOfOwnerTurn());
             });
         }
         else if (poss is SubmenuPossibility submenu)
@@ -201,6 +209,10 @@ public class Ikon
                         {
                             q.ExpiresAt = ExpirationCondition.Immediately;
                             q.Owner.FindQEffect(ExemplarQEffects.ShiftImmanence)!.Tag = ikon.IkonFeat;
+                            q.Owner.AddQEffect(new QEffect()
+                            {
+                                Id = ExemplarQEffects.SparkedTranscendence
+                            }.WithExpirationAtStartOfOwnerTurn());
                         });
                     }
                 }

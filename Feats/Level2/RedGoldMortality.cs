@@ -39,7 +39,7 @@ public class RedGoldMortality
                 {
                     q.AfterYouDealDamage = async (self, action, target) =>
                     {
-                        if (ikon.IsIkonItem(action.Item))
+                        if (ikon.IsIkonItem(action.Item) && target.HasEffect(ikon.EmpoweredQEffectId))
                         {
                             target.RemoveAllQEffects(q => q.Id == ExemplarQEffects.RedGoldMortality);
                             target.AddQEffect(new QEffect("Red-Gold Mortality", "The next time you recover Hit Points, your divine wound may absorb some of recovery.",

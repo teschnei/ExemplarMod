@@ -27,7 +27,7 @@ public class Starshot
             "{b}Immanence{/b} Strikes with the {i}starshot{/i} deal an additional 1 spirit splash damage per weapon damage die.\n\n" +
             $"{{b}}Transcendence — Giant-Felling Comet {RulesBlock.GetIconTextFromNumberOfActions(2)}{{/b}} (spirit, transcendence)\nYou shoot the {{i}}starshot{{/i}}, causing a detonation in a 5-foot burst within 60 feet. " +
             "Each creature in the area must succeed at a basic Reflex save against your class DC or take spirit damage equal to your normal Strike damage with the {i}starshot{/i}. " +
-            "Creatures larger than you take a -2 circumstance penalty to their saving throws. This shot requires any ammunition that would normally be required.",
+            "Creatures larger than you take a -2 circumstance penalty to their saving throws.",
             [ExemplarTraits.Ikon, ExemplarTraits.IkonWeapon],
             null
         ).WithIllustration(ExemplarIllustrations.Starshot), (ikon, q) =>
@@ -53,7 +53,7 @@ public class Starshot
                 ExemplarIllustrations.Starshot,
                 "Giant-Felling Comet",
                 [ExemplarTraits.Spirit, ExemplarTraits.Transcendence],
-                "You shoot the {i}starshot{/i}, causing a detonation in a 5-foot burst within 60 feet. Each creature in the area must succeed at a basic Reflex save against your class DC or take spirit damage equal to your normal Strike damage with the {i}starshot{/i}. Creatures larger than you take a -2 circumstance penalty to their saving throws. This shot requires any ammunition that would normally be required.",
+                "You shoot the {i}starshot{/i}, causing a detonation in a 5-foot burst within 60 feet. Each creature in the area must succeed at a basic Reflex save against your class DC or take spirit damage equal to your normal Strike damage with the {i}starshot{/i}. Creatures larger than you take a -2 circumstance penalty to their saving throws.",
                 Target.Burst(12, 1).WithAdditionalRequirementOnCaster(self =>
                 {
                     var starshot = Ikon.GetHeldIkon(q.Owner, ikon);

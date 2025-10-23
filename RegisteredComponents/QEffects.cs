@@ -7,6 +7,7 @@ namespace Dawnsbury.Mods.Classes.Exemplar.RegisteredComponents;
 public static class ExemplarQEffects
 {
     public static readonly QEffectId ShiftImmanence = ModManager.RegisterEnumMember<QEffectId>("ShiftImmanence");
+    public static readonly QEffectId SparkedTranscendence = ModManager.RegisterEnumMember<QEffectId>("SparkedTranscendence");
     //Any QEffect that should be removed when an Ikon loses empowerment
     public static readonly QEffectId IkonExpansion = ModManager.RegisterEnumMember<QEffectId>("IkonExpansion");
 
