@@ -3,6 +3,7 @@ using System.Linq;
 using Dawnsbury.Core;
 using Dawnsbury.Core.CharacterBuilder.Feats;
 using Dawnsbury.Core.CharacterBuilder.FeatsDb.Common;
+using Dawnsbury.Core.CombatActions;
 using Dawnsbury.Core.Mechanics;
 using Dawnsbury.Core.Mechanics.Core;
 using Dawnsbury.Core.Mechanics.Enumerations;
@@ -48,7 +49,7 @@ public class RedGoldMortality
                                 AdjustDiceFormulaForSelfHealing = (q, _, diceFormula) =>
                                 {
                                     q.ExpiresAt = ExpirationCondition.Immediately;
-                                    var checkResult = CommonSpellEffects.RollSavingThrow(q.Owner, action, Defense.Will, q.Owner.ClassDC());
+                                    var checkResult = CommonSpellEffects.RollSavingThrow(q.Owner, CombatAction.CreateSimple(action.Owner, "Red-Gold Mortality"), Defense.Will, q.Owner.ClassDC());
                                     switch (checkResult)
                                     {
                                         case CheckResult.Failure:
