@@ -2,11 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Dawnsbury.Auxiliary;
 using Dawnsbury.Campaign.Encounters;
 using Dawnsbury.Campaign.LongTerm;
 using Dawnsbury.Core.CharacterBuilder.Feats;
 using Dawnsbury.Core.Mechanics;
 using Dawnsbury.Core.Mechanics.Core;
+using Dawnsbury.Core.Mechanics.Treasure;
 using Dawnsbury.Display.Controls.Statblocks;
 using Dawnsbury.Modding;
 using Dawnsbury.Mods.Classes.Exemplar.Ikons;
@@ -54,6 +56,19 @@ public static class ExemplarClassLoader
         LongTermEffects.EasyRegister(ExemplarLongTermEffects.HornOfPlentyDailyElixir, LongTermEffectDuration.UntilLongRest, () => new QEffect()
         {
             Id = ExemplarQEffects.HornOfPlentyDailyElixir
+        });
+
+        ModManager.RegisterActionOnEachItem(item =>
+        {
+            item.WithAfterModifiedWithModification((item, mod) =>
+            {
+                if (mod.Kind == ItemModificationKind.CustomPermanent && ((mod.Tag as string)?.StartsWith("ikon") ?? false))
+                {
+                    var ikon = Ikon.IkonLUT.Values.Where(f => (mod.Tag as string)?.Contains(f.IkonFeat.FeatName.ToStringOrTechnical()) ?? false).FirstOrDefault();
+                    ikon?.ModifyItem?.Invoke(item);
+                }
+            });
+            return item;
         });
 
         //Implementation of "Twin" trait

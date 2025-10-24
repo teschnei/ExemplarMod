@@ -123,12 +123,17 @@ public class ShadowSheath
             q.Id = ExemplarQEffects.ShadowSheathItemStorage;
             q.StartOfCombat = async q =>
             {
+                bool twinStars = q.Owner.PersistentCharacterSheet?.Calculated.AllFeats.Any(f => f.FeatName.ToStringOrTechnical().Contains(ExemplarFeats.TwinStars.ToStringOrTechnical())) ?? false;
                 var ikonItem = Ikon.GetHeldIkon(q.Owner, ikon) ?? Ikon.GetWornIkon(q.Owner, ikon);
                 if (ikonItem != null)
                 {
                     q.Tag = ikonItem;
                     var item = ikonItem.Duplicate();
                     item.Traits.Add(Trait.HandEphemeral);
+                    if (twinStars)
+                    {
+                        item.Traits.Add(ExemplarTraits.Twin);
+                    }
                     if (q.Owner.CarriedItems.Remove(ikonItem))
                     {
                         q.Owner.CarriedItems.Add(item);
@@ -137,11 +142,18 @@ public class ShadowSheath
                     {
                         q.Owner.HeldItems.Add(item);
                     }
+                    if (twinStars && q.Owner.HeldItems.Count < 2)
+                    {
+                        var twinnedItem = ikonItem.Duplicate();
+                        twinnedItem.Traits.AddRange(Trait.HandEphemeral, ExemplarTraits.Twin);
+                        q.Owner.HeldItems.Add(twinnedItem);
+                    }
                 }
             };
             q.ProvideSectionIntoSubmenu = (q, submenu) =>
             {
-                if ((submenu.Caption == "Left hand" || submenu.Caption == "Right hand") && q.Tag is Item ikonItem)
+                bool twinStars = q.Owner.PersistentCharacterSheet?.Calculated.AllFeats.Any(f => f.FeatName.ToStringOrTechnical().Contains(ExemplarFeats.TwinStars.ToStringOrTechnical())) ?? false;
+                if (((submenu.Caption == "Left hand" && q.Owner.HeldItems.Count < 1) || (submenu.Caption == "Right hand" && q.Owner.HeldItems.Count < 2)) && q.Tag is Item ikonItem)
                 {
                     return new PossibilitySection("Shadow Sheath")
                     {
@@ -152,6 +164,10 @@ public class ShadowSheath
                                 {
                                     var item = ikonItem.Duplicate();
                                     item.Traits.Add(Trait.HandEphemeral);
+                                    if (twinStars)
+                                    {
+                                        item.Traits.Add(ExemplarTraits.Twin);
+                                    }
                                     self.HeldItems.Add(item);
                                 }))
                         ]

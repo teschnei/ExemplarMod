@@ -30,7 +30,8 @@ public class TwinStars
                 {
                     var item = creature.HeldItems.Where(item => ikon.IsIkonItem(item)).FirstOrDefault();
                     Item? twinnedItem = null;
-                    if (item != null)
+                    // If the item has shadow sheath at all (not necessarily this specific ikon), we'll handle it there instead
+                    if (item != null && !(item.ItemModifications.Any(mod => mod.Kind == ItemModificationKind.CustomPermanent && ((mod.Tag as string)?.Contains("ShadowSheath") ?? false))))
                     {
                         item.Traits.Add(ExemplarTraits.Twin);
                         twinnedItem = item.Duplicate();
@@ -47,7 +48,7 @@ public class TwinStars
                     else
                     {
                         item = creature.CarriedItems.Where(item => ikon.IsIkonItem(item)).FirstOrDefault();
-                        if (item != null)
+                        if (item != null && !(item.ItemModifications.Any(mod => mod.Kind == ItemModificationKind.CustomPermanent && ((mod.Tag as string)?.Contains("ShadowSheath") ?? false))))
                         {
                             item.Traits.Add(ExemplarTraits.Twin);
                             twinnedItem = item.Duplicate();

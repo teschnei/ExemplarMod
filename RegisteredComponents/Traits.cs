@@ -44,7 +44,10 @@ public static class ExemplarTraits
     public static readonly Trait DominionEpithet = ModManager.RegisterTrait("DominionEpithet", new TraitProperties("Dominion Epithet", false));
 
     //Misc traits that don't exist in DD
-    public static readonly Trait Twin = ModManager.RegisterTrait("Twin", new TraitProperties("Twin", true, "Add a circumstance bonus to the damage roll equal to the weapon’s number of damage dice if you have previously attacked with a different weapon of the same type this turn."));
+    public static readonly Trait Twin = ModManager.RegisterTrait("Twin", new TraitProperties("Twin", true, "Add a circumstance bonus to the damage roll equal to the weapon’s number of damage dice if you have previously attacked with a different weapon of the same type this turn.")
+            {
+                RelevantForItemBlock = true
+            });
     public static readonly Trait Spirit = ModManager.TryParse<Trait>("Spirit", out var spirit) ? spirit : Trait.Force;
 }
 
