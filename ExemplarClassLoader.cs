@@ -65,6 +65,7 @@ public static class ExemplarClassLoader
                 if (mod.Kind == ItemModificationKind.CustomPermanent && ((mod.Tag as string)?.StartsWith("ikon") ?? false))
                 {
                     var ikon = Ikon.IkonLUT.Values.Where(f => (mod.Tag as string)?.Contains(f.IkonFeat.FeatName.ToStringOrTechnical()) ?? false).FirstOrDefault();
+                    mod.ModifyItem = ikon?.ModifyItem;
                     ikon?.ModifyItem?.Invoke(item);
                 }
             });
