@@ -93,7 +93,7 @@ public class TitansBreaker
         },
         (ikon, q) =>
         {
-            var breaker = Ikon.GetHeldIkon(q.Owner, ikon)!;
+            var breaker = ikon.GetHeldIkon(q.Owner)!;
             var action = new CombatAction(
                 q.Owner,
                 ExemplarIllustrations.TitansBreaker,
@@ -103,7 +103,7 @@ public class TitansBreaker
                 "when calculating your multiple attack penalty. If this Strike hits, your additional spirit damage from the ikon's immanence increases to 4 plus " +
                 "an extra die of weapon damage. If you're at least 10th level, it's increased to 6 spirit damage and two extra dice, and if you're at least 18th level " +
                 "it's increased to 8 spirit damage and three extra dice.",
-                Target.Reach(Ikon.GetHeldIkon(q.Owner, ikon)!).WithAdditionalConditionOnTargetCreature(new IkonWieldedTargetingRequirement(ikon, "titan's breaker"))
+                Target.Reach(ikon.GetHeldIkon(q.Owner)!).WithAdditionalConditionOnTargetCreature(new IkonWieldedTargetingRequirement(ikon, "titan's breaker"))
             )
             .WithActionCost(2)
             .WithEffectOnChosenTargets(async (action, self, targets) =>

@@ -43,7 +43,7 @@ public class SteelOnSteel
                 {
                     q.ProvideMainAction = q =>
                     {
-                        var ikonItem = Ikon.GetHeldIkon(q.Owner, ikon);
+                        var ikonItem = ikon.GetHeldIkon(q.Owner);
                         return q.Owner.HasEffect(ikon.EmpoweredQEffectId) && (ikonItem != null && ((ikonItem.WeaponProperties != null && !ikonItem.HasTrait(Trait.Ranged)) || (ikonItem.HasTrait(Trait.Shield)))) ?
                             Ikon.CreateTranscendence((ikon, q) =>
                                 new SubmenuPossibility(IllustrationName.SteelShield, "Ringing Challenge")

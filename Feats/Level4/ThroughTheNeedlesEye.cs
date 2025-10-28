@@ -74,7 +74,7 @@ public class ThroughTheNeedlesEye
                 {
                     q.ProvideMainAction = q =>
                     {
-                        var ikonItem = Ikon.GetHeldIkon(q.Owner, ikon);
+                        var ikonItem = ikon.GetHeldIkon(q.Owner);
                         if (q.Owner.HasEffect(ikon.EmpoweredQEffectId) && ikonItem != null)
                         {
                             var ranged = ikonItem.HasTrait(Trait.Ranged);

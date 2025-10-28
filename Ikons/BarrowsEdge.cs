@@ -59,7 +59,7 @@ public class BarrowsEdge
                 "Your blade glows as it absorbs your foe's vitality. You regain Hit Points equal to half the damage dealt.",
                 Target.Self().WithAdditionalRestriction(self =>
                 {
-                    var barrow = Ikon.GetHeldIkon(q.Owner, ikon);
+                    var barrow = ikon.GetHeldIkon(q.Owner);
                     if (barrow == null)
                     {
                         return "You must be wielding the {i}barrow's edge{/i}.";

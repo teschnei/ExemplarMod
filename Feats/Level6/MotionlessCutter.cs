@@ -37,7 +37,7 @@ public class MotionlessCutter
                 {
                     q.ProvideMainAction = q =>
                     {
-                        var ikonItem = Ikon.GetHeldIkon(q.Owner, ikon);
+                        var ikonItem = ikon.GetHeldIkon(q.Owner);
                         if (ikonItem != null)
                         {
                             var strike = q.Owner.CreateStrike(ikonItem, q.Owner.Actions.AttackedThisManyTimesThisTurn, new StrikeModifiers { ReplacementDamageKind = DamageKind.Slashing }).WithActionCost(0);

@@ -45,10 +45,10 @@ public class SkybearersBelt
             null
         ).WithIllustration(ExemplarIllustrations.SkybearersBelt), (ikon, q) =>
         {
-            q.BonusToAttackRolls = (q, action, target) => Ikon.GetWornIkon(q.Owner, ikon) != null &&
+            q.BonusToAttackRolls = (q, action, target) => ikon.GetWornIkon(q.Owner) != null &&
                 (action.ActionId == ActionId.Disarm || action.ActionId == ActionId.Grapple || action.ActionId == ActionId.Shove || action.ActionId == ActionId.Trip) ?
                     new Bonus(1, BonusType.Circumstance, "Skybearer's Belt", true) : null;
-            q.BonusToDefenses = (q, action, defense) => Ikon.GetWornIkon(q.Owner, ikon) != null &&
+            q.BonusToDefenses = (q, action, defense) => ikon.GetWornIkon(q.Owner) != null &&
                 (action?.ActionId == ActionId.Disarm || action?.ActionId == ActionId.Grapple || action?.ActionId == ActionId.Shove || action?.ActionId == ActionId.Trip) ?
                     new Bonus(1, BonusType.Circumstance, "Skybearer's Belt", true) : null;
         }, (ikon, q) =>
@@ -65,7 +65,7 @@ public class SkybearersBelt
                     Squares = cr.Speed
                 }).WithAdditionalTargetingRequirement((self, _) =>
                 {
-                    if (Ikon.GetWornIkon(self, ikon) == null)
+                    if (ikon.GetWornIkon(self) == null)
                     {
                         return Usability.NotUsable("You must be wearing the Skybearer's Belt");
                     }

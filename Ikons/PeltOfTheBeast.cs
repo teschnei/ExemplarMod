@@ -85,7 +85,7 @@ public class PeltOfTheBeast
         {
             q.StateCheck = (qe) =>
             {
-                var pelt = Ikon.GetWornIkon(qe.Owner, ikon);
+                var pelt = ikon.GetWornIkon(qe.Owner);
                 var peltq = qe.Owner.FindQEffect(ExemplarQEffects.PeltOfTheBeastAttunement);
                 if (pelt != null && peltq != null && peltq.Tag is ValueTuple<DamageKind, Trait> tag)
                 {
@@ -104,7 +104,7 @@ public class PeltOfTheBeast
                     "+2 circumstance bonus to AC and saving throws against effects with that trait.",
                     Target.Self().WithAdditionalRestriction(self =>
                     {
-                        if (Ikon.GetWornIkon(self, ikon) == null)
+                        if (ikon.GetWornIkon(self) == null)
                         {
                             return "You must be wearing the pelt of the beast.";
                         }

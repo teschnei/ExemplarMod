@@ -37,7 +37,7 @@ public class ThousandLeagueSandals
             null
         ).WithIllustration(ExemplarIllustrations.ThousandLeagueSandals), (ikon, q) =>
         {
-            q.BonusToAllSpeeds = qe => Ikon.GetWornIkon(qe.Owner, ikon) != null ? new Bonus(2, BonusType.Circumstance, "Thousand League Sandals") : null;
+            q.BonusToAllSpeeds = qe => ikon.GetWornIkon(qe.Owner) != null ? new Bonus(2, BonusType.Circumstance, "Thousand League Sandals") : null;
         }, (ikon, q) =>
         {
             return new ActionPossibility(new CombatAction(
@@ -48,7 +48,7 @@ public class ThousandLeagueSandals
                 "Your feet carry you so quickly they leave a slipstream that speeds your allies on. You Stride. Each ally within 10 feet of you at the start of your movement can Stride as a reaction.",
                 Target.Self().WithAdditionalRestriction(self =>
                 {
-                    if (Ikon.GetWornIkon(self, ikon) == null)
+                    if (ikon.GetWornIkon(self) == null)
                     {
                         return "You must be wearing the Thousand League Sandals";
                     }

@@ -35,7 +35,7 @@ public class MirroredAegis
             {
                 qe.BonusToDefenses = (qe, action, defense) =>
                 {
-                    var aegis = Ikon.GetHeldIkon(q.Owner, ikon);
+                    var aegis = ikon.GetHeldIkon(q.Owner);
                     if (aegis != null && qe.Owner.DistanceTo(q.Owner) <= 3 && defense == Defense.AC)
                     {
                         return new Bonus(1, BonusType.Status, "Mirrored Aegis", true);
@@ -54,7 +54,7 @@ public class MirroredAegis
                 "You raise the {i}mirrored aegis{/i}, which summons ethereal shields that surround you and one ally of your choice within 15 feet in a tortoise shield formation. You and the ally gain a +1 status bonus to AC, Reflex saves, and any save against a force, spirit, vitality, or void effect for 1 minute.",
                 Target.RangedFriend(3).WithAdditionalConditionOnTargetCreature((self, target) =>
                 {
-                    var aegis = Ikon.GetHeldIkon(q.Owner, ikon);
+                    var aegis = ikon.GetHeldIkon(q.Owner);
                     if (aegis == null)
                     {
                         return Usability.NotUsable("You must be wielding the mirrored aegis.");

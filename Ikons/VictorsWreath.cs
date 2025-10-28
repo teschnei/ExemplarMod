@@ -45,7 +45,7 @@ public class VictorsWreath
             {
                 qe.BonusToAttackRolls = (qe, action, target) =>
                 {
-                    var wreath = Ikon.GetWornIkon(q.Owner, ikon);
+                    var wreath = ikon.GetWornIkon(q.Owner);
                     if (wreath != null && qe.Owner.DistanceTo(q.Owner) <= 3 && action.HasTrait(Trait.Attack))
                     {
                         return new Bonus(1, BonusType.Status, "Victor's Wreath", true);
@@ -65,7 +65,7 @@ public class VictorsWreath
                 "even if that effect would not normally allow a new saving throw.",
                 Target.Self().WithAdditionalRestriction(self =>
                 {
-                    if (Ikon.GetWornIkon(self, ikon) == null)
+                    if (ikon.GetWornIkon(self) == null)
                     {
                         return "You must be wearing the Victor's Wreath";
                     }

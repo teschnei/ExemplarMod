@@ -41,7 +41,7 @@ public class BindingSerpentsCelestialArrow
                 {
                     q.ProvideMainAction = q =>
                     {
-                        var ikonItem = Ikon.GetHeldIkon(q.Owner, ikon);
+                        var ikonItem = ikon.GetHeldIkon(q.Owner);
                         if (ikonItem != null)
                         {
                             bool flag = ikonItem.HasTrait(Trait.Ranged);

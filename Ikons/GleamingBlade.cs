@@ -43,7 +43,7 @@ public class GleamingBlade
         },
         (ikon, q) =>
         {
-            var ikonItem = Ikon.GetHeldIkon(q.Owner, ikon);
+            var ikonItem = ikon.GetHeldIkon(q.Owner);
             var action = new CombatAction(
                 q.Owner,
                 ExemplarIllustrations.GleamingBlade,

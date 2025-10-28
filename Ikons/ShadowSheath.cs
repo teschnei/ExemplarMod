@@ -124,7 +124,7 @@ public class ShadowSheath
             q.StartOfCombat = async q =>
             {
                 bool twinStars = q.Owner.PersistentCharacterSheet?.Calculated.AllFeats.Any(f => f.FeatName.ToStringOrTechnical().Contains(ExemplarFeats.TwinStars.ToStringOrTechnical())) ?? false;
-                var ikonItem = Ikon.GetHeldIkon(q.Owner, ikon) ?? Ikon.GetWornIkon(q.Owner, ikon);
+                var ikonItem = ikon.GetIkon(q.Owner);
                 if (ikonItem != null)
                 {
                     q.Tag = ikonItem;
@@ -134,13 +134,13 @@ public class ShadowSheath
                     {
                         item.Traits.Add(ExemplarTraits.Twin);
                     }
-                    if (q.Owner.CarriedItems.Remove(ikonItem))
-                    {
-                        q.Owner.CarriedItems.Add(item);
-                    }
-                    else if (q.Owner.HeldItems.Remove(ikonItem))
+                    if (q.Owner.HeldItems.Remove(ikonItem))
                     {
                         q.Owner.HeldItems.Add(item);
+                    }
+                    else
+                    {
+                        q.Owner.CarriedItems.Remove(ikonItem);
                     }
                     if (twinStars && q.Owner.HeldItems.Count < 2)
                     {

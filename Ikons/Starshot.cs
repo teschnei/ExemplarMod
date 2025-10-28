@@ -56,7 +56,7 @@ public class Starshot
                 "You shoot the {i}starshot{/i}, causing a detonation in a 5-foot burst within 60 feet. Each creature in the area must succeed at a basic Reflex save against your class DC or take spirit damage equal to your normal Strike damage with the {i}starshot{/i}. Creatures larger than you take a -2 circumstance penalty to their saving throws.",
                 Target.Burst(12, 1).WithAdditionalRequirementOnCaster(self =>
                 {
-                    var starshot = Ikon.GetHeldIkon(q.Owner, ikon);
+                    var starshot = ikon.GetHeldIkon(q.Owner);
                     if (starshot == null)
                     {
                         return Usability.NotUsable("You must be wielding the {i}starshot{/i}.");
@@ -73,7 +73,7 @@ public class Starshot
             .WithSavingThrow(new SavingThrow(Defense.Reflex, q.Owner.ClassDC()))
             .WithEffectOnChosenTargets(async (action, self, targets) =>
             {
-                var starshot = Ikon.GetHeldIkon(self, ikon);
+                var starshot = ikon.GetHeldIkon(self);
                 var strike = StrikeRules.CreateStrike(self, starshot!, RangeKind.Ranged, 0);
                 foreach (var target in targets.GetAllTargetCreatures())
                 {

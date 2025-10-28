@@ -138,8 +138,9 @@ public class Ikon
     }
 
     public bool IsIkonItem(Item? item) => item?.ItemModifications.Any(mod => mod.Kind == ItemModificationKind.CustomPermanent && ((mod.Tag as string) == ModString)) ?? false;
-    public static Item? GetHeldIkon(Creature exemplar, Ikon ikon) => exemplar.HeldItems.Where(item => ikon.IsIkonItem(item)).FirstOrDefault() ?? (ikon.IsIkonItem(exemplar.UnarmedStrike) ? exemplar.UnarmedStrike : null);
-    public static Item? GetWornIkon(Creature exemplar, Ikon ikon) => exemplar.CarriedItems.Where(item => item.HasTrait(Trait.Worn) && ikon.IsIkonItem(item)).FirstOrDefault();
+    public Item? GetHeldIkon(Creature exemplar) => exemplar.HeldItems.Where(item => IsIkonItem(item)).FirstOrDefault() ?? (IsIkonItem(exemplar.UnarmedStrike) ? exemplar.UnarmedStrike : null);
+    public Item? GetIkon(Creature exemplar) => GetHeldIkon(exemplar) ?? exemplar.CarriedItems.Where(item => IsIkonItem(item)).FirstOrDefault();
+    public Item? GetWornIkon(Creature exemplar) => exemplar.CarriedItems.Where(item => item.HasTrait(Trait.Worn) && IsIkonItem(item)).FirstOrDefault();
 
     public static DamageKind GetBestDamageKindForSpark(Creature exemplar, Creature target)
     {
@@ -259,7 +260,7 @@ public class IkonWieldedTargetingRequirement : CreatureTargetingRequirement
 
     public override Usability Satisfied(Creature source, Creature target)
     {
-        if (Ikon.GetHeldIkon(source, Ikon) == null)
+        if (Ikon.GetHeldIkon(source) == null)
         {
             return Usability.NotUsable($"You must be wielding the {{i}}{IkonName}{{/i}}.");
         }

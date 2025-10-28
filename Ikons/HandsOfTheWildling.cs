@@ -73,7 +73,7 @@ public class HandsOfTheWildling
                     (abandon ? " Swinging with abandon imposes a -2 circumstance bonus to enemies' saving throws, but causes you to become off-guard until the start of your next turn." : ""),
                     Target.Cone(3).WithAdditionalRequirementOnCaster(caster =>
                     {
-                        var hands = Ikon.GetHeldIkon(q.Owner, ikon);
+                        var hands = ikon.GetHeldIkon(q.Owner);
                         if (hands == null)
                         {
                             return Usability.NotUsable("You must be wielding the {i}hands of the wildling{/i}");
@@ -85,7 +85,7 @@ public class HandsOfTheWildling
                 .WithSavingThrow(new SavingThrow(Defense.Reflex, q.Owner.ClassDC()))
                 .WithEffectOnChosenTargets(async (action, self, targets) =>
                 {
-                    var hands = Ikon.GetHeldIkon(self, ikon);
+                    var hands = ikon.GetHeldIkon(self);
                     var penalty = new QEffect("Hands of the Wildling penalty", "", ExpirationCondition.Never, self)
                     {
                         BonusToDefenses = (q, penaltyAction, defense) => defense == Defense.Reflex && penaltyAction == action ? new Bonus(-2, BonusType.Circumstance, "Hands of the Wildling (with abandon)") : null

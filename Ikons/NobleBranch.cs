@@ -47,7 +47,7 @@ public class NobleBranch
         },
         (ikon, q) =>
         {
-            var heldIkon = Ikon.GetHeldIkon(q.Owner, ikon);
+            var heldIkon = ikon.GetHeldIkon(q.Owner);
             var lastAction = q.Owner.Actions.ActionHistoryThisTurn.LastOrDefault();
             var lastIkon = ikon.IsIkonItem(lastAction?.Item) ? lastAction?.Item : null;
             return new ActionPossibility(new CombatAction(
