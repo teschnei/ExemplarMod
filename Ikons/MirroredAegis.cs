@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Dawnsbury.Core;
 using Dawnsbury.Core.CharacterBuilder.Feats;
+using Dawnsbury.Core.CharacterBuilder.FeatsDb.TrueFeatDb;
 using Dawnsbury.Core.CombatActions;
 using Dawnsbury.Core.Creatures;
 using Dawnsbury.Core.Mechanics;
@@ -26,7 +27,7 @@ public class MirroredAegis
             "{b}Usage{/b} any shield\n\n" +
             "{b}Immanence{/b} The {i}mirrored aegis{/i} emits an aura in a 15-foot emanation that protects you and all allies in the aura from harm, granting a +1 status bonus to AC.\n\n" +
             $"{{b}}Transcendence — Raise the Walls {RulesBlock.GetIconTextFromNumberOfActions(1)}{{/b}} (force, transcendence)\n" +
-            "You raise the {i}mirrored aegis{/i}, which summons ethereal shields that surround you and one ally of your choice within 15 feet in a tortoise shield formation. You and the ally gain a +1 status bonus to AC, Reflex saves, and any save against a force, spirit, vitality, or void effect for 1 minute.",
+            "You Raise the {i}mirrored aegis{/i}, which summons ethereal shields that surround you and one ally of your choice within 15 feet in a tortoise shield formation. You and the ally gain a +1 status bonus to AC, Reflex saves, and any save against a force, spirit, vitality, or void effect for 1 minute.",
             [ExemplarTraits.Ikon, ExemplarTraits.IkonWorn],
             null
         ).WithIllustration(ExemplarIllustrations.MirroredAegis), (ikon, q) =>
@@ -51,7 +52,7 @@ public class MirroredAegis
                 ExemplarIllustrations.MirroredAegis,
                 "Raise the Walls",
                 [ExemplarTraits.Transcendence],
-                "You raise the {i}mirrored aegis{/i}, which summons ethereal shields that surround you and one ally of your choice within 15 feet in a tortoise shield formation. You and the ally gain a +1 status bonus to AC, Reflex saves, and any save against a force, spirit, vitality, or void effect for 1 minute.",
+                "You Raise the {i}mirrored aegis{/i}, which summons ethereal shields that surround you and one ally of your choice within 15 feet in a tortoise shield formation. You and the ally gain a +1 status bonus to AC, Reflex saves, and any save against a force, spirit, vitality, or void effect for 1 minute.",
                 Target.RangedFriend(3).WithAdditionalConditionOnTargetCreature((self, target) =>
                 {
                     var aegis = ikon.GetHeldIkon(q.Owner);
@@ -66,6 +67,7 @@ public class MirroredAegis
             {
                 void ApplyShield(Creature cr)
                 {
+                    cr.RemoveAllQEffects(q => q.Id == ExemplarQEffects.RaiseTheWalls && q.Source == self);
                     cr.AddQEffect(new QEffect("Raise the Walls", "Ethereal shields from a mirrored aegis protect you, granting you a +1 status bonus to AC, Reflex saves, and any save against a force, spirit, vitality, or void effect.", ExpirationCondition.Never, q.Owner, ExemplarIllustrations.MirroredAegis)
                     {
                         Id = ExemplarQEffects.RaiseTheWalls,
@@ -77,15 +79,13 @@ public class MirroredAegis
                     });
                 }
 
-                foreach (var creature in self.Battle.AllCreatures)
-                {
-                    creature.RemoveAllQEffects(q => q.Id == ExemplarQEffects.RaiseTheWalls && q.Source == self);
-                }
                 ApplyShield(self);
                 if (targets.ChosenCreature != null && targets.ChosenCreature != self)
                 {
                     ApplyShield(targets.ChosenCreature);
                 }
+                var raiseShield = ((ActionPossibility)Fighter.CreateRaiseShield(self, ikon.GetHeldIkon(q.Owner)!)).CombatAction.WithActionCost(0);
+                await raiseShield.AllExecute();
             }));
         })
         .WithValidItem(item =>
