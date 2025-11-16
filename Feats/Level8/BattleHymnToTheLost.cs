@@ -112,10 +112,12 @@ public class BattleHymnToTheLost
                             {
                                 var targetPoint = (targets.ChosenCreature.Occupies.ToCenterVector() - self.Occupies.ToCenterVector()) + targets.ChosenCreature.Occupies.ToCenterVector();
                                 var coneTiles = Areas.DetermineTiles(new ConeAreaTarget(6, (_, _) => float.MinValue), targets.ChosenCreature.Occupies, targetPoint).TargetedTiles;
+                                List<Creature> affected = new();
                                 foreach (var tile in coneTiles)
                                 {
-                                    if (tile.PrimaryOccupant != null)
+                                    if (tile.PrimaryOccupant != null && !affected.Contains(tile.PrimaryOccupant))
                                     {
+                                        affected.Add(tile.PrimaryOccupant);
                                         await Apply(tile.PrimaryOccupant);
                                     }
                                 }
@@ -126,10 +128,12 @@ public class BattleHymnToTheLost
                                 var target = new EmanationTarget(2, true);
                                 target.SetOwnerAction(dummyAction);
                                 var tiles = Areas.DetermineTiles(target).TargetedTiles;
+                                List<Creature> affected = new();
                                 foreach (var tile in tiles)
                                 {
-                                    if (tile.PrimaryOccupant != null)
+                                    if (tile.PrimaryOccupant != null && !affected.Contains(tile.PrimaryOccupant))
                                     {
+                                        affected.Add(tile.PrimaryOccupant);
                                         await Apply(tile.PrimaryOccupant);
                                     }
                                 }
