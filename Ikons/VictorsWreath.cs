@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Linq;
-using Dawnsbury.Auxiliary;
 using Dawnsbury.Core;
 using Dawnsbury.Core.CharacterBuilder.Feats;
 using Dawnsbury.Core.CharacterBuilder.FeatsDb.Common;
@@ -94,10 +93,26 @@ public class VictorsWreath
                     }
                     else
                     {
-                        var persistentEffect = ally.QEffects.Where(q => q.Key?.StartsWith("PersistentDamage") ?? false).FirstOrDefault();
-                        if (persistentEffect != null)
+                        var confused = ally.FindQEffect(QEffectId.Confused);
+                        if (confused != null)
                         {
-                            persistentEffect.RollPersistentDamageRecoveryCheck(false);
+                            CommonConditionEffects.RollAgainstConfusion(ally, confused);
+                        }
+                        else
+                        {
+                            var sickened = ally.FindQEffect(QEffectId.Sickened);
+                            if (sickened != null)
+                            {
+                                CommonConditionEffects.RollAgainstSickened(ally, sickened);
+                            }
+                            else
+                            {
+                                var persistentEffect = ally.QEffects.Where(q => q.Key?.StartsWith("PersistentDamage") ?? false).FirstOrDefault();
+                                if (persistentEffect != null)
+                                {
+                                    persistentEffect.RollPersistentDamageRecoveryCheck(false);
+                                }
+                            }
                         }
                     }
                 }
