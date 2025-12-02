@@ -4,10 +4,11 @@
         to this constant in source code to build different binaries for different versions of Dawnsbury Days. -->
         <DefineConstants>V3</DefineConstants>
         <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+        <EnableDynamicLoading>true</EnableDynamicLoading>
     </PropertyGroup>
     <PropertyGroup>
         <!-- All mods must have this target framework, platform and platform target.-->
-        <TargetFramework>net9.0-windows</TargetFramework>
+        <TargetFramework>net10.0-windows</TargetFramework>
         <Platform>x64</Platform>
         <PlatformTarget>x64</PlatformTarget>
         <Nullable>enable</Nullable>
@@ -19,16 +20,34 @@
         <WarningsAsErrors>0618</WarningsAsErrors> <!-- Makes the "You're using obsolete stuff." warning into an error so that you're aware when Dawnsbury Days code is going to be changed. -->
     </PropertyGroup>
     <ItemGroup>
-        <Reference Include="/home/juna/.steam/steam/steamapps/common/Dawnsbury Days/Data/Dawnsbury Days.dll" />
-        <Reference Include="/home/juna/.steam/steam/steamapps/common/Dawnsbury Days/Data/Common.dll" />
-        <Reference Include="/home/juna/.steam/steam/steamapps/common/Dawnsbury Days/Data/MonoGame.Framework.dll" />
-        <Reference Include="/home/juna/.steam/steam/steamapps/common/Dawnsbury Days/Data/Humanizer.dll" />
-        <Reference Include="/home/juna/.steam/steam/steamapps/workshop/content/2693730/3577287156/CustomMods/SpiritDamage.dll" />
+        <Reference Include="/home/juna/.steam/steam/steamapps/common/Dawnsbury Days/Data/Dawnsbury Days.dll">
+            <Private>false</Private>
+            <ExcludeAssets>runtime</ExcludeAssets>
+        </Reference>
+        <Reference Include="/home/juna/.steam/steam/steamapps/common/Dawnsbury Days/Data/Common.dll">
+            <Private>false</Private>
+            <ExcludeAssets>runtime</ExcludeAssets>
+        </Reference>
+        <Reference Include="/home/juna/.steam/steam/steamapps/common/Dawnsbury Days/Data/MonoGame.Framework.dll">
+            <Private>false</Private>
+            <ExcludeAssets>runtime</ExcludeAssets>
+        </Reference>
+        <Reference Include="/home/juna/.steam/steam/steamapps/common/Dawnsbury Days/Data/Humanizer.dll">
+            <Private>false</Private>
+            <ExcludeAssets>runtime</ExcludeAssets>
+        </Reference>
+        <Reference Include="/home/juna/.steam/steam/steamapps/workshop/content/2693730/3577287156/CustomMods/SpiritDamage.dll">
+            <Private>false</Private>
+            <ExcludeAssets>runtime</ExcludeAssets>
+        </Reference>
     </ItemGroup>
     <ItemGroup>
-      <PackageReference Include="lib.harmony" Version="2.3.6" />
+      <PackageReference Include="lib.harmony" Version="2.4.2" />
     </ItemGroup>
     <Target Name="CopyToGameModsFolder" AfterTargets="Build">
-        <Copy SourceFiles="$(TargetPath)" DestinationFolder="/home/juna/.steam/steam/steamapps/common/Dawnsbury Days/CustomMods/" />
+        <ItemGroup>
+            <TargetFiles Include="$(TargetDir)*"/>
+        </ItemGroup>
+        <Copy SourceFiles="@(TargetFiles)" DestinationFolder="/home/juna/.steam/steam/steamapps/common/Dawnsbury Days/CustomMods/" />
     </Target>
 </Project>
