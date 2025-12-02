@@ -14,6 +14,7 @@ using Dawnsbury.Core.Mechanics.Treasure;
 using Dawnsbury.Core.Possibilities;
 using Dawnsbury.Core.Roller;
 using Dawnsbury.Display;
+using Dawnsbury.Modding;
 using Dawnsbury.Mods.Classes.Exemplar.RegisteredComponents;
 using static Dawnsbury.Mods.Classes.Exemplar.ExemplarClassLoader;
 
@@ -100,11 +101,15 @@ public class NobleBranch
         })
         .WithValidItem(item =>
         {
+            bool tryKhakkhara = ModManager.TryParse<ItemName>("Khakkhara", out var khakkhara);
+            bool tryBoStaff = ModManager.TryParse<ItemName>("BoStaff", out var boStaff);
+            bool tryFightingStick = ModManager.TryParse<ItemName>("FightingStick", out var fightingStick);
             if (item.WeaponProperties == null)
             {
                 return "Must be a weapon.";
             }
-            if ((!item.HasTrait(Trait.Staff)) && (!item.HasTrait(Trait.Spear)) && (!item.HasTrait(Trait.Polearm)))
+            if ((!item.HasTrait(Trait.Staff)) && (!item.HasTrait(Trait.Spear)) && (!item.HasTrait(Trait.Polearm)) &&
+                 !(tryKhakkhara && item.BaseItemName == khakkhara) && !(tryBoStaff && item.BaseItemName == boStaff) && !(tryFightingStick && item.BaseItemName == fightingStick))
             {
                 return "Must be a staff, bo staff, fighting stick, khakkara, or any weapon in the spear or polearm weapon group";
             }
