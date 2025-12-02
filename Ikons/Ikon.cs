@@ -71,7 +71,17 @@ public class Ikon
         IkonFeat = ikon;
         Immanence = immanence;
         Transcendence = transcendence;
-        ModifyItem = item => item.Traits.AddRange(Trait.Divine, ExemplarTraits.Ikon);
+        ModifyItem = item => 
+        {
+            if (!item.Traits.Contains(Trait.Divine))
+            {
+                item.Traits.Add(Trait.Divine);
+            }
+            if (!item.Traits.Contains(ExemplarTraits.Ikon))
+            {
+                item.Traits.Add(ExemplarTraits.Ikon);
+            }
+        };
         EmpoweredQEffectId = ModManager.RegisterEnumMember<QEffectId>($"Empowered{ikon.FeatName.ToString()}");
 
         IkonFeat.FeatGroup = IkonFeat.Traits switch

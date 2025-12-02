@@ -21,6 +21,15 @@ using Microsoft.Xna.Framework;
 
 namespace Dawnsbury.Mods.Classes.Exemplar;
 
+public static class Patches
+{
+    public static void PatchAll()
+    {
+        var harmony = new Harmony("junabell.dawnsburydays.exemplar");
+        harmony.PatchAll();
+    }
+}
+
 [HarmonyPatch(typeof(CombatActionExecution), nameof(CombatActionExecution.DetermineGuaranteedRollNumber))]
 public static class UnfailingBowPatch
 {

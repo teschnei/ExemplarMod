@@ -56,25 +56,28 @@ public class OfVerseUnbroken
                         {
                             bool used = true;
                             var actions = Possibilities.Create(cr).Filter(ap => ap.CombatAction.HasTrait(Trait.SustainASpell));
-                            actions.Sections.Add(new PossibilitySection("Pass")
+                            if (actions.ActionCount > 0)
                             {
-                                Possibilities = [new ActionPossibility(new CombatAction(cr, IllustrationName.EndTurn, "Pass", [
-                                    Trait.Basic,
-                                    Trait.UsableEvenWhenUnconsciousOrParalyzed,
-                                    Trait.DoesNotPreventDelay
-                                ], "Do nothing.", Target.Self()).WithActionCost(0).WithEffectOnChosenTargets(async (_, _, _) => used = false))]
-                            });
-                            cr.Possibilities = actions;
-                            var options = await cr.Battle.GameLoop.CreateActions(cr, cr.Possibilities, null);
-                            cr.Battle.GameLoopCallback.AfterActiveCreaturePossibilitiesRegenerated();
-                            await cr.Battle.GameLoop.OfferOptions(cr, options, true);
-                            if (used)
-                            {
-                                qe.ExpiresAt = ExpirationCondition.Immediately;
-                                cr.AddQEffect(new QEffect()
+                                actions.Sections.Add(new PossibilitySection("Pass")
                                 {
-                                    Id = ExemplarQEffects.OfVerseUnbrokenUsedOnTarget
+                                    Possibilities = [new ActionPossibility(new CombatAction(cr, IllustrationName.EndTurn, "Pass", [
+                                        Trait.Basic,
+                                        Trait.UsableEvenWhenUnconsciousOrParalyzed,
+                                        Trait.DoesNotPreventDelay
+                                    ], "Don't make use of Of Verse Unbroken.", Target.Self()).WithActionCost(0).WithEffectOnChosenTargets(async (_, _, _) => used = false))]
                                 });
+                                cr.Possibilities = actions;
+                                var options = await cr.Battle.GameLoop.CreateActions(cr, cr.Possibilities, null);
+                                cr.Battle.GameLoopCallback.AfterActiveCreaturePossibilitiesRegenerated();
+                                await cr.Battle.GameLoop.OfferOptions(cr, options, true);
+                                if (used)
+                                {
+                                    qe.ExpiresAt = ExpirationCondition.Immediately;
+                                    cr.AddQEffect(new QEffect()
+                                    {
+                                        Id = ExemplarQEffects.OfVerseUnbrokenUsedOnTarget
+                                    });
+                                }
                             }
                         }
                     };

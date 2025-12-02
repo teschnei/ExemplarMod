@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Dawnsbury.Auxiliary;
 using Dawnsbury.Campaign.Encounters;
 using Dawnsbury.Campaign.LongTerm;
 using Dawnsbury.Core.CharacterBuilder.Feats;
@@ -13,7 +12,6 @@ using Dawnsbury.Display.Controls.Statblocks;
 using Dawnsbury.Modding;
 using Dawnsbury.Mods.Classes.Exemplar.Ikons;
 using Dawnsbury.Mods.Classes.Exemplar.RegisteredComponents;
-using HarmonyLib;
 
 namespace Dawnsbury.Mods.Classes.Exemplar;
 
@@ -131,8 +129,6 @@ public static class ExemplarClassLoader
                 )
             )
         );
-
-        var harmony = new Harmony("junabell.dawnsburydays.exemplar");
-        harmony.PatchAll();
+        Patches.PatchAll();
     }
 }
