@@ -55,7 +55,12 @@ public class OfVerseUnbroken
                         if (cr.FriendOf(qe.Owner) && !cr.HasEffect(ExemplarQEffects.OfVerseUnbrokenUsedOnTarget))
                         {
                             bool used = true;
-                            var actions = Possibilities.Create(cr).Filter(ap => ap.CombatAction.HasTrait(Trait.SustainASpell));
+                            var actions = Possibilities.Create(cr).Filter(ap =>
+                            {
+                                ap.CombatAction.WithActionCost(0);
+                                ap.RecalculateUsability();
+                                return ap.CombatAction.HasTrait(Trait.SustainASpell);
+                            });
                             if (actions.ActionCount > 0)
                             {
                                 actions.Sections.Add(new PossibilitySection("Pass")
